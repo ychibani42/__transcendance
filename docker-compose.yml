@@ -35,7 +35,14 @@ services:
     ports:
       - '3000:3000'
       - '5555:5555'
-
+  front:
+    build:
+      context: ./srcs/frontend      # Emplacement de Dockerfile
+    restart: always        # Connexion au même réseau que la base de donnée
+    volumes:
+      - ./srcs/frontend/nextjs:/frontend
+    ports:
+      - 9000:3000
 volumes:
   postgres:
 
