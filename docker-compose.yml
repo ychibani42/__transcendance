@@ -1,0 +1,43 @@
+# docker compose qui run la base de donnee PostgreSQL
+
+version: '3.8'
+services:
+  postgres: #rajouter un health check
+    image: postgres:13.5          # image existante provenant de dockerHub
+    container_name: postgres
+    restart: always
+    env_file:
+      - ./srcs/back-end/prisma/.env
+    volumes:
+      - postgres:/var/lib/postgresql/data     # Volumes pour permettre de garder les data dans notre host systeme
+    networks:
+      - trancendance-backend 
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      timeout: 20s
+      retries: 10
+  nest:
+    env_file:
+      - .env
+    build:
+      target: development
+      context: ./srcs/back-end      # Emplacement de Dockerfile
+    restart: always
+    depends_on: #voir le service healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./srcs/back-end:/usr/src/app
+    networks:
+      - trancendance-backend          # Connexion au même réseau que la base de donnée
+    ports:
+      - '3000:3000'
+      - '5555:5555'
+
+volumes:
+  postgres:
+
+networks:
+  trancendance-backend:
