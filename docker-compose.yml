@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data     # Volumes pour permettre de garder les data dans notre host systeme
     networks:
-      - trancendance-backend 
+      - backend 
     ports:
       - "5432:5432"
     healthcheck:
@@ -31,7 +31,7 @@ services:
     volumes:
       - ./srcs/back-end:/usr/src/app
     networks:
-      - trancendance-backend          # Connexion au même réseau que la base de donnée
+      - backend          # Connexion au même réseau que la base de donnée
     ports:
       - '3000:3000'
       - '5555:5555'
@@ -42,9 +42,9 @@ services:
     volumes:
       - ./srcs/frontend/nextjs:/frontend
     ports:
-      - 9000:3000
+      - '9000:3000'
 volumes:
   postgres:
 
 networks:
-  trancendance-backend:
+  backend:
