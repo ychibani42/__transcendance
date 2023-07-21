@@ -10,15 +10,13 @@ export class AuthService {
 		private jwtService: JwtService) {
 	}
 
-	async signIn(userName : string, password: string): Promise<any> {
-		const user = await this.userService.findOne(userName);
-
-		console.log(user);
+	async signIn(username : string, password: string): Promise<any> {
+		const user = await this.userService.findOne(username);
 		if (user === undefined)
-			throw new NotFoundException;
+			throw new NotFoundException('User not found');
 		if (user?.password !== password)
-			throw new UnauthorizedException;
-		const payload = {sub: user.userId, username: user.userName}
+			throw new UnauthorizedException('Wrong Password');
+		const payload = {sub: user.userId, username: user.username}
 		return {
 			access_token: await this.jwtService.signAsync(payload),
 		}
