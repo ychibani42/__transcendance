@@ -1,13 +1,17 @@
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { UserService } from "src/user/user.service";
+import { AuthDto } from "./dto";
+import { PrismaService } from "src/prisma/prisma.service";
+import * as argon from 'argon2';
 
 @Injectable({})
 
 export class AuthService {
 	constructor (
 		private userService: UserService,
-		private jwtService: JwtService) {
+		private jwtService: JwtService,
+		private prismaService: PrismaService) {
 	}
 
 	async signIn(username : string, password: string): Promise<any> {
@@ -20,5 +24,21 @@ export class AuthService {
 		return {
 			access_token: await this.jwtService.signAsync(payload),
 		}
+	}
+	async signUp(dto: AuthDto) {
+		console.log("1");
+		/* Create hash password */
+		const hash = await argon.hash(dto.password);
+		/* Save user into prisma */
+		console.log(`The hashed password is ${hash}`);
+		console.log("hash = " + hash);
+		const user = await this.prismaService.user.create({
+			data: {
+				name: dto.username,
+				hash_passwd: hash
+			},
+		});
+		/* return user */
+		return user;
 	}
 }
