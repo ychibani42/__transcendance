@@ -3,7 +3,7 @@ npm install
 # Install nodemon and ts-node as dev dependencies
 npm install --save-dev nodemon ts-node
 
-# This line updates all the dependencies defined in the package.json file 
+# updates all the dependencies defined in the package.json file 
 npm update
 
 # Generate database 

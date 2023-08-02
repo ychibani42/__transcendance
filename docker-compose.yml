@@ -34,7 +34,7 @@ services:
       - backend          # Connexion au même réseau que la base de donnée
     ports:
       - '3000:3000'
-      - '5555:5555'
+      - '5555:5555'   # npx prisma studio
   vite:
     build:
       context: ./srcs/front-end
