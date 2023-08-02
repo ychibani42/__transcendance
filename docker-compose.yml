@@ -35,6 +35,18 @@ services:
     ports:
       - '3000:3000'
       - '5555:5555'
+  vite:
+    build:
+      context: ./srcs/front-end
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    container_name: vue
+    volumes:
+      - ./srcs/front-end:/usr/src/app/
+    networks:
+      - backend
+
 volumes:
   postgres:
 
