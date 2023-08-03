@@ -3,7 +3,7 @@
 version: '3.8'
 services:
   postgres: #rajouter un health check
-    image: postgres:13.5          # image existante provenant de dockerHub
+    image: postgres:latest       # image existante provenant de dockerHub
     container_name: postgres
     restart: always
     env_file:
@@ -15,10 +15,11 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -d transcendance -U myuser"]
       timeout: 20s
       retries: 10
   nest:
+    container_name: nestjs
     env_file:
       - .env
     build:
@@ -31,7 +32,7 @@ services:
     volumes:
       - ./srcs/back-end:/usr/src/app
     networks:
-      - backend          # Connexion au même réseau que la base de donnée
+      - backend       # Connexion au même réseau que la base de donnée
     ports:
       - '3000:3000'
       - '5555:5555'   # npx prisma studio
@@ -39,9 +40,8 @@ services:
     build:
       context: ./srcs/front-end
       dockerfile: Dockerfile
-    ports:
-      - "5173:5173"
     container_name: vue
+    restart: on-failure
     volumes:
       - ./srcs/front-end:/usr/src/app/
     networks:
