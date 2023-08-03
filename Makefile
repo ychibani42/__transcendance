@@ -12,6 +12,8 @@
 
 COMPOSE	= docker compose -f ./docker-compose.yml
 
+DOCKER = docker compose
+
 _END=$'\e[0m
 _BOLD=$'\e[1m
 _UNDER=$'\e[4m
@@ -42,52 +44,49 @@ all:
 help:
 		@echo "\n"
 		@echo "---------------------------------------------------------------------------------"
-		@echo "-${_PURPLE} make		  ${_END}-> build the image from Dockerfile + create + start containers"
-		@echo "-${_PURPLE} make build ${_END}-> build the image from Dockerfile"
-		@echo "-${_PURPLE} make up	 ${_END} -> create + start containers"
-		@echo "-${_PURPLE} make ps	 ${_END} -> display containers state"
-		@echo "-${_PURPLE} make ps logs	  ${_END}-> display containers state + logs"
-		@echo "-${_PURPLE} make start/stop ${_END}-> start or stop containers"
-		@echo "-${_PURPLE} make down	  ${_END}-> stop and remove containers"
-		@echo "-${_PURPLE} make restart	  ${_END}-> stop + up"
-		@echo "-${_PURPLE} make prune	  ${_END}-> erase docker volumes"
-		@echo "-${_PURPLE} make re	  ${_END}-> down + prune + build + up\n"
+		@echo "-${_CYAN} make		  	   ${_END}-> build the image from Dockerfile + create + start containers"
+		@echo "-${_CYAN} make build 	   ${_END}-> build the image from Dockerfile"
+		@echo "-${_CYAN} make up	 	   ${_END}-> create + start containers"
+		@echo "-${_CYAN} make ps	 	   ${_END}-> display containers state"
+		@echo "-${_CYAN} make ps logs	   ${_END}-> display containers state + logs"
+		@echo "-${_CYAN} make start/stop   ${_END}-> start or stop containers"
+		@echo "-${_CYAN} make down	   	   ${_END}-> stop and remove containers"
+		@echo "-${_CYAN} make restart	   ${_END}-> stop + up"
+		@echo "-${_CYAN} make prune	  	   ${_END}-> erase docker volumes"
+		@echo "-${_CYAN} make re	  	   ${_END}-> down + prune + build + up\n"
 		@echo "---------------------------------------------------------------------------------\n"
 
+#build the image from Dockerfile
 build:
 	$(COMPOSE) build
-#build the image from Dockerfile
 
+#give containers info
+info:
+	docker info | head -n 20
+
+#builds images even when asked to up the containers
 up:
 	$(COMPOSE) up -d
-#create and start containers
 
-start:
-	$(COMPOSE) start
-#start all the containers
 
-ps logs:
-	$(COMPOSE) $@
-
+#stop the containers
 down:
-	$(COMPOSE) down
-#stop and remove containers
+	$(COMPOSE) down || true
 
-stop:
-	$(COMPOSE) stop
 #stop the containers
 
-clean:
-	$(COMPOSE)
+stop:
+	$(COMPOSE) stop || true
 
-fclean:
-	docker system prune -af
+#clean everything
+fclean: 
+	$(COMPOSE) down || true
+	docker rmi -f $(docker images -aq) 2>dev/null || true
+	docker network rm $$(docker network ls -q) 2>/dev/null || true
+	docker volume rm -f $$(docker volume ls -q) || true
+	docker volume prune -af || true
+	docker system prune -af || true
 
-restart: stop build up
+re: fclean all
 
-prune:
-	docker volume prune --force
-
-re: down prune build up
-
-.PHONY: build up start ps logs down stop restart prune re
+.PHONY: build up logs down stop re
