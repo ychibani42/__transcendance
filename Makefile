@@ -42,19 +42,17 @@ all:
 	make up
 
 help:
-		@echo "\n"
-		@echo "---------------------------------------------------------------------------------"
-		@echo "-${_CYAN} make		  	   ${_END}-> build the image from Dockerfile + create + start containers"
-		@echo "-${_CYAN} make build 	   ${_END}-> build the image from Dockerfile"
+		@echo "------------------------------------------------------------------------------------------------"
+		@echo "-${_CYAN} make		  	   ${_END}-> build the images, create and start containers"
+		@echo "-${_CYAN} make build 	   	   ${_END}-> build the images"
 		@echo "-${_CYAN} make up	 	   ${_END}-> create + start containers"
-		@echo "-${_CYAN} make ps	 	   ${_END}-> display containers state"
-		@echo "-${_CYAN} make ps logs	   ${_END}-> display containers state + logs"
-		@echo "-${_CYAN} make start/stop   ${_END}-> start or stop containers"
+		@echo "-${_CYAN} make info		   ${_END}-> get status of dockers process"
+		@echo "-${_CYAN} make ps	 	   ${_END}-> display containers info with ports, names and id"
+		@echo "-${_CYAN} make stop	           ${_END}-> stop containers"
 		@echo "-${_CYAN} make down	   	   ${_END}-> stop and remove containers"
-		@echo "-${_CYAN} make restart	   ${_END}-> stop + up"
-		@echo "-${_CYAN} make prune	  	   ${_END}-> erase docker volumes"
-		@echo "-${_CYAN} make re	  	   ${_END}-> down + prune + build + up\n"
-		@echo "---------------------------------------------------------------------------------\n"
+		@echo "-${_CYAN} make fclean		   ${_END}-> down containers and remove images, volume, networks and clean every containers previously"
+		@echo "-${_CYAN} make re	  	   ${_END}-> make fclean + make all\n"
+		@echo "-----------------------------------------------------------------------------------------------"
 
 #build the image from Dockerfile
 build:
@@ -74,9 +72,23 @@ down:
 	$(COMPOSE) down || true
 
 #stop the containers
-
 stop:
 	$(COMPOSE) stop || true
+
+ps:
+	docker ps -a
+
+postgres:
+	docker exec -it postgres bash
+
+nestjs:
+	docker exec -it nestjs sh
+
+vue:
+	docker exec -it vue bash
+
+logs:
+	$(COMPOSE) logs
 
 #clean everything
 fclean: 

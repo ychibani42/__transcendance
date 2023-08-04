@@ -46,6 +46,8 @@ services:
       - ./srcs/front-end:/usr/src/app/
     networks:
       - backend
+    ports:
+      - '5173:5173'
 
 volumes:
   postgres:
