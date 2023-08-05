@@ -1,44 +1,92 @@
-<template>
-  <div>
-    <h1>User Information</h1>
-    <div v-if="loading">Loading...</div>
-    <div v-else>
-      <p>Name: {{ access_token }}</p>
-      <!-- Add other user properties as needed -->
-    </div>
-  </div>
-</template>
+<script setup>
+import { io } from 'socket.io-client';
+import { onBeforeMount, ref } from 'vue';
 
-<script>
 
-import axios from 'axios';
 
-export default {
-  data() {
-    return {
-      access_token: null,
-	  loading: true
-    }
-  },
-  created() {
-    // Fetch the user when the component is created
-    this.fetchUser()
-  },
-  methods: {
-    async fetchUser() {
-      try {
-        const response = await axios.post(`http://localhost:3000/auth/signIn/`, {
-			username: 'bob',
-			password: 'bob123',
-		});
-        this.access_token = response.data.access_token;
-		this.loading = false;
-      } catch (error) {
-        console.error('Error fetching user:', error);
-		this.loading = false;
-      }
-    },
-  },
-};
+const socket = io('http://localhost:3000');
+const messages = ref([]);
+const messageText = ref('');
+const joined = ref(false);
+const name = ref('');
+const typingDisplay = ref('');
+
+onBeforeMount(() => {
+	socket.emit('findAllMessages', {}, (response) => {
+		messages.value = response;
+	});
+
+	socket.on('message', (message) => {
+		messages.value.push(message);
+	});
+
+	socket.on('typing', ({name, isTyping}) => {
+		if (isTyping)
+			typingDisplay.value = `${name} is typing...`;
+		else
+			typingDisplay.value = '';
+	});
+
+});
+
+
+const join = () => {
+	socket.emit('join', { name: name.value }, () => {
+		joined.value = true;
+	});
+}
+
+
+const sendMessage = () => {
+	socket.emit('CreateMessage', { text: messageText.value }, response => {
+		messageText.value = '';
+	});
+}
+
+let timeout;
+
+const emitTyping = () => {
+	socket.emit('typing', { isTyping: true });
+	timeout = setTimeout(() => {
+		socket.emit('typing', { isTyping: false });
+	}, 2000);
+}
+
 
 </script>
+
+<template>
+	<div class="chat">
+		<div v-if="!joined">
+			<form @submit.prevent="join">
+				<label>What's your name ?</label>
+				<input v-model="name"/>
+				<button type="submit">Send</button>
+			</form>
+		</div>
+		
+		<div class="chat-container" v-else>
+			<div class="messages-container">
+				<div v-for="message in messages">
+					[{{ message.name }}]: {{ message.text }}
+				</div>
+			</div>
+		</div>
+
+		<div v-if="typingDisplay">{{ typingDisplay }}</div>
+
+
+		<div class="message-input">
+			<form @submit.prevent="sendMessage">
+				<label>write something:</label>
+				<input v-model="messageText" @input="emitTyping" />
+				<button type="submit">Send</button>
+			</form>
+		</div>
+
+	</div>
+</template>
+
+
+<style>
+</style>
