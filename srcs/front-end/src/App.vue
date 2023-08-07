@@ -20,11 +20,12 @@ onBeforeMount(() => {
 		messages.value.push(message);
 	});
 
-	socket.on('typing', ({name, isTyping}) => {
-		if (isTyping)
+	socket.on('typing', ({ name, isTyping }) => {
+		if (isTyping) {
 			typingDisplay.value = `${name} is typing...`;
-		else
+		} else {
 			typingDisplay.value = '';
+		}
 	});
 
 });
@@ -38,8 +39,8 @@ const join = () => {
 
 
 const sendMessage = () => {
-	socket.emit('CreateMessage', { text: messageText.value }, response => {
-		messageText.value = '';
+	socket.emit('createMessage', { text: messageText.value }, response => {
+		messageText.value = 'coucou';
 	});
 }
 
@@ -59,7 +60,7 @@ const emitTyping = () => {
 	<div class="chat">
 		<div v-if="!joined">
 			<form @submit.prevent="join">
-				<label>What's your name ?</label>
+				<label>What's your name ? </label>
 				<input v-model="name"/>
 				<button type="submit">Send</button>
 			</form>
@@ -78,7 +79,7 @@ const emitTyping = () => {
 
 		<div class="message-input">
 			<form @submit.prevent="sendMessage">
-				<label>write something:</label>
+				<label>write something: </label>
 				<input v-model="messageText" @input="emitTyping" />
 				<button type="submit">Send</button>
 			</form>

@@ -7,8 +7,11 @@ export class MessagesService {
 	messages: Message[] = [{ name: 'Marius', text: 'lol' }]; // a recuperer dans la db
 							/* name --> qui a ecrit le message | text --> le message */
 	clientToUser: { [key: string]: string } = { clientId: 'coucou' }; // meme chose
-	async create(createMessageDto: CreateMessageDto) {
-		const message = { ...createMessageDto };
+	async create(createMessageDto: CreateMessageDto, clientId: string) {
+		const message = {
+			name: this.clientToUser[clientId],
+			text: createMessageDto.text,
+		};
 		this.messages.push(message);
 		return message;
 	}
