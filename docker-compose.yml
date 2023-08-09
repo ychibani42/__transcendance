@@ -44,6 +44,7 @@ services:
     restart: on-failure
     volumes:
       - ./srcs/front-end:/usr/src/app/
+      - /usr/src/app/node_modules
     networks:
       - backend
     ports:
