@@ -1,44 +1,60 @@
 <template>
-  <div>
-    <h1>User Information</h1>
-    <div v-if="loading">Loading...</div>
-    <div v-else>
-      <p>Name: {{ access_token }}</p>
-      <!-- Add other user properties as needed -->
-    </div>
+  <div class="app">
+ 
+    <router-view/>   
+    <SideBar />
+
   </div>
 </template>
 
-<script>
 
-import axios from 'axios';
 
-export default {
-  data() {
-    return {
-      access_token: null,
-	  loading: true
-    }
-  },
-  created() {
-    // Fetch the user when the component is created
-    this.fetchUser()
-  },
-  methods: {
-    async fetchUser() {
-      try {
-        const response = await axios.post(`http://localhost:3000/auth/signIn/`, {
-			username: 'bob',
-			password: 'bob123',
-		});
-        this.access_token = response.data.access_token;
-		this.loading = false;
-      } catch (error) {
-        console.error('Error fetching user:', error);
-		this.loading = false;
-      }
-    },
-  },
-};
+<script lang="ts" setup>
+
+import SideBar from './components/SideBar.vue';
 
 </script>
+
+<style lang="scss">
+
+nav a.router-link-exact-active {
+  color: #42b983;
+}
+
+:root {
+  --primary: #4ade80;
+  --grey: #64748b;
+  --dark: #1e293b;
+  --darkalt: #334155;
+  --light: #f1f5f9;
+  --sidebar-width: 300px;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Fira sans', sans-serif;
+}
+
+button {
+  cursor: pointer;
+  appearance: none;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+.app {
+  display: flex;
+  text-align: center;
+
+  main {
+    flex: 1 1 0;
+    padding: 2rem;
+    @media (max-width: 768px) {
+      padding-left: 6rem;
+    }
+  }
+}
+</style>
