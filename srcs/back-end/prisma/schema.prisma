@@ -42,8 +42,8 @@ model Article {
 
 // model message
 // {
-	// model User
-	// heure Int "heure du message"
+// 	model User
+// 	heure Int "heure du message"
 // }
 
 // model Chat {

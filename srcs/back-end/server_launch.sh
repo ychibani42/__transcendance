@@ -16,5 +16,4 @@ npx prisma migrate dev
 npx prisma db push
 
 # Give permissions to use xdg open for prisma studio
-
 npm run start:dev

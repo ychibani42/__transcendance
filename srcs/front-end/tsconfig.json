@@ -12,7 +12,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-
+	"paths": {
+		"@/*":[
+			"./*"
+		]
+	},
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
