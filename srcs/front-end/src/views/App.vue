@@ -1,11 +1,11 @@
 <template>
 import
   <nav>
-    <router-link to="/chat">ChatView</router-link> |
+    <router-link to="/chat">Chat</router-link> |
   </nav>
   <router-view></router-view>
-  <button @click="backward">BACK IN THE BLACK</button>
-  <button @click="forward">EN AVANT TOUTE</button>
+  <button @click="backward">Retour</button>
+  <button @click="forward">Avant</button>
 </template>
 
 <script>
