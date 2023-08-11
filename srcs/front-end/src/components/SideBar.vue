@@ -12,14 +12,12 @@
 			<router-link to="/profile" class="button">
 				<span class="material-icons">person</span>
 			</router-link>
-			<router-link to="/about" class="button">
-				<span class="material-icons">description</span>
-			</router-link>
 			<router-link to="/chat" class="button">
 				<span class="material-icons">chat</span>
 			</router-link>
 			<button class="material-icons">+
 				<h6>add a friend</h6>
+				<UserList />
 			</button>
 
 		</div>
@@ -29,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-
+import UserList from './UserList.vue'
 </script>
 
 <style lang="scss" scoped>
@@ -125,6 +123,7 @@ aside {
 				}
 			}
 		}
+
 	}
 
 

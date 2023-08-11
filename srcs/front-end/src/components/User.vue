@@ -25,7 +25,7 @@ export default {
       try {
         const response = await axios.post(`http://localhost:3000/auth/signIn/`, {
 		    username: 'bob',
-		  	password: 'bob123',
+		  	// password: 'bob123',
 		});
         this.access_token = response.data.access_token;
 		    this.loading = false;
@@ -37,7 +37,7 @@ export default {
     mounted(){
       axios.get(`http://localhost:3000/auth/signIn/`)
       .then(res => {
-        console.log(res.data)
+        console.log(res.data.data)
         this.user = res.data
       })
       .catch(err => console.log(err))

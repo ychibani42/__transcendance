@@ -18,12 +18,12 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #cec0c0;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.5s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #7c3636;
 }
 button:focus,
 button:focus-visible {
@@ -35,7 +35,7 @@ button:focus-visible {
 }
 
 #app {
-  max-width: 1280px;
+  /* max-width: 1280px; */
   margin: 0 auto;
   text-align: center;
 }

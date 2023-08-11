@@ -1,22 +1,24 @@
 
 <template>
+    
     <div class="profile">
       <img src="../assets/logo.png" class="default">
-      <header>{{name}}</header>
-      <p>Edit Avatar: <input type="file" class="avatar" @change="editImage"></p>
-      <p>Edit Name: <input type="text" class="name" @change="editName"></p>
-  
-        <span > {{ def }}</span>
-    <!-- //  <User /> -->
+      <h1>{{ name }}</h1>
+      <p>Edit Avatar: <input type="file" class="avatar" @change="editImage"> </p>
+      <p>Edit Name: <input type="text" class="name" @change="editName"></p> 
+
+      <User />
     </div>
   </template>
   
 <script lang="ts">
+
+
 export default {
   data () {
     return {
      def: null,
-     name: 'Tea'
+     name: 'Name'
     }
   },
   methods: {
@@ -32,41 +34,36 @@ export default {
       this.$el.querySelector(".name").value = "";
     }
   }
-}
-//import User from '../components/User.vue';
-// export default {
-//   data(){
-//     return {
-//       id: ''
-//     }
-//   },
-//   methods: {
-//   getId(event) {
-//     this.id = event.target.value;
-//     console.log(this.id);
-//     //.innerHTML = x;
-//     }
-//   }
-// }
+};
+
+
 </script>
 
-  <style scoped>
+<style lang="scss" scoped>
   
-  .profile {
-    margin: 0 400px 0;
+.profile{
+  text-align: center;
+  h1{
+    padding:5px;
+  }
+  input[type="text"] {
+      width:200px;
+      height:30px;
+      border-radius:5px;
+      background-color: lightblue;
+      margin-left:2px;
   }
 
-  p {
-    margin: 10px 20px 0;
-    text-align: left;
-  }
+    p {
+      margin: 0 300px;
+      text-align:left;
+      padding:10px;
+      font-family:AR CENA;
+      font-size:20px;
 
-  .name {
-    margin: 0 90px;
-  }
-
-  img {
-    margin: 4rem 0 0;
+    }
+  .default {
+    margin:50px 400px 0;
     width: 42;
     height: 1;
     border: 2px solid;
@@ -74,5 +71,6 @@ export default {
     border-color: black;
     background-color: rgb(118, 150, 180);
 
+    }
   }
   </style>
