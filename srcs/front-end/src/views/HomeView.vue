@@ -20,6 +20,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+
+
 button {
   margin: 100px 0 0;
   font-size: 30px;
@@ -39,11 +41,6 @@ p {
   list-style-type: none;
   padding: 0.5rem;
 }
-h1 {
-  padding: 2rem 0rem 5rem;
-}
 
-.hello {
-  margin: 5rem 14rem;
-}
+
 </style>

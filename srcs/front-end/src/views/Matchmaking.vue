@@ -5,8 +5,6 @@
   </template>
   
   <style lang="scss" scoped>
-  .matchmaking {
-    margin: 5rem 20rem;
-  }
+
   </style>
   

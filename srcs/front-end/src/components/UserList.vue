@@ -1,9 +1,12 @@
 <template>
     
-   <input v-model="username" list="users">
-       <datalist id="users">
-            <option v-for="username in users" :key="username.id">{{username.username}}</option>
-        </datalist>
+   <!-- <input v-model="username" list="users"> -->
+     <form id="add a friend">
+        <select name="add a friend">
+            <option value="">add a friend</option>
+            <option v-for="username in users" :key="username.id">{{username.username}}</option>  
+        </select>    
+    </form>
 </template>
 
 <script lang="ts">

@@ -6,7 +6,5 @@
 </template>
 
 <style scoped>
-.chat {
-  margin: 0 300px 0;
-}
+
 </style>

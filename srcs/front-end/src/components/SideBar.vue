@@ -15,9 +15,11 @@
 			<router-link to="/chat" class="button">
 				<span class="material-icons">chat</span>
 			</router-link>
-			<button class="material-icons">+
-				<h6>add a friend</h6>
-				<UserList />
+			<button class="material-icons">
+ 	      		 <select name="add a friend">
+           			 <option>Add</option>
+           			 <option v-for="username in users" :key="username.id">{{username.username}}</option>  
+     		   </select>    
 			</button>
 
 		</div>
@@ -26,11 +28,23 @@
 	</aside>
 </template>
 
-<script lang="ts" setup>
-import UserList from './UserList.vue'
+<script lang="ts">
+export default{
+    name: 'UserList',
+    data() {
+        return {
+            username: '',
+            users: [
+                {username:'eder', id:1},
+                {username:'tea', id:2},
+                {username: 'yassine', id:3},
+            ]
+        }
+    }
+}
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 aside {
 	display: flex;
 	flex-direction: column;
@@ -71,19 +85,32 @@ aside {
 		text-transform: uppercase;
 	}
 
+	
 	button.material-icons {
-		font-size: 0.875rem;
-		color: var(--light);
-		transition: 0.2s ease-in-out;
-		h6{
-			margin: 0.5rem 0.2rem;
-		}
-		&:hover {
-				background-color: var(--dark-alt);
-				color: var(--primary);
-				border: 1px solid #f7f8f7;
-				border-radius: 4px;
+		padding: 1rem 0;
+		select {
+			margin: 1px;
+			width: 50px;
+			height: 50px;
+			color: var(--light);
+			background-color: var(--dark);
+			option h6{
+				font-size: 0.5rem;
 			}
+				&:hover {
+							color: var(--primary);
+							border: 1px solid #f7f8f7;
+							border-radius: 4px;
+						}
+			option {
+
+				font-size: 1rem;
+				color: var(--light);
+				background-color: var(--dark);
+				transition: 0.2s ease-in-out;
+	
+			}
+		}
 	}
 	.menu {
 		margin: 0 -1rem;
@@ -129,7 +156,7 @@ aside {
 
 
 
-	@media (max-width: 1024px) {
+	@media (max-width: 2048px) {
 		position: absolute;
 		z-index: 99;
 	}

@@ -2,9 +2,9 @@
   <div class="app">
  
     <router-view/>   
-    <SideBar />
-
+  
   </div>
+  <SideBar />
 </template>
 
 
@@ -46,5 +46,11 @@ button {
 .app {
   display: flex;
 
-}
+  @media (max-width: 2048px) {
+      top: 15%;
+      left: 35%;
+      position: absolute;
+    }
+  }
+
 </style>

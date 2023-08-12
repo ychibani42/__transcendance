@@ -42,7 +42,7 @@ export default {
 <style lang="scss" scoped>
   
 .profile{
-  text-align: center;
+
   h1{
     padding:5px;
   }
@@ -55,7 +55,7 @@ export default {
   }
 
     p {
-      margin: 0 300px;
+      // margin: 0 300px;
       text-align:left;
       padding:10px;
       font-family:AR CENA;
@@ -63,7 +63,7 @@ export default {
 
     }
   .default {
-    margin:50px 400px 0;
+    // margin:50px 400px 0;
     width: 42;
     height: 1;
     border: 2px solid;
@@ -72,5 +72,6 @@ export default {
     background-color: rgb(118, 150, 180);
 
     }
+
   }
   </style>
