@@ -29,7 +29,7 @@
     "@nestjs/platform-socket.io": "^10.1.3",
     "@nestjs/swagger": "^7.1.2",
     "@nestjs/websockets": "^10.0.0",
-    "@prisma/client": "^4.13.0",
+    "@prisma/client": "^4.16.2",
     "@types/passport-jwt": "^3.0.9",
     "argon2": "^0.30.3",
     "class-transformer": "^0.5.1",

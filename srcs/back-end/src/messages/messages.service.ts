@@ -1,19 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from './entities/message.entity';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MessagesService {
+	constructor(private prismaService: PrismaService) {}
 	messages: Message[] = [{ name: 'Marius', text: 'lol' }]; // a recuperer dans la db
-							/* name --> qui a ecrit le message | text --> le message */
-	clientToUser: { [key: string]: string } = { clientId: 'coucou' }; // meme chose
+	/* name --> qui a ecrit le message | text --> le message */
+	clientToUser: { [key: string]: string } = { clientId: 'ID' }; // meme chose
 	async create(createMessageDto: CreateMessageDto, clientId: string) {
-		const message = {
-			name: this.clientToUser[clientId],
-			text: createMessageDto.text,
-		};
-		this.messages.push(message);
-		return message;
+		try {
+			console.log('in the server: ' + 'client id : ', clientId);
+			this.prismaService.message.update({
+				data: {
+					name: this.clientToUser[clientId],
+					text: createMessageDto.text,
+				},
+			})
+		} catch (error) {
+			throw error;
+		}
+		// return this.prismaService.message.findAll();
 	}
 
 	findAll() {

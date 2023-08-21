@@ -14,6 +14,7 @@ import { Server, Socket } from 'socket.io';
 		origin: '*',
 	},
 })
+
 export class MessagesGateway {
 	@WebSocketServer()
 	server: Server;

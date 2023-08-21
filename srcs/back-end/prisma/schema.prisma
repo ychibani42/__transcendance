@@ -17,7 +17,6 @@ datasource db {
 }
 
 model	User {
-
 		id Int	@id @unique @default(autoincrement())	// @id est un attribut qui configure le champ id comme etant une cle primaire c'est a dire que il n'y aura pas de doublon de ce champ la et qu'en plus, de faire en sorte que chaque user soit unique
 		name String @unique 					// nom de l'utisateur unique
 
@@ -25,6 +24,7 @@ model	User {
 		updateAt DateTime  @updatedAt 			// updatedAt update automatiquement la date de creation
 		
 		hash_passwd String
+		messages Message[]
 		// Bien evidement il manque des champs mais on les rajoutera au fur et a mesure de l'avance
 }
 
@@ -37,6 +37,15 @@ model Article {
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  text String
+  name String
+  author User @relation(fields: [authorId], references: [id])
+  authorId Int
 }
 
 

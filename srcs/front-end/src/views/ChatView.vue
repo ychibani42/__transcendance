@@ -2,8 +2,6 @@
 import { io } from 'socket.io-client';
 import { onBeforeMount, ref } from 'vue';
 
-
-
 const socket = io('http://localhost:3000');
 const messages = ref([]);
 const messageText = ref('');
