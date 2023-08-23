@@ -6,18 +6,17 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class MessagesService {
 	constructor(private prismaService: PrismaService) {}
+
 	messages: Message[] = [{ name: 'Marius', text: 'lol' }]; // a recuperer dans la db
 	/* name --> qui a ecrit le message | text --> le message */
+
 	clientToUser: { [key: string]: string } = { clientId: 'ID' }; // meme chose
 	async create(createMessageDto: CreateMessageDto, clientId: string) {
 		try {
 			console.log('in the server: ' + 'client id : ', clientId);
 			this.prismaService.message.update({
-				data: {
-					name: this.clientToUser[clientId],
-					text: createMessageDto.text,
-				},
-			})
+				where 
+			});
 		} catch (error) {
 			throw error;
 		}

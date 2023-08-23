@@ -1,16 +1,10 @@
 npm install
 
-# Install nodemon and ts-node as dev dependencies
-npm install --save-dev nodemon ts-node
-
-# updates all the dependencies defined in the package.json file 
-npm update
-
 # Generate database 
 npx prisma generate
 
 # Update database migration 
-npx prisma migrate dev
+npx prisma migrate dev --name db-migration
 
 # Push to database last changes
 npx prisma db push
