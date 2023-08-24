@@ -34,7 +34,6 @@ const join = () => {
 	});
 }
 
-
 const sendMessage = () => {
 	name.value = 'Yassine';
 	console.log(name.value);

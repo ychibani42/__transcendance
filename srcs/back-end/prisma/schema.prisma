@@ -31,7 +31,7 @@ model Channel {
   userId    Int
   id   Int     @id @unique @default(autoincrement())
   user User[] @relation("chan/user")
-  messages  Message[]        // Define the relation with Message
+  messages  Message[]
 }
 
 model Message {
