@@ -54,6 +54,10 @@ help:
 		@echo "-${_CYAN} make re	  	   ${_END}-> make fclean + make all\n"
 		@echo "-----------------------------------------------------------------------------------------------"
 
+watch:
+	$(COMPOSE) build
+	$(COMPOSE) up
+
 #build the image from Dockerfile
 build:
 	$(COMPOSE) build

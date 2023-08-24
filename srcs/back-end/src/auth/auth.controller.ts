@@ -1,21 +1,36 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards ,Get, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
-
+import {JwtAuthGuard} from './Guard/jwt-guard'
+import {FortyTwoAuthGuard} from "./Guard/42-auth.guard";
 @Controller('auth')
 export class AuthController {
 	constructor(private authService: AuthService) {}
 
 	/* Connexion */
 
-	@Post('signin')
-	signIn(@Body() dto: AuthDto) {
-		return this.authService.signIn(dto.username, dto.password);
+	@Get('42/callback')
+	@UseGuards(FortyTwoAuthGuard)
+    async login(@Req() req:any, @Res() res:any)
+    {
+		const user = await this.authService.login(req.user._json.id,req.user._json.image.link);
+		const jwt = await this.authService.tokenreturn(user);
+		res.cookie("access_token",jwt);
+		res.redirect("http://localhost:5173/test");
+		return (res);
+    }
+
+	@Get('/')
+	@UseGuards(JwtAuthGuard)
+	test() : string {
+		return("awuduawvduybawudbww");
 	}
 
-	/* Inscription */
-	@Post('signup')
-	signUp(@Body() dto: AuthDto) {
-		return this.authService.signUp(dto);
+	
+	@Get('Checkjwt')
+	@UseGuards(JwtAuthGuard) 
+	CheckJWT(payload :any)
+	{
+		console.log(payload);
+		return "ajhwbduwabduhw";
 	}
 }
