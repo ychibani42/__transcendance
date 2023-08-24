@@ -67,6 +67,9 @@ up:
 	$(COMPOSE) up -d
 
 
+watch:
+	$(COMPOSE) up
+
 #stop the containers
 down:
 	$(COMPOSE) down || true

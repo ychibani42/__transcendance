@@ -28,7 +28,6 @@ onBeforeMount(() => {
 
 });
 
-
 const join = () => {
 	socket.emit('join', { name: name.value }, () => {
 		joined.value = true;
@@ -37,8 +36,10 @@ const join = () => {
 
 
 const sendMessage = () => {
-	socket.emit('createMessage', { text: messageText.value }, response => {
-		messageText.value = 'coucou';
+	name.value = 'Yassine';
+	console.log(name.value);
+	socket.emit('createMessage', { text: messageText.value, name: name.value }, response => {
+		messageText.value = '';
 	});
 }
 
@@ -51,6 +52,9 @@ const emitTyping = () => {
 	}, 2000);
 }
 
+function setName() {
+}
+
 
 </script>
 
@@ -59,8 +63,7 @@ const emitTyping = () => {
 		<div v-if="!joined">
 			<form @submit.prevent="join">
 				<label>What's your name ? </label>
-				<input v-model="name"/>
-				<button type="submit">Send</button>
+				<button ref="setName">NAME</button>
 			</form>
 		</div>
 		

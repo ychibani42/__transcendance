@@ -7,16 +7,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class MessagesService {
 	constructor(private prismaService: PrismaService) {}
 
-	messages: Message[] = [{ name: 'Marius', text: 'lol' }]; // a recuperer dans la db
-	/* name --> qui a ecrit le message | text --> le message */
-
 	clientToUser: { [key: string]: string } = { clientId: 'ID' }; // meme chose
+
 	async create(createMessageDto: CreateMessageDto, clientId: string) {
+		console.log(createMessageDto);
 		try {
-			console.log('in the server: ' + 'client id : ', clientId);
-			this.prismaService.message.update({
-				where 
-			});
+			
 		} catch (error) {
 			throw error;
 		}
@@ -24,7 +20,7 @@ export class MessagesService {
 	}
 
 	findAll() {
-		return this.messages;
+		return this.prismaService.message.findMany();
 	}
 
 	identify(name: string, clientId: string) {
