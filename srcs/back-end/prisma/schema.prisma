@@ -1,7 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-
 // 1. Set the DATABASE_URL in the .env file to point to your existing database. If your database has no tables yet, read https://pris.ly/d/getting-started
 // 2. Set the provider of the datasource block in schema.prisma to match your database: postgresql, mysql, sqlite, sqlserver, mongodb or cockroachdb.
 // 3. Run prisma db pull to turn your database schema into a Prisma schema.
@@ -13,32 +12,96 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")	// on dit qu'on utilise prisma et que pour y acceder on utilise l'url du .env
+  url      = env("DATABASE_URL") // on dit qu'on utilise prisma et que pour y acceder on utilise l'url du .env
 }
 
 model User {
-  id        Int              @id @unique @default(autoincrement())
-  name      String           @unique
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  hash_passwd String
-  channels Channel[] @relation("chan/user")
+  id          Int       @id @unique @default(autoincrement())
+  // Avatar hihi ^^ uwuw <23333
+
+  id42        Int       @unique
+  name        String    @unique
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  otpenable   Boolean   @default(false)
+  otpvalider  Boolean   @default(false)
+
+  friends     Friends[]
+  channels    Channel[] @relation("chan/user")
+  game1       Game[] @relation("User1")
+  game2       Game[] @relation("User2")
+  blockedUsers BlockedU[]
+  
 }
 
 
+model Game {
+  id          Int       @id @unique @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  score Int[]
+  player1 Int
+  player2 Int
+  user1    User  @relation("User1", fields: [player1], references: [id])
+  user2    User  @relation("User2", fields: [player2], references: [id])
+  
+}
+
 model Channel {
+  id         Int       @id @unique @default(autoincrement())
   is_private Boolean
-  userId    Int
-  id   Int     @id @unique @default(autoincrement())
-  user User[] @relation("chan/user")
-  messages  Message[]
+  password        String
+  channelName     String      
+  adminId    Int[]
+  ownerId    Int
+  user       User[]    @relation("chan/user")
+  messages   Message[] // Define the relation with Message
+  blockedUsers Blocked[]
+  mutedUsers  Muted[]
 }
 
 model Message {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   text      String
+  channelId Int
+  channel    Channel  @relation(fields: [channelId], references: [id])
+  userId    Int  
   name      String
-  authorId  Int
-  author    Channel     @relation(fields: [authorId], references: [id])
+}
+
+model Blocked {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  duration  Int
+  userId    Int
+  channel    Channel  @relation(fields: [channelId], references: [id])
+  channelId Int
+}
+
+model BlockedU {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  duration  Int
+  user    User  @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model Friends {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  duration  Int
+  user    User  @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model Muted {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  duration  Int
+  userId    Int
+  channel    Channel  @relation(fields: [channelId], references: [id])
+  channelId Int
 }
