@@ -16,36 +16,29 @@ datasource db {
   url      = env("DATABASE_URL")	// on dit qu'on utilise prisma et que pour y acceder on utilise l'url du .env
 }
 
-model	User {
-
-		id Int	@id @unique @default(autoincrement())	// @id est un attribut qui configure le champ id comme etant une cle primaire c'est a dire que il n'y aura pas de doublon de ce champ la et qu'en plus, de faire en sorte que chaque user soit unique
-		
-		name String? @unique				// nom de l'utisateur unique
-
-		id42 Int @unique
-
-		Profilcomp Boolean @default(false)
-
-		Twofa Boolean @default(false)
-
-		createAt DateTime @default(now())		// date de creation @default set la date de creation par default a la date de creation
-		updateAt DateTime  @updatedAt 			// updatedAt update automatiquement la date de creation
-		// Bien evidement il manque des champs mais on les rajoutera au fur et a mesure de l'avance
+model User {
+  id        Int              @id @unique @default(autoincrement())
+  name      String           @unique
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  hash_passwd String
+  channels Channel[] @relation("chan/user")
 }
 
 
-// model message
-// {
-	// model User
-	// heure Int "heure du message"
-// }
+model Channel {
+  is_private Boolean
+  userId    Int
+  id   Int     @id @unique @default(autoincrement())
+  user User[] @relation("chan/user")
+  messages  Message[]
+}
 
-// model Chat {
-	// model messages
-// }
-
-// model parties
-// {
-	// users
-	// scores
-// }
+model Message {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  text      String
+  name      String
+  authorId  Int
+  author    Channel     @relation(fields: [authorId], references: [id])
+}

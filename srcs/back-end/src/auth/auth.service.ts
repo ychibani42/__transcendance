@@ -19,15 +19,17 @@ export class AuthService {
 	async login(id : number , link : string) {
 		console.log(id);
 		try {
-			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
+			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
 			console.log("USER find",users);
 			return users;
 		} 
 		catch (error) {
 			const user = await this.prismaService.user.create({
 				data: {
-						id42 : id,
-					},})
+					name: link,
+					hash_passwd: link,
+				}
+			});
 			console.log("USER created",user);
 			return user;
 		}
