@@ -108,7 +108,7 @@ function update(){
         ball.value.velX = dir * ball.value.speed * Math.cos(anglered);
         ball.value.velY = ball.value.speed * Math.sin(anglered);
         if(ball.value.speed < 12)
-            ball.value.speed += 0;
+            ball.value.speed += 0.5;
     }
 
     if(ball.value.x - ball.value.r < 0)
