@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import Login from '../views/Login.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -17,11 +16,29 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import(/* webpackChunkName: "about" */ '../views/ChatView.vue')
   },
   {
-	path: '/login',
-	name : 'Login',
-	component : Login
-	
-},
+    path: '/profile',
+    name: 'profile',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/ProfileView.vue')
+  },
+  {
+    path: '/matchmaking',
+    name: 'matchmaking',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/Matchmaking.vue')
+  },
+  {
+    path: '/login',
+    name: 'login',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
+  }
 ]
 
 const router = createRouter({
