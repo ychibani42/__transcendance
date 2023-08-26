@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
-import { AuthDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 
@@ -17,27 +16,31 @@ export class AuthService {
 		private prismaService: PrismaService,
 	) {}
 
-	async signIn(username: string, password: string): Promise<any> {
-		const user = await this.userService.findOne(username);
-		if (user === undefined) throw new NotFoundException('User not found');
-		if (user?.password !== password)
-			throw new UnauthorizedException('Wrong Password');
-		const payload = { sub: user.userId, username: user.username };
-		return {
-			access_token: await this.jwtService.signAsync(payload),
-		};
+	async login(id : number , link : string) {
+		console.log(id);
+		try {
+			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
+			console.log("USER find",users);
+			return users;
+		} 
+		catch (error) {
+			const user = await this.prismaService.user.create({
+				data: {
+					name: link,
+					hash_passwd: link,
+				}
+			});
+			console.log("USER created",user);
+			return user;
+		}
 	}
-	async signUp(dto: AuthDto) {
-		/* Create hash password */
-		const hash = await argon.hash(dto.password);
-		/* Save user into prisma */
-		const user = await this.prismaService.user.create({
-			data: {
-				name: dto.username,
-				hash_passwd: hash,
-			},
-		});
-		/* return user */
-		return user;
+
+	async tokenreturn(User : any) {
+		console.log(User.id,User.createAt)
+		const payload = {id : User.id, createdAt : User.createdAt};
+		const jwt = await this.jwtService.signAsync(payload);
+		const decode = await this.jwtService.decode(jwt);
+		console.log("Decode",decode)
+		return(jwt);
 	}
 }
