@@ -41,7 +41,7 @@ services:
       context: ./srcs/front-end
       dockerfile: Dockerfile
     container_name: vue
-    restart: on-failure
+    restart: always
     volumes:
       - ./srcs/front-end:/usr/src/app/
       - /usr/src/app/node_modules
