@@ -9,8 +9,6 @@ export default {
 <template>
     <div>
       <PrivateNav/>
-      Home Test
-      
     <router-view/>
   </div>
 </template>

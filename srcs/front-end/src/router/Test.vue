@@ -1,33 +1,32 @@
 <script setup lang="ts">
 import {onMounted, Ref, ref} from "vue";
-import {io} from 'socket.io-client'
+
 
 // The important part: the name of the variable needs to be equal to the ref's name of the canvas element in the template
 const canvasElement: Ref<HTMLCanvasElement | undefined> = ref();
 const context: Ref<CanvasRenderingContext2D | undefined> = ref();
-const socket = io('http://localhost:3000/game')
 const paddle = ref({
-        x: 30,
+        x: 0,
         y :0,
-        w : 15,
+        w : 0,
         h : 100,
         color : 'white',
         score : 0,
 });
 const com = ref({
-        x: 30,
+        x: 0,
         y : 0,
-        w : 15,
-        h : 100,
+        w : 0,
+        h : 0,
         color : 'white',
         score : 0,
 });
 const ball = ref({
         x: 0,
         y : 0,
-        r : 10,
+        r : 0,
         speed : 2,
-        velX : 5,
+        velX : 2,
         velY : 0,
         color : 'blue',
 });
@@ -35,21 +34,20 @@ const ball = ref({
 onMounted(() => {
     context.value = canvasElement.value?.getContext('2d') || undefined;
     canvasElement.value?.addEventListener("mousemove",Updatexy);
-    console.log(canvasElement.value);
     if(!canvasElement.value){
         return;
     }
+    paddle.value.x = 0 + canvasElement.value.width/20;
     paddle.value.y =  canvasElement.value.height/2 - 100/2;
     com.value.y = canvasElement.value.height/2 - 100/2,
-    com.value.x = canvasElement.value.width-30-15,
+    com.value.w = canvasElement.value.width/40,
+    com.value.h = canvasElement.value.height/4;
+    com.value.x = canvasElement.value.width - canvasElement.value.width/30 - com.value.w,
     ball.value.x = canvasElement.value.width/2,
     ball.value.y = canvasElement.value.height/2
-    console.log(socket);
-});
-
-socket.emit('message');
-socket.on('connected',(response : string) => {
-    console.log(response);
+    paddle.value.w = canvasElement.value.width/40,
+    paddle.value.h = canvasElement.value.height/4,
+    ball.value.r= canvasElement.value.width/40;
 });
 
 setInterval(game,1000/60);
@@ -94,7 +92,7 @@ function update(){
     ball.value.y += ball.value.velY;
 
     let comlel = 0.1;
-    com.value.y += (ball.value.y - (com.value.y + com.value.h/2)) * comlel;
+    com.value.y += (ball.value.y - (com.value.y + com.value.h/4)) * comlel;
     if(ball.value.y + ball.value.r > canvasElement.value?.height || ball.value.y - ball.value.r < 0){
         ball.value.velY = -ball.value.velY;
     }
@@ -110,7 +108,7 @@ function update(){
         ball.value.velX = dir * ball.value.speed * Math.cos(anglered);
         ball.value.velY = ball.value.speed * Math.sin(anglered);
         if(ball.value.speed < 12)
-            ball.value.speed += 0.5;
+            ball.value.speed += 0;
     }
 
     if(ball.value.x - ball.value.r < 0)
@@ -131,7 +129,7 @@ function resetball()
         return
     ball.value.x = canvasElement.value.width/2;
     ball.value.y = canvasElement.value.height/2;
-    ball.value.speed = 5;
+    ball.value.speed = 2;
     ball.value.velX = -ball.value.velX;
 }
 
@@ -140,7 +138,18 @@ function Updatexy(e : any){
         return;
     }
     let rect = canvasElement.value.getBoundingClientRect();
-    paddle.value.y = e.y - rect.top - paddle.value.h/2;
+    console.log("rect.top" ,rect.top);
+    console.log("event.y" , e.y);
+    console.log("CANVA HEIGHT",canvasElement.value.height)
+    console.log("paddle" , paddle.value.h/2)
+    paddle.value.y = ((e.y - rect.top - paddle.value.h))/ (rect.height/150);
+    console.log("resultat ",paddle.value.y);
+    if(paddle.value.y < 0)
+        paddle.value.y = 0;
+    if(paddle.value.y > canvasElement.value.height - paddle.value.h)
+    {
+        paddle.value.y = canvasElement.value.height - paddle.value.h
+    }
 };
 
 function render() {
@@ -162,7 +171,7 @@ function drawText(text : number,x : number ,y : number){
         return;
     }
     context.value.fillStyle = "#FFF";
-    context.value.font = "75px fantasy";
+    context.value.font = "20px fantasy";
     context.value.fillText(text, x, y);
 }
 
@@ -186,27 +195,31 @@ function drowball(x: number,y: number,r: number,color: string)
     context.value.closePath();
     context.value.fill();
 }
-
-
 </script>
 
 <template>
-    <div>
-        <canvas ref="canvasElement" width="600" height="400" style="border: 2px solid #ffffff"></canvas>
-    </div>
+   <canvas ref = "canvasElement" id="pong"></canvas>
 </template>
 
+<style scoped>
+/*
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  background-color: #121212;
+}
+*/
 
-<style>
-
-canvas#responsive-canvas {
-    display: flex;
-      width: 34rem;
-      height: 100%;
-      position: fixed;
-      left: 0;
-      top: 0;
-      z-index: -1;
-    }
-
+canvas {
+    height: 100%;
+    width: 50%;
+    min-width: 70vw;
+    min-height: 70vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    display: block;
+    justify-content: center;
+    border: solid white;
+}
 </style>

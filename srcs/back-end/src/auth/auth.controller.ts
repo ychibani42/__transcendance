@@ -15,7 +15,7 @@ export class AuthController {
 		const user = await this.authService.login(req.user._json.id,req.user._json.image.link);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie("access_token",jwt);
-		res.redirect("http://localhost:5173/test");
+		res.redirect("http://localhost:5173/");
 		return (res);
     }
 
@@ -32,5 +32,15 @@ export class AuthController {
 	{
 		console.log(payload);
 		return "ajhwbduwabduhw";
+	}
+
+	@Post('Inviter')
+	async loginInviter(@Body() nbr:any, @Res() res:any){
+		console.log("here", nbr._value);
+		const user = await this.authService.login(nbr._value,"lol");
+		const jwt = await this.authService.tokenreturn(user);
+		res.cookie("access_token",jwt);
+		res.redirect("http://localhost:5173/");
+		return (res);
 	}
 }
