@@ -12,6 +12,7 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 		origin: '*',
 	},
 })
+
 export class ChatGateway {
 	constructor(private readonly chatService: ChatService) {}
 
