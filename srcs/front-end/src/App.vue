@@ -48,7 +48,7 @@ button {
 
   @media (max-width: 2048px) {
       top: 15%;
-      left: 35%;
+      left: 10%;
       position: absolute;
     }
   }
