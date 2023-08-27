@@ -18,11 +18,13 @@ export class AuthController {
 
 	@Get('42/callback')
 	@UseGuards(FortyTwoAuthGuard)
-    async login(@Req() req:any, @Res() res:any)
-    {
+	async login(@Req() req: any, @Res() res: any) {
 		console.log(process.env.UID);
 		console.log(process.env.SECRET_42_KEY);
-		const user = await this.authService.login(req.user._json.id,req.user._json.image.link);
+		const user = await this.authService.login(
+			req.user._json.id,
+			req.user._json.image.link,
+		);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie('access_token', jwt);
 		res.redirect('http://localhost:5173/');
@@ -43,11 +45,11 @@ export class AuthController {
 	}
 
 	@Post('Inviter')
-	async loginInviter(@Body() nbr:any, @Res() res:any){
-		const user = await this.authService.login(nbr._value,"lol");
+	async loginInviter(@Body() nbr: any, @Res() res: any) {
+		const user = await this.authService.login(nbr._value, 'lol');
 		const jwt = await this.authService.tokenreturn(user);
-		res.cookie("access_token",jwt);
-		res.json({redirect : '/'})
-		return (res);
+		res.cookie('access_token', jwt);
+		res.json({ redirect: '/' });
+		return res;
 	}
 }

@@ -17,6 +17,7 @@ datasource db {
 
 model User {
   id          Int       @id @unique @default(autoincrement())
+  // Avatar hihi ^^ uwuw <23333
 
   id42        Int       @unique
   name        String?    @unique
@@ -32,7 +33,6 @@ model User {
   game1       Game[] @relation("User1")
   game2       Game[] @relation("User2")
   blockedUsers BlockedU[]
-  
 }
 
 
@@ -51,7 +51,7 @@ model Game {
 model Channel {
   id         Int       @id @unique @default(autoincrement())
   is_private Boolean
-  password        String
+  password        String?
   channelName     String      
   adminId    Int[]
   ownerId    Int
@@ -59,6 +59,7 @@ model Channel {
   messages   Message[] // Define the relation with Message
   blockedUsers Blocked[]
   mutedUsers  Muted[]
+  dm			Boolean
 }
 
 model Message {
