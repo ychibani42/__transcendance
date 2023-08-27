@@ -10,7 +10,7 @@ const paddle = ref({
         y :0,
         w : 0,
         h : 100,
-        color : 'white',
+        color : 'red',
         score : 0,
 });
 const com = ref({
@@ -18,7 +18,7 @@ const com = ref({
         y : 0,
         w : 0,
         h : 0,
-        color : 'white',
+        color : 'red',
         score : 0,
 });
 const ball = ref({
@@ -37,17 +37,18 @@ onMounted(() => {
     if(!canvasElement.value){
         return;
     }
-    paddle.value.x = 0 + canvasElement.value.width/20;
-    paddle.value.y =  canvasElement.value.height/2 - 100/2;
-    com.value.y = canvasElement.value.height/2 - 100/2,
-    com.value.w = canvasElement.value.width/40,
-    com.value.h = canvasElement.value.height/4;
-    com.value.x = canvasElement.value.width - canvasElement.value.width/30 - com.value.w,
+    console.log("Width : ",canvasElement.value.width, " Height :" , canvasElement.value.height);
+    com.value.y = canvasElement.value.height/2 - 37/2,
+    com.value.w = 8,
+    com.value.h = 37;
+    com.value.x = canvasElement.value.width - 22,
     ball.value.x = canvasElement.value.width/2,
     ball.value.y = canvasElement.value.height/2
-    paddle.value.w = canvasElement.value.width/40,
-    paddle.value.h = canvasElement.value.height/4,
-    ball.value.r= canvasElement.value.width/40;
+    paddle.value.w = 8,
+    paddle.value.h = 37,
+    paddle.value.x = 15;
+    paddle.value.y =  canvasElement.value.height/2 - 37/2;
+    ball.value.r= 5;
 });
 
 setInterval(game,1000/60);
@@ -92,7 +93,7 @@ function update(){
     ball.value.y += ball.value.velY;
 
     let comlel = 0.1;
-    com.value.y += (ball.value.y - (com.value.y + com.value.h/4)) * comlel;
+    com.value.y += (ball.value.y - (com.value.y + com.value.h/2)) * comlel;
     if(ball.value.y + ball.value.r > canvasElement.value?.height || ball.value.y - ball.value.r < 0){
         ball.value.velY = -ball.value.velY;
     }
@@ -107,8 +108,8 @@ function update(){
         let dir = (ball.value.x < canvasElement.value?.width/2) ? 1 : -1;
         ball.value.velX = dir * ball.value.speed * Math.cos(anglered);
         ball.value.velY = ball.value.speed * Math.sin(anglered);
-        if(ball.value.speed < 12)
-            ball.value.speed += 0.5;
+        if(ball.value.speed < 10)
+            ball.value.speed += 0.2;
     }
 
     if(ball.value.x - ball.value.r < 0)
@@ -130,7 +131,8 @@ function resetball()
     ball.value.x = canvasElement.value.width/2;
     ball.value.y = canvasElement.value.height/2;
     ball.value.speed = 2;
-    ball.value.velX = -ball.value.velX;
+    let value = (ball.value.velX > 0) ? 1 : -1;
+    ball.value.velX = 2 * value;
 }
 
 function Updatexy(e : any){
@@ -138,12 +140,7 @@ function Updatexy(e : any){
         return;
     }
     let rect = canvasElement.value.getBoundingClientRect();
-    console.log("rect.top" ,rect.top);
-    console.log("event.y" , e.y);
-    console.log("CANVA HEIGHT",canvasElement.value.height)
-    console.log("paddle" , paddle.value.h/2)
-    paddle.value.y = ((e.y - rect.top - paddle.value.h))/ (rect.height/150);
-    console.log("resultat ",paddle.value.y);
+    paddle.value.y = ((e.y - rect.top) / (rect.height/150)) - paddle.value.h/2;
     if(paddle.value.y < 0)
         paddle.value.y = 0;
     if(paddle.value.y > canvasElement.value.height - paddle.value.h)
@@ -198,18 +195,17 @@ function drowball(x: number,y: number,r: number,color: string)
 </script>
 
 <template>
-   <canvas ref = "canvasElement" id="pong"></canvas>
+    <div id="canvasDiv">
+        <canvas ref = "canvasElement" id="pong"></canvas>
+    </div>
+   
 </template>
 
 <style scoped>
-/*
-body {
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  background-color: #121212;
+#canvasDiv{
+    position: relative;
+    left : 0;
 }
-*/
 
 canvas {
     height: 100%;
@@ -219,7 +215,7 @@ canvas {
     max-width: 100vw;
     max-height: 100vh;
     display: block;
-    justify-content: center;
-    border: solid white;
+    justify-content: right;
+    border: solid greenyellow;
 }
 </style>
