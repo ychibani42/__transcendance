@@ -7,7 +7,7 @@ import { AuthService } from '../auth.service';
 export class FortyTwoStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     super({
-      clientID: process.env.UID,
+      clientID: process.env.UID_42,
       clientSecret: process.env.SECRET_42_KEY,
       callbackURL: 'http://localhost:3000/auth/42/callback',
     });

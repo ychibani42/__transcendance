@@ -11,15 +11,14 @@ import * as argon from 'argon2';
 @Injectable({})
 export class AuthService {
 	constructor(
-		private userService: UserService,
 		private jwtService: JwtService,
 		private prismaService: PrismaService,
 	) {}
 
 	async login(id : number , link : string) {
-		console.log(id);
+		console.log(id,link);
 		try {
-			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
+			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
 			console.log("USER find",users);
 			return users;
 		} 
@@ -40,7 +39,7 @@ export class AuthService {
 		const payload = {id : User.id, createdAt : User.createdAt};
 		const jwt = await this.jwtService.signAsync(payload);
 		const decode = await this.jwtService.decode(jwt);
-		console.log("Decode",decode)
+		console.log("Decode",decode);
 		return(jwt);
 	}
 }

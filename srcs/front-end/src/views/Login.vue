@@ -5,8 +5,11 @@ import {onMounted, Ref, ref} from "vue";
 const id42 = ref(0);
 
 function login(){
+    console.log("Here");
     try {
-        Axios.post("auth/Inviter",id42);
+        Axios.post("auth/Inviter",id42).then(response => {
+            console.log(response);
+        } );
     } catch (error) {
         console.log(error);
     }
