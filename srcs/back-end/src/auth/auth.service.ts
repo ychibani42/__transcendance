@@ -26,8 +26,8 @@ export class AuthService {
 		catch (error) {
 			const user = await this.prismaService.user.create({
 				data: {
-					name: link,
-					hash_passwd: link,
+					id42 :id,
+					name :link,
 				}
 			});
 			console.log("USER created",user);
