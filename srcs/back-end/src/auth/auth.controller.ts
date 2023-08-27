@@ -20,13 +20,6 @@ export class AuthController {
 		res.redirect("http://localhost:5173/");
 		return (res);
     }
-
-	@Get('/')
-	@UseGuards(JwtAuthGuard)
-	test() : string {
-		return("awuduawvduybawudbww");
-	}
-
 	
 	@Get('Checkjwt')
 	@UseGuards(JwtAuthGuard) 

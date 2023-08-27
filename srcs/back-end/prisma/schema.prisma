@@ -33,7 +33,6 @@ model User {
   game1       Game[] @relation("User1")
   game2       Game[] @relation("User2")
   blockedUsers BlockedU[]
-  
 }
 
 
