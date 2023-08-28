@@ -31,7 +31,7 @@ export class AuthController {
 
 	@Post('Inviter')
 	async loginInviter(@Body() nbr:any, @Res() res:any){
-		const user = await this.authService.login(nbr._value,"lol");
+		const user = await this.authService.login(nbr.id42._value,nbr.name._value);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie("access_token",jwt);
 		res.json({redirect : '/'})

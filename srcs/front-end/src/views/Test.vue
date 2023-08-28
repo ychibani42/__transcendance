@@ -195,27 +195,36 @@ function drowball(x: number,y: number,r: number,color: string)
 </script>
 
 <template>
-    <div id="canvasDiv">
+    <div class="canvasDiv">
+        <h1>THE GAME</h1>
         <canvas ref = "canvasElement" id="pong"></canvas>
     </div>
    
 </template>
 
 <style scoped>
-#canvasDiv{
-    position: relative;
-    left : 0;
+
+h1 {
+    display: inline;
+    margin: 1%;
+}
+.canvasDiv{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    margin: 2%;
 }
 
 canvas {
+    display: flex;
     height: 100%;
-    width: 50%;
-    min-width: 70vw;
-    min-height: 70vh;
-    max-width: 100vw;
-    max-height: 100vh;
-    display: block;
-    justify-content: right;
+    width: 100%;
+    min-width: 50vw;
+    min-height: 50vh;
+    max-width: 70vw;
+    max-height: 80vh;
+    justify-content: center;
     border: solid greenyellow;
 }
 </style>

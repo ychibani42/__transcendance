@@ -61,7 +61,7 @@ aside {
 
 	transition: 0.2s ease-in-out;
 
-  	margin: none;
+  	margin: 0;
  	padding: 0;
 	box-sizing: border-box;
 	font-family: 'Fira sans', sans-serif;
