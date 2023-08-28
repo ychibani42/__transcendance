@@ -2,41 +2,84 @@ import {
 	WebSocketGateway,
 	SubscribeMessage,
 	MessageBody,
+	WebSocketServer,
+	ConnectedSocket,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import { CreateMessageDto } from './dto/create-message.dto';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
 	cors: {
 		origin: '*',
 	},
 })
+@Controller('chat')
 export class ChatGateway {
+	@WebSocketServer()
+	server: Server;
 	constructor(private readonly chatService: ChatService) {}
 
-	@SubscribeMessage('createChat')
-	create(@MessageBody() createChatDto: CreateChatDto) {
-		return this.chatService.create(createChatDto);
+	@SubscribeMessage('createMessage')
+	async create(
+		@MessageBody() createMessageDto: CreateMessageDto,
+		@ConnectedSocket() client: Socket,
+	) {
+		const message = await this.chatService.createMessage(
+			createMessageDto,
+			'coucou',
+		);
+		this.server.emit('message', message);
+		return message;
 	}
 
-	@SubscribeMessage('findAllChat')
+	@SubscribeMessage('findAllchat')
 	findAll() {
-		return this.chatService.findAll();
+		return this.chatService.findAllMessages();
 	}
 
-	@SubscribeMessage('findOneChat')
-	findOne(@MessageBody() id: number) {
-		return this.chatService.findOne(id);
+	@SubscribeMessage('join')
+	joinRoom(
+		@MessageBody('name') name: string,
+		@ConnectedSocket() client: Socket,
+	) {
+		return this.chatService.identifyUser(name, client.id);
 	}
 
-	@SubscribeMessage('updateChat')
-	update(@MessageBody() updateChatDto: UpdateChatDto) {
-		return this.chatService.update(updateChatDto.id, updateChatDto);
+	@SubscribeMessage('typing')
+	async typing(
+		@MessageBody('isTyping') isTyping: boolean,
+		@ConnectedSocket() client: Socket,
+	) {
+		const name = await this.chatService.getClientbyId(client.id);
+		client.broadcast.emit('typing', { name, isTyping });
 	}
 
-	@SubscribeMessage('removeChat')
-	remove(@MessageBody() id: number) {
-		return this.chatService.remove(id);
+	/* Controller Operations */
+
+	@Get('getAllRooms')
+	async getRooms(): Promise<any> {
+		return this.chatService.findAllChat();
+	}
+
+	@Post('createRooms')
+	async createRooms(/*l'User qui viens de cree le channel, */ @Body() body: CreateChatDto): Promise<number> {
+		console.log('COFADSJADSAJKDHASDJAHD');
+		// const user = this.userService.findOne({
+		// 	where: {
+		// 		id: 1
+		// 	},
+		// });
+		console.log(body);
+		// const chatId = this.chatService.createChat(body);
+		return 1;
+	}
+
+	@Post('DeleteRooms')
+	async deleteRooms(): Promise<void> {
+		return this.chatService.removeChat(1);
 	}
 }
