@@ -43,7 +43,4 @@ h1 {
   padding: 2rem 0rem 5rem;
 }
 
-.hello {
-  margin: 5rem 14rem;
-}
 </style>

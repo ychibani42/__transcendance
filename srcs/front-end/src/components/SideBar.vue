@@ -1,9 +1,5 @@
 <template>
 	<aside>
-		<!-- <div class="logo">
-			<img :src="logoURL" alt="Vue" /> 
-		</div> -->
-
 		<h3>Menu</h3>
 		<div class="menu">
 			<router-link to="/" class="button">
@@ -15,7 +11,10 @@
 			<router-link to="/chat" class="button">
 				<span class="material-icons">chat</span>
 			</router-link>
-			<button class="material-icons">
+			<router-link to="/game" class="button">
+				<span class="material-icons">sports_tennis</span>
+			</router-link>
+			<button class="material-icon">
  	      		 <select name="add a friend">
            			 <option>Add</option>
            			 <option v-for="username in users" :key="username.id">{{username.username}}</option>  
@@ -44,8 +43,12 @@ export default{
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+
+
+
 aside {
+
 	display: flex;
 	flex-direction: column;
 
@@ -55,24 +58,18 @@ aside {
 	width: calc(2rem + 32px);
 	overflow: hidden;
 	min-height: 100vh;
-	padding: 1rem;
 
 	transition: 0.2s ease-in-out;
 
-	.flex {
-		flex: 1 1 0%;
-	}
-
-	// .logo {
-	// 	margin-bottom: 1rem;
-
-	// 	img {
-	// 		width: 2rem;
-	// 	}
-	// }
-
-
-	
+  	margin: none;
+ 	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Fira sans', sans-serif;
+	--primary: #4ade80;
+	--grey: #64748b;
+	--dark: #1e293b;
+	--darkalt: #334155;
+	--light: #f1f5f9;
 
 	h3, .button .text {
 		opacity: 0;
@@ -86,12 +83,10 @@ aside {
 	}
 
 	
-	button.material-icons {
-		padding: 1rem 0;
+	button.material-icon {
+		padding: 0;
 		select {
-			margin: 1px;
-			width: 50px;
-			height: 50px;
+			margin: 0px;
 			color: var(--light);
 			background-color: var(--dark);
 			option h6{
@@ -114,10 +109,11 @@ aside {
 	}
 	.menu {
 		margin: 0 -1rem;
-
+		align-items: center;
+		
 		.button {
 			display: flex;
-			align-items: center;
+			justify-content: center;
 			text-decoration: none;
 
 			transition: 0.2s ease-in-out;
@@ -128,24 +124,20 @@ aside {
 				color: var(--light);
 				transition: 0.2s ease-in-out;
 			}
-			.text {
-				color: var(--light);
-				transition: 0.2s ease-in-out;
-			}
 
 			&:hover {
 				background-color: var(--dark-alt);
 
-				.material-icons, .text {
+				.material-icons {
 					color: var(--primary);
 				}
 			}
 
 			&.router-link-exact-active {
 				background-color: var(--dark-alt);
-				border-right: 5px solid var(--primary);
 
-				.material-icons, .text {
+
+				.material-icons {
 					color: var(--primary);
 				}
 			}
@@ -153,12 +145,5 @@ aside {
 
 	}
 
-
-
-
-	@media (max-width: 2048px) {
-		position: absolute;
-		z-index: 99;
-	}
 }
 </style>

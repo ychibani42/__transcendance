@@ -1,10 +1,10 @@
 <template>
   <div class="app">
- 
-    <router-view/>   
-  
+    <div class="sidebar"><SideBar /></div> 
+    <div class="component"><router-view/></div> 
+     
   </div>
-  <SideBar />
+  
 </template>
 
 
@@ -15,42 +15,23 @@ import SideBar from './components/SideBar.vue';
 
 <style lang="scss">
 
-nav a.router-link-exact-active {
-  color: #42b983;
-}
 
-:root {
-  --primary: #4ade80;
-  --grey: #64748b;
-  --dark: #1e293b;
-  --darkalt: #334155;
-  --light: #f1f5f9;
-  --sidebar-width: 300px;
-}
 
-*{
+body {
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Fira sans', sans-serif;
 }
 
-button {
-  cursor: pointer;
-  appearance: none;
-  border: none;
-  outline: none;
-  background: none;
-}
 
 .app {
-  display: flex;
 
-  @media (max-width: 2048px) {
-      top: 15%;
-      left: 10%;
-      position: absolute;
-    }
+  display: flex;
+  flex-wrap: wrap;
+  .component {
+    margin: 2rem;
+  }
+}
+  .app > div {
+    flex: 1 1, auto;
   }
 
 </style>
