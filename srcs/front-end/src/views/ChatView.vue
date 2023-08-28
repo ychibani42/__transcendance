@@ -64,7 +64,11 @@ function setName() {
 
 function createChan () {
     try {
-        Axios.post("chat/createRooms", createChanClass).then(res => {
+        Axios.post("chat/createRooms", {channelName: createChanClass.value.channelName,
+	is_private: createChanClass.value.is_private,
+	password: createChanClass.value.password,
+	dm: createChanClass.value.dm,
+	ownerId: createChanClass.value.ownerId}).then(res => {
             console.log(res);
         } );
     } catch (error) {
@@ -79,7 +83,7 @@ function createChan () {
 	<div class="chat">		
 		<div class="create-channel">
 			<form @submit.prevent="createChan()">
-				<input type="string" v-model="createChanClass" required>
+				<input type="string" v-model="createChanClass.channelName" required>
 			</form>
 		</div>
 		<div v-if="!joined">

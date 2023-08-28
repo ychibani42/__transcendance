@@ -66,7 +66,7 @@ export class ChatGateway {
 	}
 
 	@Post('createRooms')
-	async createRooms(/*l'User qui viens de cree le channel, */ @Body() body: CreateChatDto): Promise<number> {
+	async createRooms(@Body() body :any): Promise<number> {
 		console.log('COFADSJADSAJKDHASDJAHD');
 		// const user = this.userService.findOne({
 		// 	where: {
