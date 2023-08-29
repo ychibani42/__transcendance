@@ -15,15 +15,15 @@ export class JwtStrategy extends PassportStrategy(Strategy)
     }
 
     async validate(payload : any) {
-        console.log("paylod",payload)
         return payload;
     }
 
     private static extractJWT(@Req() req): string | null {
-    if(req.cookies && 'access_token' in req.cookies && req.cookies.access_token.length > 0)
-    {
-        return req.cookies.access_token;
-    }
-    return null
+        
+        if(req.cookies && 'access_token' in req.cookies && req.cookies.access_token.length > 0)
+        {
+            return req.cookies.access_token;
+        }
+        return null
     }
 }

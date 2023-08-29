@@ -18,14 +18,6 @@ export class AuthController {
 		res.redirect("http://localhost:5173/");
 		return (res);
     }
-	
-	@Get('Checkjwt')
-	@UseGuards(JwtAuthGuard) 
-	async CheckJWT(@Req() req:any)
-	{
-		const decode = await this.authService.decodedtok(req.cookies.access_token)
-		return decode;
-	}
 
 	@Post('Inviter')
 	async loginInviter(@Body() nbr:any, @Res() res:any){
@@ -35,6 +27,14 @@ export class AuthController {
 		res.json({redirect : '/'})
 		return (res);
 	}
+	
+	@Get('Checkjwt')
+	@UseGuards(JwtAuthGuard) 
+	async CheckJWT(@Req() req:any)
+	{
+		const decode = await this.authService.decodedtok(req.cookies.access_token)
+		return decode;
+	}
 
 	@Post("Button2FA")
 	@UseGuards(JwtAuthGuard)
@@ -43,4 +43,6 @@ export class AuthController {
 		const good = this.authService.changeotp(nbr.id);
 		return good;
 	}
+
+	x
 }

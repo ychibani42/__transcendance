@@ -43,7 +43,7 @@ onMounted(() => {
     com.value.h = 37;
     com.value.x = canvasElement.value.width - 22,
     ball.value.x = canvasElement.value.width/2,
-    ball.value.y = canvasElement.value.height/2
+    ball.value.y = 0,
     paddle.value.w = 8,
     paddle.value.h = 37,
     paddle.value.x = 15;
@@ -93,8 +93,12 @@ function update(){
     ball.value.x += ball.value.velX;
     ball.value.y += ball.value.velY;
 
-    let comlel = 0.1;
+    let comlel = 1;
     com.value.y += (ball.value.y - (com.value.y + com.value.h/2)) * comlel;
+    if(ball.value.y > 150)
+        ball.value.y = 150 - ball.value.r
+    if(ball.value.y < 0)
+        ball.value.y = 0 + ball.value.r
     if(ball.value.y + ball.value.r > canvasElement.value?.height || ball.value.y - ball.value.r < 0){
         ball.value.velY = -ball.value.velY;
     }
