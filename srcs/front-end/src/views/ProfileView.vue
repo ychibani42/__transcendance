@@ -6,13 +6,13 @@
       <h1>{{ name }}</h1>
       <p>Edit Avatar: <input type="file" class="avatar" @change="editImage"> </p>
       <p>Edit Name: <input type="text" class="name" @change="editName"></p> 
-
       <User />
+      <button @click="btn2FA">BTN 2FA</button>
     </div>
   </template>
   
 <script lang="ts">
-
+import Axios from '../services'
 
 export default {
   data () {
@@ -32,17 +32,24 @@ export default {
     editName() {
       this.name = this.$el.querySelector(".name").value;
       this.$el.querySelector(".name").value = "";
+    },
+    btn2FA()
+    {
+      Axios.post("Auth/Button2FA",{id : 1});
+      console.log("here");
     }
   }
 };
-
-
 </script>
 
 <style lang="scss" scoped>
   
 .profile{
-
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    flex-wrap: wrap;
+    align-items: center;
   h1{
     padding:5px;
   }

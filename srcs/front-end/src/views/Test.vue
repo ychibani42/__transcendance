@@ -73,6 +73,7 @@ function collition(bal : any,play : any){
         r:0,
     };
     
+    console.log("Ball value " ,bal.value)
     ballc.top = bal.value.y - bal.value.r;
     ballc.bot = bal.value.y + bal.value.r;
     ballc.l = bal.value.x - bal.value.r;

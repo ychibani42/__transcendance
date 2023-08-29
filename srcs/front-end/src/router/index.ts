@@ -10,7 +10,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'SiteLayout',
     component: SiteLayout,
     children :[
-          { path: '/home',name: 'home',component: HomeView},
+          { path: '/',name: 'home',component: HomeView},
           { path: '/chat', name: 'chat',
             component: () => import(/* webpackChunkName: "about" */ '../views/ChatView.vue') },
           { path: '/profile', name: 'profile',
@@ -32,7 +32,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
   },
   {
-    path: '/:pathMatch(.*)*', redirect : '/home'
+    path: '/:pathMatch(.*)*', redirect : '/'
   }
 ]
 
@@ -41,13 +41,17 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  // to and from are both route objects. must call `next`.
+router.beforeEach((to, from) => {
+  if(to.path == '/login')
+  {
+    return
+  }
+  try {
+    Axios.get("auth/checkjwt");
+  } 
+  catch (error) {
 
-  if(to.path == "/")
-    router.push("/home");
-  Axios.get("auth/checkjwt");
-  next()
+  }
 })
 
 export default router

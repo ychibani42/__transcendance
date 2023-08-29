@@ -8,17 +8,12 @@ const Axios = axios.create({
 })
 
 Axios.interceptors.response.use(response =>{
-    console.log(response);
     return response;
 },error => { 
-    console.log(error)
     if(error.response.status == 401)
     {
         router.push("/login")
         return;
     }
 });
-
-
-
 export default Axios

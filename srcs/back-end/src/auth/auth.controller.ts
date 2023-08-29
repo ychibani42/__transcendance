@@ -12,8 +12,6 @@ export class AuthController {
 	@UseGuards(FortyTwoAuthGuard)
     async login(@Req() req:any, @Res() res:any)
     {
-		console.log(process.env.UID);
-		console.log(process.env.SECRET_42_KEY);
 		const user = await this.authService.login(req.user._json.id,req.user._json.image.link);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie("access_token",jwt);
@@ -23,18 +21,26 @@ export class AuthController {
 	
 	@Get('Checkjwt')
 	@UseGuards(JwtAuthGuard) 
-	CheckJWT(payload :any)
+	async CheckJWT(@Req() req:any)
 	{
-		console.log(payload);
-		return "ajhwbduwabduhw";
+		const decode = await this.authService.decodedtok(req.cookies.access_token)
+		return decode;
 	}
 
 	@Post('Inviter')
 	async loginInviter(@Body() nbr:any, @Res() res:any){
-		const user = await this.authService.login(nbr.id42._value,nbr.name._value);
+		const user = await this.authService.loginInviter(nbr.id42._value);
 		const jwt = await this.authService.tokenreturn(user);
-		res.cookie("access_token",jwt);
+		res.cookie("access_token",jwt,{httpOnly : true , secure : true , samesite : true});
 		res.json({redirect : '/'})
 		return (res);
+	}
+
+	@Post("Button2FA")
+	@UseGuards(JwtAuthGuard)
+	async Button2FA(@Body() nbr:any){
+		console.log(nbr.id);
+		const good = this.authService.changeotp(nbr.id);
+		return good;
 	}
 }
