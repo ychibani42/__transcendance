@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { ChatDto } from './dto/chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -9,7 +10,7 @@ import { Message } from './entities/message.entity';
 export class ChatService {
 	constructor(private prismaService: PrismaService) {}
 	async createChat(createChatDto: CreateChatDto) {
-		console.log(createChatDto);
+		// console.log(createChatDto);
 		await this.prismaService.channel.create({
 			data: {
 				channelName: createChatDto.channelName,
@@ -23,11 +24,21 @@ export class ChatService {
 	}
 
 	findAllChat() {
+
 		return `This action returns all chat`;
 	}
 
-	findOneChat(id: number) {
-		return `This action returns a #${id} chat`;
+	async findOneChat(chanId: number) {
+		console.log(chanId)
+		const chan = await this.prismaService.channel.findUnique({
+			where: {
+				id: 1,
+			}
+		}
+			
+		);
+		const test = chan.channelName;
+		return test;
 	}
 
 	updateChat(id: number, updateChatDto: UpdateChatDto) {

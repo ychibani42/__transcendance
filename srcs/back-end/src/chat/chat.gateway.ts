@@ -12,6 +12,7 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { Chat } from './entities/chat.entity';
+import { Param } from '@nestjs/common';
 
 @WebSocketGateway({
 	cors: {
@@ -48,6 +49,11 @@ export class ChatGateway {
 	@SubscribeMessage('findAllchat')
 	findAll() {
 		return this.chatService.findAllMessages();
+	}
+
+	@SubscribeMessage('findOneChat')
+	findOneChat(id: number): Promise<string> {
+		return this.chatService.findOneChat(id);
 	}
 
 	@SubscribeMessage('join')

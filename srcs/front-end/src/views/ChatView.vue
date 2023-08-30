@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { io } from 'socket.io-client';
 import { onBeforeMount, ref, reactive } from 'vue';
 import  Axios  from '../services';
@@ -15,7 +15,8 @@ const createChanClass = ref({
 	password: '',
 	dm: false,
 	ownerId: 1,
-})
+});
+const chanId = ref(1)
 
 onBeforeMount(() => {
 	socket.emit('findAllMessages', {}, (response) => {
@@ -48,6 +49,7 @@ const sendMessage = () => {
 	socket.emit('createMessage', { text: messageText.value, name: name.value }, response => {
 		messageText.value = '';
 	});
+
 }
 
 let timeout;
@@ -77,6 +79,7 @@ function setName() {
 // }
 
 function createChan () {
+	console.log('hel')
 			socket.emit('createRoom', {
 				channelName: createChanClass.value.channelName,
 				is_private: createChanClass.value.is_private,
@@ -87,18 +90,31 @@ function createChan () {
 }
 const checked = ref(true)	
 
+function findChat () {
+	console.log('coucou');
+	socket.emit('findOneChat', {id: 1}, (response) => {
+		console.log(response);
+	});
+}
 </script>
 
 <template>
 	<div class="chat">		
 		<div class="create-channel">
-			<form @submit.prevent="createChan()">
-				<label>channel name: </label><input type="string" v-model="createChanClass.channelName" required>
-				<label>private channel: </label>
-				<input type="checkbox" id="checkbox" v-model="checked">
-				<label for="checkbox">{{ checked }}</label>
+			<form class="create" @submit.prevent="createChan()">
+				<label>channel name: 
+					<input type="string" v-model="createChanClass.channelName" required>
+				</label>
+				<label>private channel: 
+					<input type="checkbox" id="checkbox" v-model="checked">
+					<label for="checkbox">{{ checked }}</label>
+				</label>
+			
 				<button @onclick='createChan'>create channel</button>
+				
 			</form>
+			<form class="create" @submit.prevent="findChat()">
+			<button @onclick="findChat">find channel</button></form>
 		</div>
 		<div v-if="!joined">
 			<form @submit.prevent="join">
@@ -134,15 +150,18 @@ const checked = ref(true)
 </template>
 
 
-<style>
+<style lang="scss" scoped>
+
 .chat{
 	display: flex;
 	flex-direction: column;
+	align-items: flex-start;
 }
-.create-channel {
+
+.chat .create-channel .create{
 	display: flex;
 	justify-content: center;
 	flex-direction: column;
-	align-items: center;
+	align-items: flex-start;
 }
 </style>
