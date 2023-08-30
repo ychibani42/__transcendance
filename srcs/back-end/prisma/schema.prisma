@@ -53,7 +53,7 @@ model Game {
 model Channel {
   id         Int       @id @unique @default(autoincrement())
   is_private Boolean
-  password        String
+  password        String?
   channelName     String      
   adminId    Int[]
   ownerId    Int
@@ -61,6 +61,7 @@ model Channel {
   messages   Message[] // Define the relation with Message
   blockedUsers Blocked[]
   mutedUsers  Muted[]
+  dm			Boolean
 }
 
 model Message {

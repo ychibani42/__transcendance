@@ -1,1 +1,20 @@
-export class CreateChatDto {}
+import { IsBoolean, IsNumber, IsOptional, IsString, Length } from 'class-validator';
+
+export class CreateChatDto {
+	@IsString()
+	@Length(1, 15)
+	channelName: string;
+
+	@IsBoolean()
+	is_private: boolean;
+
+	@IsOptional()
+	password?: string;
+
+	@IsBoolean()
+	@IsOptional()
+	dm: boolean;
+
+	@IsNumber()
+	ownerId: number;
+}
