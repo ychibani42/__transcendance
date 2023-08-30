@@ -10,7 +10,7 @@ export class ChatService {
 	constructor(private prismaService: PrismaService) {}
 	async createChat(createChatDto: CreateChatDto) {
 		console.log(createChatDto);
-		return this.prismaService.channel.create({
+		await this.prismaService.channel.create({
 			data: {
 				channelName: createChatDto.channelName,
 				is_private: createChatDto.is_private,
@@ -19,6 +19,7 @@ export class ChatService {
 				password: createChatDto.password,
 			},
 		});
+		return createChatDto;
 	}
 
 	findAllChat() {

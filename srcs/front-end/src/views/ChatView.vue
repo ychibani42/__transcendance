@@ -1,6 +1,6 @@
 <script setup>
 import { io } from 'socket.io-client';
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, reactive } from 'vue';
 import  Axios  from '../services';
 
 const socket = io('http://localhost:3000');
@@ -62,20 +62,30 @@ const emitTyping = () => {
 function setName() {
 }
 
-function createChan () {
-    try {
-        Axios.post("chat/createRooms", {channelName: createChanClass.value.channelName,
-	is_private: createChanClass.value.is_private,
-	password: createChanClass.value.password,
-	dm: createChanClass.value.dm,
-	ownerId: createChanClass.value.ownerId}).then(res => {
-            console.log(res);
-        } );
-    } catch (error) {
-        console.log(error);
-    }
-}
+// function createChan () {
+//     try {
+//         Axios.post("chat/createRooms", {channelName: createChanClass.value.channelName,
+// 	is_private: createChanClass.value.is_private,
+// 	password: createChanClass.value.password,
+// 	dm: createChanClass.value.dm,
+// 	ownerId: createChanClass.value.ownerId}).then(res => {
+//             console.log(res);
+//         } );
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
 
+function createChan () {
+			socket.emit('createRoom', {
+				channelName: createChanClass.value.channelName,
+				is_private: createChanClass.value.is_private,
+				password: createChanClass.value.password,
+				dm: createChanClass.value.dm,
+				ownerId: createChanClass.value.ownerId
+			})
+}
+const checked = ref(true)	
 
 </script>
 
@@ -83,13 +93,20 @@ function createChan () {
 	<div class="chat">		
 		<div class="create-channel">
 			<form @submit.prevent="createChan()">
-				<input type="string" v-model="createChanClass.channelName" required>
+				<label>channel name: </label><input type="string" v-model="createChanClass.channelName" required>
+				<label>private channel: </label>
+				<input type="checkbox" id="checkbox" v-model="checked">
+				<label for="checkbox">{{ checked }}</label>
+				<button @onclick='createChan'>create channel</button>
 			</form>
 		</div>
 		<div v-if="!joined">
 			<form @submit.prevent="join">
 				<label>What's your name ? </label>
 				<button ref="setName">NAME</button>
+
+	<button @click="createChannButton.createChan2()">
+	</button>
 			</form>
 		</div>
 
@@ -118,4 +135,14 @@ function createChan () {
 
 
 <style>
+.chat{
+	display: flex;
+	flex-direction: column;
+}
+.create-channel {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
 </style>

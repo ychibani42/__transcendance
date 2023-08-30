@@ -8,6 +8,5 @@ import { UserModule } from 'src/user/user.module';
 @Module({
 	imports: [PrismaModule, UserModule],
 	providers: [ChatGateway, ChatService],
-	controllers: [ChatGateway],
 })
 export class ChatModule {}

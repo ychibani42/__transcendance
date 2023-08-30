@@ -9,8 +9,9 @@ import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { Chat } from './entities/chat.entity';
 
 @WebSocketGateway({
 	cors: {
@@ -21,6 +22,9 @@ import { Server, Socket } from 'socket.io';
 export class ChatGateway {
 	@WebSocketServer()
 	server: Server;
+
+	private logger: Logger = new Logger('ChatGateway');
+
 	constructor(private readonly chatService: ChatService) {}
 
 	@SubscribeMessage('createMessage')
@@ -34,6 +38,11 @@ export class ChatGateway {
 		);
 		this.server.emit('message', message);
 		return message;
+	}
+
+	@SubscribeMessage('createRoom')
+	createRoom(@Body() body :any): Promise<Chat> {
+		return this.chatService.createChat(body);
 	}
 
 	@SubscribeMessage('findAllchat')
