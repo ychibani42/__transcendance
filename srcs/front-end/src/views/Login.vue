@@ -69,6 +69,9 @@ a{
 
 .btn:hover {
     background-color: #2980b9;
+    color:gold;
+    border-color: gold;
+    border: 2px;
 }
 
 /* Style du formulaire */

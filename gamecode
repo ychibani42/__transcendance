@@ -1,57 +1,68 @@
-<script setup lang="ts">
-import {onMounted, Ref, ref} from "vue";
+import {onMounted,onBeforeMount, Ref, ref , onUnmounted} from "vue";
 import {io} from 'socket.io-client'
+
 
 // The important part: the name of the variable needs to be equal to the ref's name of the canvas element in the template
 const canvasElement: Ref<HTMLCanvasElement | undefined> = ref();
 const context: Ref<CanvasRenderingContext2D | undefined> = ref();
-const socket = io('http://localhost:3000/game')
+const socket = io('http://localhost:3000/game');
 const paddle = ref({
-        x: 30,
+        x: 0,
         y :0,
-        w : 15,
+        w : 0,
         h : 100,
-        color : 'white',
+        color : 'red',
         score : 0,
 });
 const com = ref({
-        x: 30,
+        x: 0,
         y : 0,
-        w : 15,
-        h : 100,
-        color : 'white',
+        w : 0,
+        h : 0,
+        color : 'red',
         score : 0,
 });
 const ball = ref({
         x: 0,
         y : 0,
-        r : 10,
+        r : 0,
         speed : 2,
-        velX : 5,
+        velX : 2,
         velY : 0,
         color : 'blue',
 });
 
+onUnmounted(() => {
+    socket.disconnect();
+    console.log("LEAVE");
+}),
+
+onBeforeMount(() => {
+    console.log('Here');
+    //socket.emit('message');
+    socket.connect();
+}),
+
 onMounted(() => {
-    canvasElement.value = document.getElementById
     context.value = canvasElement.value?.getContext('2d') || undefined;
     canvasElement.value?.addEventListener("mousemove",Updatexy);
-    console.log(canvasElement.value);
     if(!canvasElement.value){
         return;
     }
-    paddle.value.y =  canvasElement.value.height/2 - 100/2;
-    com.value.y = canvasElement.value.height/2 - 100/2,
-    com.value.x = canvasElement.value.width-30-15,
+    com.value.y = canvasElement.value.height/2 - 37/2,
+    com.value.w = 8,
+    com.value.h = 37;
+    com.value.x = canvasElement.value.width - 22,
     ball.value.x = canvasElement.value.width/2,
-    ball.value.y = canvasElement.value.height/2
-    console.log(socket);
+    ball.value.y = 0,
+    paddle.value.w = 8,
+    paddle.value.h = 37,
+    paddle.value.x = 15;
+    paddle.value.y =  canvasElement.value.height/2 - 37/2;
+    ball.value.r= 5;
 });
 
-socket.emit('message');
-socket.on('connected',(response : string) => {
-    console.log(response);
-});
+
 
 setInterval(game,1000/60);
 
@@ -74,7 +85,6 @@ function collition(bal : any,play : any){
         l:0,
         r:0,
     };
-    
     ballc.top = bal.value.y - bal.value.r;
     ballc.bot = bal.value.y + bal.value.r;
     ballc.l = bal.value.x - bal.value.r;
@@ -94,8 +104,12 @@ function update(){
     ball.value.x += ball.value.velX;
     ball.value.y += ball.value.velY;
 
-    let comlel = 0.1;
-    com.value.y += (ball.value.y - (com.value.y + com.value.h/2)) * comlel;
+    let comlel = 0.7;
+    com.value.y = com.value.y + (ball.value.y - (com.value.y + com.value.h/2)) * comlel;
+    if(ball.value.y > 150)
+        ball.value.y = 150 - ball.value.r
+    if(ball.value.y < 0)
+        ball.value.y = 0 + ball.value.r
     if(ball.value.y + ball.value.r > canvasElement.value?.height || ball.value.y - ball.value.r < 0){
         ball.value.velY = -ball.value.velY;
     }
@@ -110,8 +124,8 @@ function update(){
         let dir = (ball.value.x < canvasElement.value?.width/2) ? 1 : -1;
         ball.value.velX = dir * ball.value.speed * Math.cos(anglered);
         ball.value.velY = ball.value.speed * Math.sin(anglered);
-        if(ball.value.speed < 12)
-            ball.value.speed += 0.5;
+        if(ball.value.speed < 5)
+            ball.value.speed += 0.2;
     }
 
     if(ball.value.x - ball.value.r < 0)
@@ -132,8 +146,9 @@ function resetball()
         return
     ball.value.x = canvasElement.value.width/2;
     ball.value.y = canvasElement.value.height/2;
-    ball.value.speed = 5;
-    ball.value.velX = -ball.value.velX;
+    ball.value.speed = 2;
+    let value = (ball.value.velX > 0) ? 1 : -1;
+    ball.value.velX = 2 * value;
 }
 
 function Updatexy(e : any){
@@ -141,7 +156,13 @@ function Updatexy(e : any){
         return;
     }
     let rect = canvasElement.value.getBoundingClientRect();
-    paddle.value.y = e.y - rect.top - paddle.value.h/2;
+    paddle.value.y = ((e.y - rect.top) / (rect.height/150)) - paddle.value.h/2;
+    if(paddle.value.y < 0)
+        paddle.value.y = 0;
+    if(paddle.value.y > canvasElement.value.height - paddle.value.h)
+    {
+        paddle.value.y = canvasElement.value.height - paddle.value.h
+    }
 };
 
 function render() {
@@ -150,7 +171,7 @@ function render() {
     if (!context.value) {
         return;
     }
-    drowpaddle(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
+    clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
     drawText(paddle.value.score,canvasElement.value?.width/4,canvasElement.value?.height/5);
     drawText(com.value.score,3*canvasElement.value?.width/4,canvasElement.value?.height/5);
     drowpaddle(paddle.value.x,paddle.value.y,paddle.value.w,paddle.value.h,paddle.value.color);
@@ -158,12 +179,20 @@ function render() {
     drowball(ball.value.x,ball.value.y,ball.value.r,ball.value.color);
 };
 
+function clearCanvas(x: number,y: number,w: number,h: number,color: string){
+    if (!context.value) {
+        return;
+    }
+    context.value.fillStyle = color;
+    context.value.fillRect(x,y,w,h);
+}
+
 function drawText(text : number,x : number ,y : number){
     if (!context.value) {
         return;
     }
     context.value.fillStyle = "#FFF";
-    context.value.font = "75px fantasy";
+    context.value.font = "20px fantasy";
     context.value.fillText(text, x, y);
 }
 
@@ -187,27 +216,3 @@ function drowball(x: number,y: number,r: number,color: string)
     context.value.closePath();
     context.value.fill();
 }
-
-
-</script>
-
-<template>
-    <div>
-        <canvas ref="canvasElement" width="600" height="400" style="border: 2px solid #ffffff"></canvas>
-    </div>
-</template>
-
-
-<style>
-
-canvas#responsive-canvas {
-    display: flex;
-      width: 34rem;
-      height: 100%;
-      position: fixed;
-      left: 0;
-      top: 0;
-      z-index: -1;
-    }
-
-</style>

@@ -1,6 +1,7 @@
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server , Socket} from "socket.io";
 import { GameService } from "./Game.service";
+import { Interval } from "@nestjs/schedule";
 
 
 @WebSocketGateway({
@@ -16,9 +17,11 @@ export class GameGateway{
     server: Server;
 
     @SubscribeMessage('message')
-    sendmsg(){
+    sendmsg(client : Socket){
         console.log("reach");
-        this.server.emit('connected',"augwdvywtadywvad")
+        let any = this.GameService.findall();
+        console.log(any);
+        this.GameService.lunchloop(client);
     }
 
     handleConnection(client : Socket){
@@ -32,5 +35,6 @@ export class GameGateway{
         // Gerer Deco non voulu
         // Fin de game
         this.GameService.remove(client);
+        this.GameService.stoploop();
     }
 }
