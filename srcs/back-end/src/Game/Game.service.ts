@@ -7,8 +7,8 @@ export class GameService {
 	constructor(
 
     ) {}
-    private readonly Queue : Socket[] = [];
-    private Game : any;
+    Queue : Array<Socket> = [];
+    Game : any;
 
 
     created(socket : Socket) {
@@ -28,15 +28,19 @@ export class GameService {
 
     lunchloop(client : Socket){
         console.log("ddw")
-        this.Game = setInterval(this.sendball,10,client);
+        if(this.Queue.length == 1)
+            this.Game = setInterval(this.sendball,1000,this.Queue);
     }
 
-    sendball(client : Socket){
-        console.log("BALL");
-        client.emit("ball");
+    sendball(clients : Socket[])
+    {
+        console.log(clients)
+        console.log("here")
     }
 
     stoploop(){
+        if(this.Queue.length != 0)
+            return
         console.log("BIG BALLs");
         clearInterval(this.Game);
     }

@@ -39,6 +39,7 @@ onMounted(() => {
     socket.emit('message');
     render();
 });
+
 function render() {
     console.log("tic")
     if(!canvasElement.value)
