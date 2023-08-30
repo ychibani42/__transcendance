@@ -15,7 +15,7 @@ export class ChatService {
 				channelName: createChatDto.channelName,
 				is_private: createChatDto.is_private,
 				ownerId: createChatDto.ownerId,
-				dm:	createChatDto.dm,
+				dm: createChatDto.dm,
 				password: createChatDto.password,
 			},
 		});
@@ -41,7 +41,6 @@ export class ChatService {
 	async createMessage(createMessageDto: CreateMessageDto, clientId: string) {
 		console.log(createMessageDto);
 		try {
-			
 		} catch (error) {
 			throw error;
 		}
@@ -61,4 +60,3 @@ export class ChatService {
 		// return this.clientToUser[clientId];
 	}
 }
-
