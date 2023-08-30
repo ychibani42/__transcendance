@@ -22,7 +22,9 @@ function login(){
 <template>
     <div class="Log">
         <h1>Login</h1>
-        <button class="btn"><a href="http://localhost:3000/auth/42/callback"></a>Log With 42</button>
+        <form action="http://localhost:3000/auth/42/callback">
+            <button class="btn" type="submit">LOG 42</button>
+        </form>
         <form class="form" @submit.prevent="login()" style="inline">
             <span>Insert ID</span>
             <input class="input" type="number" name="id42" v-model="id42" text="Number" required>
@@ -40,16 +42,17 @@ function login(){
     align-items: center;
     justify-content: center;
     background-color: #f2f2f2;
-    padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    height: 100%;
 }
 /* Style du titre */
 h1 {
     font-size: 2rem;
     color: #333;
     margin-bottom: 1rem;
+}
+
+a{
+    color: white;
 }
 
 /* Style du bouton Log With 42 */
