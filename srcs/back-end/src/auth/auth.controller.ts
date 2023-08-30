@@ -43,6 +43,4 @@ export class AuthController {
 		const good = this.authService.changeotp(nbr.id);
 		return good;
 	}
-
-	x
 }

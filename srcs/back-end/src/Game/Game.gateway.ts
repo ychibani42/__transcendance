@@ -1,13 +1,16 @@
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Socket } from "dgram";
-import { Server } from "socket.io";
+import { Server , Socket} from "socket.io";
+import { GameService } from "./Game.service";
+
+
 @WebSocketGateway({
     cors: {
-      origin: "*",
+      origin: "http://localhost:5173",
     },
     namespace : 'game'
 })
 export class GameGateway{
+    constructor(private GameService: GameService){}
 
     @WebSocketServer()
     server: Server;
@@ -18,4 +21,16 @@ export class GameGateway{
         this.server.emit('connected',"augwdvywtadywvad")
     }
 
+    handleConnection(client : Socket){
+        console.log("Connection");
+        this.GameService.created(client)
+        // Mettre User status en GAME
+    }
+
+    handleDisconnect(client :Socket){
+        console.log("Disconnection");
+        // Gerer Deco non voulu
+        // Fin de game
+        this.GameService.remove(client);
+    }
 }
