@@ -37,7 +37,7 @@ export class GameService {
     }
 
     stoploop(){
-        console.log("BIG BALL");
+        console.log("BIG BALLs");
         clearInterval(this.Game);
     }
 }
