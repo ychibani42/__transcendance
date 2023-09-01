@@ -17,18 +17,29 @@ const ball = ref({
         color : 'blue',
 });
 
+const com = ref({
+        x: 300 - 15,
+        y : 0,
+        w : 8,
+        h : 37,
+        color : 'red',
+        score : 0,
+});
+
 onUnmounted(() => {
     socket.disconnect();
     console.log("LEAVE");
-    socket.on("ball",() => {
-        render();
-    })
 }),
 
 onBeforeMount(() => {
     console.log('Here');
-    socket.on('ball' , () => {
+    socket.on('ball' , (arg1 : number, arg2 : number ) => {
+        ball.value.x = arg1
+        ball.value.y = arg2
         render()
+    })
+    socket.on('com', (arg1 : number) => {
+        com.value.y = arg1
     })
     socket.connect();
 }),
@@ -41,7 +52,6 @@ onMounted(() => {
 });
 
 function render() {
-    console.log("tic")
     if(!canvasElement.value)
         return 
     if (!context.value) {
@@ -49,7 +59,18 @@ function render() {
     }
     clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
     drowball(ball.value.x,ball.value.y,ball.value.r,ball.value.color);
+    drowpaddle(com.value.x,com.value.y,com.value.w,com.value.h,com.value.color);
 };
+
+
+function drowpaddle(x: number,y: number,w: number,h: number,color: string)
+{
+    if (!context.value) {
+        return;
+    }
+    context.value.fillStyle = color;
+    context.value.fillRect(x,y,w,h);
+}
 
 function clearCanvas(x: number,y: number,w: number,h: number,color: string){
     if (!context.value) {

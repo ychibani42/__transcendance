@@ -20,8 +20,8 @@ export class GameGateway{
     sendmsg(client : Socket){
         console.log("reach");
         let any = this.GameService.findall();
-        console.log(any);
-        this.GameService.lunchloop(client);
+        if ( any.length == 1)
+            this.GameService.addInterval(any);
     }
 
     handleConnection(client : Socket){
@@ -36,5 +36,10 @@ export class GameGateway{
         // Fin de game
         this.GameService.remove(client);
         this.GameService.stoploop();
+    }
+
+    @SubscribeMessage('position')
+    positionY(client : Socket,Y : number){
+        this.GameService.updateY(Y);
     }
 }
