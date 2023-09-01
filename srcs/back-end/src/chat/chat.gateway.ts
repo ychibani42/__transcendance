@@ -34,7 +34,8 @@ export class ChatGateway {
 	) {
 		const message = await this.chatService.createMessage(
 			createMessageDto,
-			'coucou',
+			3,
+			3,
 		);
 		this.server.emit('message', message);
 		return message;
@@ -67,28 +68,4 @@ export class ChatGateway {
 		client.broadcast.emit('typing', { name, isTyping });
 	}
 
-	/* Controller Operations */
-
-	@Get('getAllRooms')
-	async getRooms(): Promise<any> {
-		return this.chatService.findAllChats();
-	}
-
-	@Post('createRooms')
-	async createRooms(@Body() body :any): Promise<number> {
-		console.log('COFADSJADSAJKDHASDJAHD');
-		// const user = this.userService.findOne({
-		// 	where: {
-		// 		id: 1
-		// 	},
-		// });
-		console.log(body);
-		// const chatId = this.chatService.createChat(body);
-		return 1;
-	}
-
-	@Post('DeleteRooms')
-	async deleteRooms(): Promise<void> {
-		return this.chatService.removeChat(1);
-	}
 }

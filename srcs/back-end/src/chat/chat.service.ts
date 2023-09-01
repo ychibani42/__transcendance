@@ -41,9 +41,18 @@ export class ChatService {
 		return;
 	}
 
-	async createMessage(createMessageDto: CreateMessageDto, clientId: string) {
+	async createMessage(createMessageDto: CreateMessageDto, clientId: number, chanId: number) {
 		console.log(createMessageDto);
 		try {
+			let message = await this.prismaService.message.create({
+				data: {
+					userId: clientId,
+					channelId: chanId,
+					name: createMessageDto.name,
+					text: createMessageDto.text,
+				},
+			});
+			return message;
 		} catch (error) {
 			throw error;
 		}

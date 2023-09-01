@@ -18,17 +18,17 @@ const createChan = ref({
 	dm: false,
 	ownerId: 1,
 })
+const messageText = ref('');
 
 onBeforeMount(() => {
     displayChats()
 
 });
 function enterchat(chan : any){
-	console.log(chan);
 	chandisp.value.idch=chan.id
 	chandisp.value.messages=chan.messages
 	chandisp.value.channame=chan.channelName
-	console.log(chandisp.value);
+	console.log(chandisp.value.messages);
 }
 
 function findChat () {
@@ -38,12 +38,17 @@ function findChat () {
 		console.log(response);
 	});
 }
+
+
+const createMessage = () => {
+	socket.emit('createMessage', { id: 1, name: 'tea',text: messageText.value  }, response => {
+        console.log(response);
+	});
+}
+
 function displayChats () {
-	console.log('ici')
 	socket.emit('findAllChats', (response) => {
 		chan.value = response
-		console.log(response)
-		return (response)
 	});
 }
 function createChat () {
@@ -69,21 +74,28 @@ function createChat () {
         <div class="channel-list">
             <button @click="addNewRoom = true">+</button>
             <button @click="displayChats">refresh</button>
-			<ul>
+			<ol>
 				<li v-for="name in chan">
 					<button @click="enterchat(name)">{{ name.channelName }} </button>
 				</li>
-			</ul>
+			</ol>
         </div>
         <div class="chat-display">
             <div class="chat-header">
                 
             </div>
             <div class="chat-messages">
-                        message
+                <ol>
+				    <li v-for="name in chandisp.messages">
+                        {{ name.text }}
+				</li>
+			</ol>
             </div>
             <div class="typing-messages">
-
+                <form @submit.prevent="createMessage">
+                    <input type="text" placeholder="type your message" v-model="messageText" required>
+                    <button type="submit">Send</button>
+                </form>
             </div>
         </div>
 
@@ -99,6 +111,7 @@ function createChat () {
 
 .channel-list {
     display: flex;
+
     flex-flow: column;
     flex: 0 0 15%;
     min-width: 150px;
@@ -106,6 +119,30 @@ function createChat () {
     position: relative;
     height: 100%;
     background-color: rgb(240, 240, 231);
+    ol{
+        padding: 0;
+        width: 100%;
+        display: flex;
+        flex:content;
+        flex-flow: column;
+        align-items: flex-start;
+        list-style: none;
+        text-align: left;
+        gap: 0.5%;
+        li{
+            width: 100%;
+ 
+            button {
+                width: 100%;
+                border-radius: 0;
+                padding-top: 5%;
+                padding-bottom: 5%;
+
+            }
+        }
+
+    }
+
 
 }
 
@@ -136,6 +173,18 @@ function createChat () {
     overflow-y: auto;
     margin-right: 1px;
     margin-top: 65px;
+    ol {
+        padding: 0;
+        width: 100%;
+        display: flex;
+        flex:content;
+        flex-flow: column;
+        align-items: flex-start;
+        list-style: none;
+        text-align: left;
+        gap: 0.5%;
+    }
+ 
 }
 
 .typing-messages {
