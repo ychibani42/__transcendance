@@ -16,7 +16,7 @@ export class ChatService {
 				channelName: createChatDto.channelName,
 				is_private: createChatDto.is_private,
 				ownerId: createChatDto.ownerId,
-				dm:	createChatDto.dm,
+				dm: createChatDto.dm,
 				password: createChatDto.password,
 			},
 		});
@@ -56,10 +56,18 @@ export class ChatService {
 		return;
 	}
 
-	async createMessage(createMessageDto: CreateMessageDto, clientId: string) {
+	async createMessage(createMessageDto: CreateMessageDto, clientId: number, chanId: number) {
 		console.log(createMessageDto);
 		try {
-			
+			let message = await this.prismaService.message.create({
+				data: {
+					userId: clientId,
+					channelId: chanId,
+					name: createMessageDto.name,
+					text: createMessageDto.text,
+				},
+			});
+			return message;
 		} catch (error) {
 			throw error;
 		}
@@ -79,4 +87,3 @@ export class ChatService {
 		// return this.clientToUser[clientId];
 	}
 }
-
