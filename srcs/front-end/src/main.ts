@@ -4,20 +4,15 @@ import App from './App.vue'
 import Axios  from "./services"
 import router from "./router"
 import VueAxios from "vue-axios";
-// import store from './store'
-import Vuex from 'vuex'
-import createStore from 'vuex'
+import { createStore } from "vuex";
 
 const store = createStore({
-	state() {
-		return {
-			count: 1
-		}
+	state: {
+		count: 0,
 	}
-})
+	/* state, actions, mutations */
+  });
 
-createApp(App)
-.use(VueAxios,Axios)
-.use(router)
-.use(store)
-.mount("#app")
+const app = createApp(App)
+
+app.use(VueAxios, Axios).use(router).use(store).mount("#app")

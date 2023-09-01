@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { io } from 'socket.io-client';
-import { onBeforeMount, ref, reactive } from 'vue';
+import { onBeforeMount, ref, reactive, computed } from 'vue';
 import Axios from '../services';
+import { useStore, mapState } from 'vuex'
+import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 const socket = io('http://localhost:3000');
 const addNewRoom = ref(false)
@@ -13,6 +15,13 @@ const chandisp = ref({
 	channame : '',
 })
 
+
+const {count, name1, msg} = useState(["count", "name1", "msg"])
+							//useMutations (changement d'etat de variable)
+							//useAction (fonctions sur variable)
+							//useGetter (pas compris)
+
+
 const createChan = ref({
 	channelName: '',
 	is_private: false,
@@ -23,7 +32,13 @@ const createChan = ref({
 
 const messageText = ref('');
 
+
+
 onBeforeMount(() => {
+
+	const store = useStore()
+	const count = computed(() => store.state.count)
+	console.log(count.value + 123)
     displayChats()
 	Axios.get('auth/Checkjwt')
 	.then(function(response)  {

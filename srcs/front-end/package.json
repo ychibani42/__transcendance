@@ -17,7 +17,8 @@
     "vue-axios": "^3.5.2",
     "vue-router": "^4.2.4",
     "vue-socket.io": "^3.0.10",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "vuex-composition-helpers": "^2.0.3"
   },
   "devDependencies": {
     "@types/socket.io-client": "^3.0.0",

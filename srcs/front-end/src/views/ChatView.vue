@@ -115,6 +115,9 @@ function displayChats () {
 		return (response)
 	});
 }
+
+{{count}}
+
 </script>
 
 <template>
