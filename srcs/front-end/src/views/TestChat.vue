@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { io } from 'socket.io-client';
 import { onBeforeMount, ref, reactive } from 'vue';
+import Axios from '../services';
 
 const socket = io('http://localhost:3000');
 const addNewRoom = ref(false)
@@ -11,6 +12,7 @@ const chandisp = ref({
 	idch : 0,
 	channame : '',
 })
+
 const createChan = ref({
 	channelName: '',
 	is_private: false,
@@ -18,12 +20,17 @@ const createChan = ref({
 	dm: false,
 	ownerId: 1,
 })
+
 const messageText = ref('');
 
 onBeforeMount(() => {
     displayChats()
-
+	Axios.get('auth/Checkjwt')
+	.then(function(response)  {
+		console.log(response);
+	})
 });
+
 function enterchat(chan : any){
 	chandisp.value.idch=chan.id
 	chandisp.value.messages=chan.messages
@@ -41,7 +48,7 @@ function findChat () {
 
 
 const createMessage = () => {
-	socket.emit('createMessage', { id: 1, name: 'tea',text: messageText.value  }, response => {
+	socket.emit('createMessage', { id: 1, name: 'tea', text: messageText.value  }, response => {
         console.log(response);
 	});
 }
@@ -51,15 +58,23 @@ function displayChats () {
 		chan.value = response
 	});
 }
+
 function createChat () {
 			socket.emit('createRoom', {
 				channelName: createChan.value.channelName,
 				is_private: createChan.value.is_private,
 				password: createChan.value.password,
 				dm: createChan.value.dm,
-				ownerId: createChan.value.ownerId
+				ownerId: createChan.value.ownerId,
+				password: createChan.value.password
 			})
 }
+
+const checked = ref(false)
+const isFocused = ref(false)
+const password = ref('')
+const togglePrivacy = ref(false)
+
 </script>
 
 <template>
@@ -69,6 +84,12 @@ function createChat () {
                 <input type="text" placeholder="Add username"  v-model="createChan.channelName" required>
                 <button type="submit"> Create Room </button>
                 <button class="button-cancel" @click="addNewRoom = false">Cancel</button>
+				<input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
+				<label for="checkbox" @click="togglePrivacy">
+  				{{ checked ? 'private' : 'public' }}
+				</label>
+				<label for="password">Mot de passe</label>
+				<input type="password" id="password" v-model="password" required @focus="isFocused = true" @blur="isFocused = false">
             </form>
         </div>
         <div class="channel-list">
@@ -82,7 +103,6 @@ function createChat () {
         </div>
         <div class="chat-display">
             <div class="chat-header">
-                
             </div>
             <div class="chat-messages">
                 <ol>
@@ -98,7 +118,6 @@ function createChat () {
                 </form>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -111,7 +130,6 @@ function createChat () {
 
 .channel-list {
     display: flex;
-
     flex-flow: column;
     flex: 0 0 15%;
     min-width: 150px;
@@ -119,7 +137,7 @@ function createChat () {
     position: relative;
     height: 100%;
     background-color: rgb(240, 240, 231);
-    ol{
+    ol {
         padding: 0;
         width: 100%;
         display: flex;
@@ -129,7 +147,7 @@ function createChat () {
         list-style: none;
         text-align: left;
         gap: 0.5%;
-        li{
+        li {
             width: 100%;
  
             button {
@@ -142,8 +160,6 @@ function createChat () {
         }
 
     }
-
-
 }
 
 .chat-display {

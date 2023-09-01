@@ -24,28 +24,27 @@ export class ChatService {
 	}
 
 	async findAllChats() {
-		const chan = await this.prismaService.channel.findMany({include : {
-			messages : true
-		}})
+		const chan = await this.prismaService.channel.findMany({
+			include: {
+				messages: true,
+			},
+		});
 		return chan;
 	}
 
 	async findOneChat(chanId: number) {
-		console.log('test', chanId)
+		console.log('test', chanId);
 		try {
 			const chan = await this.prismaService.channel.findUniqueOrThrow({
 				where: {
 					id: chanId,
-				}
+				},
 			});
-			console.log(chan)		
 			const test: string | undefined = chan?.channelName;
 			return test;
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 		}
-		
-	
 	}
 
 	updateChat(id: number, updateChatDto: UpdateChatDto) {
@@ -56,7 +55,11 @@ export class ChatService {
 		return;
 	}
 
-	async createMessage(createMessageDto: CreateMessageDto, clientId: number, chanId: number) {
+	async createMessage(
+		createMessageDto: CreateMessageDto,
+		clientId: number,
+		chanId: number,
+	) {
 		console.log(createMessageDto);
 		try {
 			let message = await this.prismaService.message.create({
@@ -69,7 +72,7 @@ export class ChatService {
 			});
 			return message;
 		} catch (error) {
-			throw error;
+			console.log(error);
 		}
 		// return this.prismaService.message.findAll();
 	}

@@ -1,7 +1,15 @@
 <script lang="ts" setup>
 import { io } from 'socket.io-client';
 import { onBeforeMount, ref, reactive } from 'vue';
-import  Axios  from '../services';
+import Axios from '../services';
+import {useStore} from 'vuex'
+
+// setup(){
+// const store=useStore()// store instead of `$store`
+
+
+// console.log(store.count);
+// }
 
 const socket = io('http://localhost:3000');
 const messages = ref([]);
@@ -16,14 +24,19 @@ const createChanClass = ref({
 	dm: false,
 	ownerId: 1,
 });
+
 const id: number = ref(1)
 const chanId : number = ref(0)
+
 const chan = ref([])
+
 const chandisp = ref({
 	messages : [],
 	idch : 0,
 	channame : '',
 })
+
+const userId = ref();
 
 function enterchat(chan : any){
 	console.log(chan);
@@ -33,24 +46,6 @@ function enterchat(chan : any){
 	console.log(chandisp.value);
 }
 
-onBeforeMount(() => {
-	socket.emit('findAllMessages', {}, (response) => {
-		messages.value = response;
-	});
-
-	socket.on('message', (message) => {
-		messages.value.push(message);
-	});
-
-	socket.on('typing', ({ name, isTyping }) => {
-		if (isTyping) {
-			typingDisplay.value = `${name} is typing...`;
-		} else {
-			typingDisplay.value = '';
-		}
-	});
-
-});
 
 const join = () => {
 	socket.emit('join', { name: name.value }, () => {
