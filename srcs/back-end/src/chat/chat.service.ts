@@ -24,7 +24,9 @@ export class ChatService {
 	}
 
 	async findAllChats() {
-		const chan = await this.prismaService.channel.findMany()
+		const chan = await this.prismaService.channel.findMany({include : {
+			messages : true
+		}})
 		return chan;
 	}
 

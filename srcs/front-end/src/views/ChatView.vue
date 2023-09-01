@@ -19,6 +19,19 @@ const createChanClass = ref({
 const id: number = ref(1)
 const chanId : number = ref(0)
 const chan = ref([])
+const chandisp = ref({
+	messages : [],
+	idch : 0,
+	channame : '',
+})
+
+function enterchat(chan : any){
+	console.log(chan);
+	chandisp.value.idch=chan.id
+	chandisp.value.messages=chan.messages
+	chandisp.value.channame=chan.channelName
+	console.log(chandisp.value);
+}
 
 onBeforeMount(() => {
 	socket.emit('findAllMessages', {}, (response) => {
@@ -161,7 +174,7 @@ function displayChats () {
 		<div>
 			<ul>
 				<li v-for="name in chan">
-					{{ name.channelName}}
+					<button @click="enterchat(name)">{{ name.channelName }} </button>
 				</li>
 			</ul>
 		</div>
