@@ -16,7 +16,7 @@ const createChanClass = ref({
 	dm: false,
 	ownerId: 1,
 });
-const chanId = ref(1)
+const id: number = ref(1)
 
 onBeforeMount(() => {
 	socket.emit('findAllMessages', {}, (response) => {
@@ -91,9 +91,18 @@ function createChan () {
 const checked = ref(true)	
 
 function findChat () {
-	console.log('coucou');
-	socket.emit('findOneChat', {id: 1}, (response) => {
+	let chanId: number = document.querySelector(".chanId").value;
+	console.log(chanId)
+	socket.emit('findOneChat', { id: chanId }, (response) => {
+		console.log('name of the chat ')
 		console.log(response);
+	});
+}
+function displayChats () {
+	console.log('ici')
+	socket.emit('findAllChats', (response) => {
+		console.log(response);
+		return (response)
 	});
 }
 </script>
@@ -109,20 +118,22 @@ function findChat () {
 					<input type="checkbox" id="checkbox" v-model="checked">
 					<label for="checkbox">{{ checked }}</label>
 				</label>
-			
 				<button @onclick='createChan'>create channel</button>
-				
 			</form>
 			<form class="create" @submit.prevent="findChat()">
-			<button @onclick="findChat">find channel</button></form>
+				<input class="chanId" type="number" required>
+				<button @onclick="findChat">find channel</button>
+			</form>
+	
 		</div>
+		<form @submit.prevent="displayChats()">
+			<button @onclick="displayChats">display channels</button>
+		</form>
 		<div v-if="!joined">
 			<form @submit.prevent="join">
 				<label>What's your name ? </label>
 				<button ref="setName">NAME</button>
-
-	<button @click="createChannButton.createChan2()">
-	</button>
+				<button @click="createChannButton.createChan2()"></button>
 			</form>
 		</div>
 

@@ -23,22 +23,26 @@ export class ChatService {
 		return createChatDto;
 	}
 
-	findAllChat() {
-
-		return `This action returns all chat`;
+	async findAllChats() {
+		const chan = await this.prismaService.channel.findMany()
+		return chan;
 	}
 
 	async findOneChat(chanId: number) {
-		console.log(chanId)
-		const chan = await this.prismaService.channel.findUnique({
-			where: {
-				id: 1,
-			}
+		console.log('test', chanId)
+		try {
+			const chan = await this.prismaService.channel.findUniqueOrThrow({
+				where: {
+					id: chanId,
+				}
+			});			
+			const test: string | undefined = chan?.channelName;
+			return test;
+		} catch (error) {
+			console.log(error)
 		}
-			
-		);
-		const test = chan.channelName;
-		return test;
+		
+	
 	}
 
 	updateChat(id: number, updateChatDto: UpdateChatDto) {
