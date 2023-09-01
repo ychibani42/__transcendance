@@ -35,7 +35,8 @@ export class ChatService {
 				where: {
 					id: chanId,
 				}
-			});			
+			});
+			console.log(chan)		
 			const test: string | undefined = chan?.channelName;
 			return test;
 		} catch (error) {

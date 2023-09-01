@@ -53,7 +53,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('findOneChat')
 	async findOneChat(@MessageBody('id') id: number): Promise<string | undefined>{
-		console.log('ici')
+		console.log('icai')
 		console.log(id)
 		return this.chatService.findOneChat(id).then(res => {return res});
 

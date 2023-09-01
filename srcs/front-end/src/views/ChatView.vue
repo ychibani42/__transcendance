@@ -17,6 +17,8 @@ const createChanClass = ref({
 	ownerId: 1,
 });
 const id: number = ref(1)
+const chanId : number = ref(0)
+const chan = ref([])
 
 onBeforeMount(() => {
 	socket.emit('findAllMessages', {}, (response) => {
@@ -91,9 +93,8 @@ function createChan () {
 const checked = ref(true)	
 
 function findChat () {
-	let chanId: number = document.querySelector(".chanId").value;
 	console.log(chanId)
-	socket.emit('findOneChat', { id: chanId }, (response) => {
+	socket.emit('findOneChat', { id: chanId.value }, (response) => {
 		console.log('name of the chat ')
 		console.log(response);
 	});
@@ -101,7 +102,8 @@ function findChat () {
 function displayChats () {
 	console.log('ici')
 	socket.emit('findAllChats', (response) => {
-		console.log(response);
+		chan.value = response
+		console.log(response)
 		return (response)
 	});
 }
@@ -121,7 +123,7 @@ function displayChats () {
 				<button @onclick='createChan'>create channel</button>
 			</form>
 			<form class="create" @submit.prevent="findChat()">
-				<input class="chanId" type="number" required>
+				<input class="chanId" type="number" v-model="chanId" required>
 				<button @onclick="findChat">find channel</button>
 			</form>
 	
@@ -156,7 +158,13 @@ function displayChats () {
 				<button type="submit">Send</button>
 			</form>
 		</div>
-
+		<div>
+			<ul>
+				<li v-for="name in chan">
+					{{ name.channelName}}
+				</li>
+			</ul>
+		</div>
 	</div>
 </template>
 
