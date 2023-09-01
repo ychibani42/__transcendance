@@ -1,9 +1,4 @@
 <script setup>
-import { io } from 'socket.io-client';
-import { onBeforeMount, ref, reactive } from 'vue';
-import  Axios  from '../services';
-
-const socket = io('http://localhost:3000');
 const messages = ref([]);
 const messageText = ref('');
 const joined = ref(false);

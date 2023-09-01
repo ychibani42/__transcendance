@@ -45,9 +45,9 @@ export class ChatGateway {
 		return this.chatService.createChat(body);
 	}
 
-	@SubscribeMessage('findAllchat')
+	@SubscribeMessage('findAllChats')
 	findAll() {
-		return this.chatService.findAllMessages();
+		return this.chatService.findAllChats();
 	}
 
 	@SubscribeMessage('join')
@@ -71,7 +71,7 @@ export class ChatGateway {
 
 	@Get('getAllRooms')
 	async getRooms(): Promise<any> {
-		return this.chatService.findAllChat();
+		return this.chatService.findAllChats();
 	}
 
 	@Post('createRooms')

@@ -22,10 +22,13 @@ export class ChatService {
 		return createChatDto;
 	}
 
-	findAllChat() {
-		return `This action returns all chat`;
+	async findAllChats() {
+		const chan = await this.prismaService.channel.findMany({include : {
+			messages : true
+		}})
+		return chan;
 	}
-
+	
 	findOneChat(id: number) {
 		return `This action returns a #${id} chat`;
 	}
