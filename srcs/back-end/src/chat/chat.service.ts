@@ -5,6 +5,7 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from './entities/message.entity';
+import { Exclude } from 'class-transformer';
 
 @Injectable()
 export class ChatService {
@@ -24,12 +25,26 @@ export class ChatService {
 	}
 
 	async findAllChats() {
-		const chan = await this.prismaService.channel.findMany({
-			include: {
-				messages: true,
-			},
-		});
-		return chan;
+		try {
+			const chan = await this.prismaService.channel.findMany({
+				select: {
+					password: false,
+					id: true,
+					channelName: true,   
+					adminId:true,
+					ownerId:true,
+					user :true,
+					messages: true,
+					blockedUsers:true,
+					mutedUsers :true,
+					dm:true
+				}
+			});
+			console.log(chan)
+			return chan;
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
 	async findOneChat(chanId: number) {
@@ -55,17 +70,12 @@ export class ChatService {
 		return;
 	}
 
-	async createMessage(
-		createMessageDto: CreateMessageDto,
-		clientId: number,
-		chanId: number,
-	) {
-		console.log(createMessageDto);
+	async createMessage( createMessageDto: CreateMessageDto, clientId: number) {
 		try {
 			let message = await this.prismaService.message.create({
 				data: {
-					userId: clientId,
-					channelId: chanId,
+					userId: createMessageDto.user,
+					channelId: createMessageDto.id,
 					name: createMessageDto.name,
 					text: createMessageDto.text,
 				},

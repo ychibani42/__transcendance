@@ -6,8 +6,7 @@ import { useStore, mapState } from 'vuex'
 import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 const socket = io('http://localhost:3000');
-// const addNewRoom = ref(false)
-const chanId : number = ref(0)
+const addNewRoom = ref(false)
 const chan = ref([])
 const chandisp = ref({
 	messages : [],
@@ -15,8 +14,10 @@ const chandisp = ref({
 	channame : '',
 })
 
+const user = ref(0)
 
-const {count, addNewRoom, msg} = useState(["count", false, "msg"])
+
+const {count, msg} = useState(["count", "msg"])
 							//useMutations (changement d'etat de variable)
 							//useAction (fonctions sur variable)
 							//useGetter (pas compris)
@@ -27,7 +28,7 @@ const createChan = ref({
 	is_private: false,
 	password: '',
 	dm: false,
-	ownerId: 1,
+	ownerId: 0,
 })
 
 const messageText = ref('');
@@ -39,8 +40,11 @@ onBeforeMount(() => {
     displayChats()
 	Axios.get('auth/Checkjwt')
 	.then(function(response)  {
-		console.log(response);
+        user.value = response.data.id
 	})
+    socket.on('message',(arg1 : string) => {
+        chandisp.value.messages.push(arg1);
+    })
 });
 
 
@@ -62,7 +66,7 @@ function findChat () {
 
 
 const createMessage = () => {
-	socket.emit('createMessage', { id: 1, name: 'tea', text: messageText.value  }, response => {
+	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: user.value}, response => {
         console.log(response);
 	});
 }
@@ -79,7 +83,7 @@ function createChat () {
 				is_private: createChan.value.is_private,
 				password: createChan.value.password,
 				dm: createChan.value.dm,
-				ownerId: createChan.value.ownerId,
+				ownerId: user.value,
 				password: createChan.value.password
 			})
 }
@@ -92,19 +96,16 @@ const togglePrivacy = ref(false)
 </script>
 
 <template>
-{{count + 123}}
     <div class="chat-page">
         <div class="add-chat">
-          <form v-if="addNewRoom" @submit.prevent="createChat">
+          <form v-if="addNewRoom" @submit.prevent.clear="createChat">
                 <input type="text" placeholder="Add username"  v-model="createChan.channelName" required>
                 <button type="submit"> Create Room </button>
                 <button class="button-cancel" @click="addNewRoom = false">Cancel</button>
 				<input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
-				<label for="checkbox" @click="togglePrivacy">
-  				{{ checked ? 'private' : 'public' }}
-				</label>
+				<label for="checkbox" @click="togglePrivacy">{{ checked ? 'private' : 'public' }}</label>
 				<label for="password">Mot de passe</label>
-				<input type="password" id="password" v-model="password" required @focus="isFocused = true" @blur="isFocused = false">
+				<input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
             </form>
         </div>
         <div class="channel-list">
@@ -120,10 +121,13 @@ const togglePrivacy = ref(false)
             <div class="chat-header">
             </div>
             <div class="chat-messages">
-                <ol>
-				    <li v-for="name in chandisp.messages">
-                        {{ name.text }}
-				</li>
+                <ol v-for="name in chandisp.messages">
+                    <div class="message" v-if="name.userId === user" >
+                            {{ name.text }} {{name.userId }}
+                    </div>
+                    <div class="Autre" v-else>
+                            {{ name.text }} {{ name.userId }}
+                    </div>
 			</ol>
             </div>
             <div class="typing-messages">
@@ -201,16 +205,17 @@ const togglePrivacy = ref(false)
 .chat-messages{
     background-color: rgb(212, 248, 236);
     flex: 1;
+    flex:content;
     overflow-y: auto;
     margin-right: 1px;
     margin-top: 65px;
+    max-height: 84.5vh;
     ol {
         padding: 0;
         width: 100%;
         display: flex;
         flex:content;
         flex-flow: column;
-        align-items: flex-start;
         list-style: none;
         text-align: left;
         gap: 0.5%;
@@ -234,5 +239,21 @@ const togglePrivacy = ref(false)
     display:flex;
     flex-direction:column;
     align-items: center;
+}
+
+.message{
+    display:flex;
+    align-items: flex-end;
+    justify-content: end;
+    padding: 0;
+    margin: 0;
+}
+
+.Autre{
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: baseline;
 }
 </style>

@@ -30,13 +30,12 @@ export class ChatGateway {
 
 	@SubscribeMessage('createMessage')
 	async create(
-		@MessageBody() createMessageDto: CreateMessageDto,
-		@ConnectedSocket() client: Socket,
-	) {
+		@MessageBody() createMessageDto: CreateMessageDto,data : number,@ConnectedSocket() client: Socket) {
+
+		console.log(createMessageDto)
 		const message = await this.chatService.createMessage(
 			createMessageDto,
-			3,
-			3,
+			data,
 		);
 		this.server.emit('message', message);
 		return message;
