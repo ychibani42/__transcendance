@@ -1,22 +1,26 @@
 <script lang="ts" setup>
-import { io } from 'socket.io-client';
 import { onBeforeMount, ref, reactive, computed } from 'vue';
 import Axios from '../services';
 import { useStore, mapState } from 'vuex'
 import { useState, useActions } from 'vuex-composition-helpers/dist'
 
-const socket = io('http://localhost:3000');
+
+
+class Chat {
+	const chan = ref([])
+}
+
+const socket = this.$store.getters['socketModule/getSocket'];
 // const addNewRoom = ref(false)
 const chanId : number = ref(0)
-const chan = ref([])
 const chandisp = ref({
 	messages : [],
-	idch : 0,
-	channame : '',
+	idCh : 0,
+	chanName : '',
 })
 
 
-const {count, addNewRoom, msg} = useState(["count", false, "msg"])
+const {socket, msg} = useState([socket, false, "msg"])
 							//useMutations (changement d'etat de variable)
 							//useAction (fonctions sur variable)
 							//useGetter (pas compris)
@@ -74,14 +78,15 @@ function displayChats () {
 }
 
 function createChat () {
-			socket.emit('createRoom', {
-				channelName: createChan.value.channelName,
-				is_private: createChan.value.is_private,
-				password: createChan.value.password,
-				dm: createChan.value.dm,
-				ownerId: createChan.value.ownerId,
-				password: createChan.value.password
-			})
+	const createChatData = {
+		channelName: createChan.value.channelName,
+    	is_private: createChan.value.is_private,
+    	password: createChan.value.password,
+    	dm: createChan.value.dm,
+    	ownerId: createChan.value.ownerId,
+		password: createChan.value.password
+	}
+		socket.emit('createRoom', createChatData)
 }
 
 const checked = ref(false)

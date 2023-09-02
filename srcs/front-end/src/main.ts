@@ -5,15 +5,26 @@ import Axios  from "./services"
 import router from "./router"
 import VueAxios from "vue-axios";
 import { createStore } from "vuex";
+import { io } from 'socket.io-client';
 
 const store = createStore({
 	state: {
-		count: 12,
-		addNewRoom: false,
+		socket: null,
 	},
 	mutations: {
-		setTrue(state) {
-			state.addNewRoom = true
+		setSocket(state: any, socket: any) {
+			state.socket = socket;
+		}
+	},
+	actions: {
+		initializeSocket({commit}) {
+			const socket = io('http://localhost:3000');
+			commit('setSocket', socket);
+		},
+	},
+	getters: {
+		getSocket(state) {
+			return state.socket;
 		}
 	}
 	/* state, actions, mutations */
