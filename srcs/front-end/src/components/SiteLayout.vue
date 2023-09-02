@@ -30,7 +30,9 @@
   .app {
   
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    height: 100vh;
     .component {
       flex:content;
     }

@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import { onBeforeMount, ref, reactive, computed } from 'vue';
 import Axios from '../services';
 import { useStore, mapState } from 'vuex'
-import { useState, useActions } from 'vuex-composition-helpers/dist'
+// import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 const socket = io('http://localhost:3000');
 const addNewRoom = ref(false)
@@ -17,7 +17,7 @@ const chandisp = ref({
 const user = ref(0)
 
 
-const {count, msg} = useState(["count", "msg"])
+// const {count, msg} = useState(["count", "msg"])
 							//useMutations (changement d'etat de variable)
 							//useAction (fonctions sur variable)
 							//useGetter (pas compris)
@@ -58,7 +58,7 @@ function enterchat(chan : any){
 
 function findChat () {
 	console.log(chanId)
-	socket.emit('findOneChat', { id: chanId.value }, (response) => {
+	socket.emit('findOneChat', { id: 1 }, (response) => {
 		console.log('name of the chat ')
 		console.log(response);
 	});
@@ -119,6 +119,9 @@ const togglePrivacy = ref(false)
         </div>
         <div class="chat-display">
             <div class="chat-header">
+                <p>
+                    Title
+                </p>
             </div>
             <div class="chat-messages">
                 <ol v-for="name in chandisp.messages">
@@ -138,7 +141,7 @@ const togglePrivacy = ref(false)
             <div class="typing-messages">
                 <form @submit.prevent="createMessage">
                     <input type="text" placeholder="type your message" v-model="messageText" required>
-                    <button type="submit">Send</button>
+                    <button type="submit"><span class="material-icons">send</span></button>
                 </form>
             </div>
         </div>
@@ -148,6 +151,7 @@ const togglePrivacy = ref(false)
 <style lang="scss" scoped>
 .chat-page {
     height: 100%;
+    width: 100%;
     display: flex;
     background-color: aliceblue;
 }
@@ -176,7 +180,7 @@ const togglePrivacy = ref(false)
  
             button {
                 width: 100%;
-                border-radius: 0;
+                border-radius: 8px;
                 padding-top: 5%;
                 padding-bottom: 5%;
 
@@ -205,6 +209,7 @@ const togglePrivacy = ref(false)
     z-index: 10;
     margin-right: 1px;
     background-color: azure;
+    justify-content: center;
 }
 
 .chat-messages{
@@ -212,9 +217,9 @@ const togglePrivacy = ref(false)
     flex: 1;
     flex:content;
     overflow-y: auto;
-    margin-right: 1px;
-    margin-top: 65px;
+    margin-top: 64px;
     ol {
+        margin: 0;
         padding: 0;
         display: flex;
         flex:content;
@@ -227,12 +232,30 @@ const togglePrivacy = ref(false)
 }
 
 .typing-messages {
+    position: relative;
     display:flex;
     width: 100%;
-    height: 10%;
+    height: 5%;
     border-bottom-right-radius: 4px;
     z-index: 10;
     background-color: rgb(250, 228, 217);
+    form {
+        display: flex;
+        width: 100%;
+    }
+    input {
+        width: 100%;
+        border: 8px solid transparent;
+    }
+    button {
+        border-radius: 1px;
+        background-color: rgb(149, 195, 247);
+        border: 1px solid transparent;
+        span {
+            margin-top: 2px;
+            margin-left: 2px;
+        }
+    }
 }
 .add-chat{
     form{ 
@@ -250,21 +273,31 @@ const togglePrivacy = ref(false)
     padding: 0;
     margin: 0;
     p{
-        display: inline-block;
-        width: 40%;
+        display: flex;
+        margin: 5px;
+        justify-content: flex-end;
+        max-width: 50%;
         line-break: anywhere;
+        background-color: rgb(159, 241, 177);
+        padding: 10px;
+        border-radius: 10px;
     }
 }
 
 .Autre{
+    display:flex;
+    justify-content: end;
     padding: 0;
     margin: 0;
-    display: flex;
-    justify-content:start;
     p{
-        display: inline-block;
-        width: 40%;
+        display: flex;
+        margin: 5px;
+        justify-content: flex-end;
+        max-width: 50%;
         line-break: anywhere;
+        background-color: rgb(229, 238, 231);
+        padding: 10px;
+        border-radius: 10px;
     }
 }
 </style>

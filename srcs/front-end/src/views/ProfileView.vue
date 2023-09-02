@@ -48,7 +48,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
   h1{
     padding:5px;
