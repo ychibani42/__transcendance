@@ -27,7 +27,7 @@ const paddle = ref({
 });
 
 const com = ref({
-        x: 300 - 15,
+        x: 300 - 15 - 8,
         y : 0,
         w : 8,
         h : 37,

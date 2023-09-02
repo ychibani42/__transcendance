@@ -38,7 +38,7 @@ export class GameService {
             this.ball.speed = 2
             this.ball.velX = 2
             this.ball.velY = 2
-            this.com.x = 300 - 15
+            this.com.x = 300 - 15 - 8
             this.com.y = 0
             this.com.w = 8
             this.com.h = 37
@@ -91,6 +91,8 @@ export class GameService {
 
 
     calcball(){
+        let comlel = 0.5;
+        this.com.y = this.com.y + (this.ball.y - (this.com.y + this.com.h/2)) * comlel;
         this.ball.x += this.ball.velX;
         this.ball.y += this.ball.velY;
         if(this.ball.y + this.ball.r > 150){
@@ -109,19 +111,17 @@ export class GameService {
             this.ball.x = 0 + this.ball.r
             this.ball.velX = -this.ball.velX
         }
-        let comlel = 0.5;
-        this.com.y = this.com.y + (this.ball.y - (this.com.y + this.com.h/2)) * comlel;
         let player = (this.ball.x < 300/2) ? this.play : this.com;
         if(this.colition(this.ball,player))
         {
             let colpoint = this.ball.y - (player.y + 37/2);
-            colpoint = colpoint/(this.com.h/2);
-            let anglered = colpoint * (Math.PI/4);
+            colpoint = colpoint/(player.h/2);
+            let anglered = colpoint * Math.PI/4;
 
             let dir = (this.ball.x < 300/2) ? 1 : -1;
             this.ball.velX = dir * this.ball.speed * Math.cos(anglered);
             this.ball.velY = this.ball.speed * Math.sin(anglered);
-            if(this.ball.speed < 5)
+            if(this.ball.speed < 7)
                 this.ball.speed += 0.2;
         }
     }
@@ -165,7 +165,7 @@ export class GameService {
     }
 
     addInterval(queue : Socket[]) {
-        const interval = setInterval(this.sendball,10,queue,this);
+        const interval = setInterval(this.sendball,15,queue,this);
         this.schedulerRegistry.addInterval("game", interval);
     }
 }
