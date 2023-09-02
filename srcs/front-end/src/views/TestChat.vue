@@ -123,10 +123,15 @@ const togglePrivacy = ref(false)
             <div class="chat-messages">
                 <ol v-for="name in chandisp.messages">
                     <div class="message" v-if="name.userId === user" >
+                          <p>
                             {{ name.text }} {{name.userId }}
+                          </p>  
                     </div>
                     <div class="Autre" v-else>
+                        <p>
                             {{ name.text }} {{ name.userId }}
+                        </p>
+                           
                     </div>
 			</ol>
             </div>
@@ -209,10 +214,8 @@ const togglePrivacy = ref(false)
     overflow-y: auto;
     margin-right: 1px;
     margin-top: 65px;
-    max-height: 84.5vh;
     ol {
         padding: 0;
-        width: 100%;
         display: flex;
         flex:content;
         flex-flow: column;
@@ -243,17 +246,25 @@ const togglePrivacy = ref(false)
 
 .message{
     display:flex;
-    align-items: flex-end;
     justify-content: end;
     padding: 0;
     margin: 0;
+    p{
+        display: inline-block;
+        width: 40%;
+        line-break: anywhere;
+    }
 }
 
 .Autre{
     padding: 0;
     margin: 0;
     display: flex;
-    align-items: flex-start;
-    justify-content: baseline;
+    justify-content:start;
+    p{
+        display: inline-block;
+        width: 40%;
+        line-break: anywhere;
+    }
 }
 </style>
