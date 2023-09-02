@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Socket } from "socket.io";
-import { Interval , SchedulerRegistry } from "@nestjs/schedule";
+import { SchedulerRegistry } from "@nestjs/schedule";
 
 
 interface  ball{
@@ -25,28 +25,38 @@ export class GameService {
         private schedulerRegistry: SchedulerRegistry,
     ) {}
     Queue : Array<Socket> = [];
-    Game : any;
     private ball = {} as ball
     private com = {} as com
     private play = {} as com
     
     created(socket : Socket) {
-        this.Queue.push(socket);
-        this.Game = 'LOL'
-        this.ball.x = 150
-        this.ball.y = 5
-        this.ball.r = 5
-        this.ball.speed = 2
-        this.ball.velX = 2
-        this.ball.velY = 2
-        this.com.x = 300 - 15
-        this.com.y = 0
-        this.com.w = 8
-        this.com.h = 37
-        this.play.x = 15
-        this.play.y = 0
-        this.play.w = 8
-        this.play.h = 37
+        this.Queue.push(socket)
+
+            this.ball.x = 150
+            this.ball.y = 5
+            this.ball.r = 5
+            this.ball.speed = 2
+            this.ball.velX = 2
+            this.ball.velY = 2
+            this.com.x = 300 - 15
+            this.com.y = 0
+            this.com.w = 8
+            this.com.h = 37
+            this.play.x = 15
+            this.play.y = 150/2
+            this.play.w = 8
+            this.play.h = 37
+        if(this.Queue[0])
+        {
+            this.Queue[0].emit("update")
+        }
+        if(this.Queue.length > 1)
+        {
+            this.Queue.forEach((element,index) => {
+                if(index != 0)
+                    element.emit('spectate')
+            })
+        }
     }
 
     updateY(pos : number){
@@ -99,18 +109,19 @@ export class GameService {
             this.ball.x = 0 + this.ball.r
             this.ball.velX = -this.ball.velX
         }
-        let comlel = 0.1;
+        let comlel = 0.5;
         this.com.y = this.com.y + (this.ball.y - (this.com.y + this.com.h/2)) * comlel;
-        if(this.colition(this.ball,this.com))
+        let player = (this.ball.x < 300/2) ? this.play : this.com;
+        if(this.colition(this.ball,player))
         {
-            let colpoint = this.ball.y - (this.com.y + this.com.h/2);
+            let colpoint = this.ball.y - (player.y + 37/2);
             colpoint = colpoint/(this.com.h/2);
             let anglered = colpoint * (Math.PI/4);
 
             let dir = (this.ball.x < 300/2) ? 1 : -1;
             this.ball.velX = dir * this.ball.speed * Math.cos(anglered);
             this.ball.velY = this.ball.speed * Math.sin(anglered);
-            if(this.ball.speed < 10)
+            if(this.ball.speed < 5)
                 this.ball.speed += 0.2;
         }
     }
@@ -121,17 +132,22 @@ export class GameService {
 
     remove(socket : Socket){
         const id = this.Queue.indexOf(socket);
-        const remove = this.Queue.splice(id,1);
-        console.log("ONE DIS",socket.id);
+        this.Queue.splice(id,1);
+        console.log("client disconnecter socker ID" ,socket.id)
     }
 
     sendball(Queue : Socket[],GameService : GameService)
     {
         try {
-            console.log(Queue.length);
             GameService.calcball();
             Queue.forEach((element) => element.emit('com',GameService.com.y))
             Queue.forEach((element) => element.emit('ball', GameService.ball.x , GameService.ball.y))
+            Queue.forEach((element,index) => {
+                if(index != 0)
+                {
+                    element.emit('play',GameService.play.y)
+                }
+            })
         } catch (error) {
             console.log(error);
         }
@@ -140,16 +156,16 @@ export class GameService {
     stoploop(){
         if(this.Queue.length != 0)
             return
-        console.log("BIG BALL");
-        
+        console.log("END INTERVAL");
         try {
             this.schedulerRegistry.deleteInterval("game")
         } catch (error) {
+            console.log("ERROR WITH SCH REG",error)
         }
     }
 
     addInterval(queue : Socket[]) {
-        const interval = setInterval(this.sendball,15,queue,this);
+        const interval = setInterval(this.sendball,10,queue,this);
         this.schedulerRegistry.addInterval("game", interval);
     }
 }

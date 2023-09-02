@@ -17,6 +17,15 @@ const ball = ref({
         color : 'blue',
 });
 
+const paddle = ref({
+        x: 15,
+        y : 75,
+        w : 8,
+        h : 37,
+        color : 'red',
+        score : 0,
+});
+
 const com = ref({
         x: 300 - 15,
         y : 0,
@@ -41,6 +50,12 @@ onBeforeMount(() => {
     socket.on('com', (arg1 : number) => {
         com.value.y = arg1
     })
+    socket.on('update', () => {
+        canvasElement.value?.addEventListener("mousemove",Updatexy);
+    })
+    socket.on('play',(arg1 : number) => {
+        paddle.value.y = arg1
+    })
     socket.connect();
 }),
 
@@ -60,6 +75,22 @@ function render() {
     clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
     drowball(ball.value.x,ball.value.y,ball.value.r,ball.value.color);
     drowpaddle(com.value.x,com.value.y,com.value.w,com.value.h,com.value.color);
+    drowpaddle(paddle.value.x,paddle.value.y,paddle.value.w,paddle.value.h,paddle.value.color); 
+};
+
+function Updatexy(e : any){
+    if(!canvasElement.value){
+        return;
+    }
+    let rect = canvasElement.value.getBoundingClientRect();
+    paddle.value.y = ((e.y - rect.top) / (rect.height/150)) - paddle.value.h/2;
+    if(paddle.value.y < 0)
+        paddle.value.y = 0;
+    if(paddle.value.y > canvasElement.value.height - paddle.value.h)
+    {
+        paddle.value.y = canvasElement.value.height - paddle.value.h
+    }
+    socket.emit('position',paddle.value.y)
 };
 
 
