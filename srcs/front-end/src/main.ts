@@ -8,7 +8,13 @@ import { createStore } from "vuex";
 
 const store = createStore({
 	state: {
-		count: 0,
+		count: 12,
+		addNewRoom: false,
+	},
+	mutations: {
+		setTrue(state) {
+			state.addNewRoom = true
+		}
 	}
 	/* state, actions, mutations */
   });

@@ -6,7 +6,7 @@ import { useStore, mapState } from 'vuex'
 import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 const socket = io('http://localhost:3000');
-const addNewRoom = ref(false)
+// const addNewRoom = ref(false)
 const chanId : number = ref(0)
 const chan = ref([])
 const chandisp = ref({
@@ -16,7 +16,7 @@ const chandisp = ref({
 })
 
 
-const {count, name1, msg} = useState(["count", "name1", "msg"])
+const {count, addNewRoom, msg} = useState(["count", false, "msg"])
 							//useMutations (changement d'etat de variable)
 							//useAction (fonctions sur variable)
 							//useGetter (pas compris)
@@ -36,15 +36,14 @@ const messageText = ref('');
 
 onBeforeMount(() => {
 
-	const store = useStore()
-	const count = computed(() => store.state.count)
-	console.log(count.value + 123)
     displayChats()
 	Axios.get('auth/Checkjwt')
 	.then(function(response)  {
 		console.log(response);
 	})
 });
+
+
 
 function enterchat(chan : any){
 	chandisp.value.idch=chan.id
@@ -93,6 +92,7 @@ const togglePrivacy = ref(false)
 </script>
 
 <template>
+{{count + 123}}
     <div class="chat-page">
         <div class="add-chat">
           <form v-if="addNewRoom" @submit.prevent="createChat">
