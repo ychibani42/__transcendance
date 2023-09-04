@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import {onMounted,onBeforeMount, Ref, ref , onUnmounted} from "vue";
-import {io} from 'socket.io-client'
+import {onMounted,onBeforeMount, Ref, ref , onUnmounted, computed} from "vue";
+import {Socket, io} from 'socket.io-client'
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 
 const router = useRouter()
+const state = useStore()
+const socket: Ref<Socket> = ref() 
 const canvasElement: Ref<HTMLCanvasElement | undefined> = ref();
 const context: Ref<CanvasRenderingContext2D | undefined> = ref();
-const socket = io('http://localhost:3000/game');
+
 const ball = ref({
         x: 0,
         y : 0,
@@ -37,39 +40,41 @@ const com = ref({
 });
 
 onUnmounted(() => {
-    socket.disconnect();
+    socket.value.disconnect();
     console.log("LEAVE");
 }),
 
 onBeforeMount(() => {
     console.log('Here');
-    socket.on('ball' , (arg1 : number, arg2 : number ) => {
+    state.commit('setGamesocket',io('http://localhost:3000/game'))
+    socket.value = state.state.gamesock
+    socket.value.on('ball' , (arg1 : number, arg2 : number ) => {
         ball.value.x = arg1
         ball.value.y = arg2
         render()
     })
-    socket.on('com', (arg1 : number, arg2 : number , arg3: number ) => {
+    socket.value.on('com', (arg1 : number, arg2 : number , arg3: number ) => {
         com.value.y = arg1
         com.value.score = arg2
         paddle.value.score = arg3
     })
-    socket.on('update', () => {
+    socket.value.on('update', () => {
         canvasElement.value?.addEventListener("mousemove",Updatexy);
     })
-    socket.on('play',(arg1 : number) => {
+    socket.value.on('play',(arg1 : number) => {
         paddle.value.y = arg1
     })
-    socket.on('finish',() => {
+    socket.value.on('finish',() => {
         console.log("finish")
         router.push('/')
     })
-    socket.connect();
+    socket.value.connect();
 }),
 
 onMounted(() => {
     context.value = canvasElement.value?.getContext('2d') || undefined;
     ball.value.r= 5;
-    socket.emit('message');
+    socket.value.emit('message');
     render();
 });
 
@@ -99,7 +104,7 @@ function Updatexy(e : any){
     {
         paddle.value.y = canvasElement.value.height - paddle.value.h
     }
-    socket.emit('position',paddle.value.y)
+    socket.value.emit('position',paddle.value.y)
 };
 
 function drawText(text : number,x : number ,y : number){
@@ -166,10 +171,10 @@ canvas {
     display: flex;
     height: 100%;
     width: 100%;
-    min-width: 50vw;
-    min-height: 50vh;
-    max-width: 70vw;
-    max-height: 80vh;
+    min-width: 60vw;
+    min-height: 60vh;
+    max-width: 80vw;
+    max-height: 80vw;
     justify-content: center;
     border: solid greenyellow;
 }

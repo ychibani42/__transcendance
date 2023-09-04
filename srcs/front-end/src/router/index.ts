@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SiteLayout from '../components/SiteLayout.vue'
 import Axios from '../services'
+import store from '../store/store'
 
 const routes: Array<RouteRecordRaw> = [
   
@@ -47,7 +48,9 @@ router.beforeEach((to, from) => {
     return
   }
   try {
-    Axios.get("auth/checkjwt");
+    Axios.get("auth/checkjwt").then(res => {
+      store.commit('setUserId',res.data.id)
+    });
   } 
   catch (error) {
 

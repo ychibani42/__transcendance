@@ -7,7 +7,6 @@ const store = useStore();
 const User  = store.getters.getuser;
 
 onMounted(() => {
-    Axios.get()
 })
 
 </script>

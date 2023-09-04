@@ -20,12 +20,19 @@ interface com{
     score : number
 }
 
+interface Room{
+    ball : ball;
+    play : com;
+    com : com;
+}
+
 @Injectable({})
 export class GameService {
 	constructor(
         private schedulerRegistry: SchedulerRegistry,
     ) {}
     Queue : Array<Socket> = [];
+    Romms : Array<Room> = [];
     private ball = {} as ball
     private com = {} as com
     private play = {} as com
