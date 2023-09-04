@@ -64,10 +64,6 @@ info:
 
 #builds images even when asked to up the containers
 up:
-	$(COMPOSE) up -d
-
-
-watch:
 	$(COMPOSE) up
 
 #stop the containers

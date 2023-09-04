@@ -1,4 +1,3 @@
-
 <template>
     
     <div class="profile">
@@ -9,10 +8,10 @@
       <User />
       <button @click="btn2FA">BTN 2FA</button>
     </div>
-  </template>
+</template>
   
 <script lang="ts">
-import Axios from '../services'
+import Axios from '../services';
 
 export default {
   data () {
@@ -28,6 +27,7 @@ export default {
      // const image = this.$el.querySelector(".newfile");
         this.$el.querySelector(".default").src = "/src/assets/" + this.def;
         console.log(this.$el.querySelector(".default"))
+		Axios.post("users/upload", {img});
     },
     editName() {
       this.name = this.$el.querySelector(".name").value;

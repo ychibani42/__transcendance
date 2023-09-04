@@ -7,7 +7,7 @@ import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 
 class Chat {
-	const chan = ref([])
+	const chan = ref([]);
 }
 
 const socket = this.$store.getters['socketModule/getSocket'];
