@@ -37,6 +37,7 @@ export class ChatService {
 					messages: true,
 					blockedUsers:true,
 					mutedUsers :true,
+					is_private: true,
 					dm:true
 				}
 			});
@@ -55,6 +56,7 @@ export class ChatService {
 					id: chanId,
 				},
 			});
+			console.log(chan);
 			const test: string | undefined = chan?.channelName;
 			return test;
 		} catch (error) {
@@ -79,6 +81,17 @@ export class ChatService {
 					name: createMessageDto.name,
 					text: createMessageDto.text,
 				},
+				select: {
+					userId: true,
+					channelId: true,
+					name: true,
+					text: true,
+					channel: {
+						select: {
+							channelName: true,
+						}
+					},
+				},
 			});
 			return message;
 		} catch (error) {
@@ -87,14 +100,35 @@ export class ChatService {
 		// return this.prismaService.message.findAll();
 	}
 
-	findAllMessages() {
-		return this.prismaService.message.findMany();
+	async findAllMessages(chanId: number) {
+		try {
+			const message = await this.prismaService.message.findMany({
+				where: {
+					channelId: chanId,
+				},
+				select: {
+					userId: true,
+					channelId: true,
+					name: true,
+					text: true,
+					channel: {
+						select: {
+							channelName: true,
+						}
+					},
+				},
+			});
+			console.log(message)
+			return message;
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
-	identifyUser(name: string, clientId: string) {
-		// this.clientToUser[clientId] = name;
-		// return Object.values(this.clientToUser);
-	}
+	// identifyUser(name: string, clientId: string) {
+	// 	this.clientToUser[clientId] = name;
+	// 	return Object.values(this.clientToUser);
+	// }
 
 	getClientbyId(clientId: string) {
 		// return this.clientToUser[clientId];

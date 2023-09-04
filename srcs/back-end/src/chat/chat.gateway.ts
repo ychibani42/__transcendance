@@ -31,13 +31,13 @@ export class ChatGateway {
 	@SubscribeMessage('createMessage')
 	async create(
 		@MessageBody() createMessageDto: CreateMessageDto,data : number,@ConnectedSocket() client: Socket) {
-
-		console.log(createMessageDto)
 		const message = await this.chatService.createMessage(
 			createMessageDto,
 			data,
 		);
-		this.server.emit('message', message);
+		if (message == null)
+			return null
+		this.server.to(message.channel.channelName).emit('message', message.text);
 		return message;
 	}
 
@@ -51,13 +51,17 @@ export class ChatGateway {
 		return this.chatService.findAllChats();
 	}
 
-	@SubscribeMessage('join')
-	joinRoom(
-		@MessageBody('name') name: string,
-		@ConnectedSocket() client: Socket,
-	) {
-		return this.chatService.identifyUser(name, client.id);
+	@SubscribeMessage('findAllMessages')
+	findAllMessages(chanId: number) {
+		return this.chatService.findAllMessages(chanId);
 	}
+	// @SubscribeMessage('join')
+	// joinRoom(
+	// 	@MessageBody('name') name: string,
+	// 	@ConnectedSocket() client: Socket,
+	// ) {
+	// 	return this.chatService.identifyUser(name, client.id);
+	// }
 
 	@SubscribeMessage('typing')
 	async typing(

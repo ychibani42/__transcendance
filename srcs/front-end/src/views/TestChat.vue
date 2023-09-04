@@ -33,6 +33,10 @@ const createChan = ref({
 
 const messageText = ref('');
 
+const onChan = ref(false);
+
+const setting = ref(false);
+
 
 
 onBeforeMount(() => {
@@ -54,26 +58,27 @@ function enterchat(chan : any){
 	chandisp.value.messages=chan.messages
 	chandisp.value.channame=chan.channelName
 	console.log(chandisp.value.messages);
-}
-
-function findChat () {
-	console.log(chanId)
-	socket.emit('findOneChat', { id: 1 }, (response) => {
-		console.log('name of the chat ')
-		console.log(response);
-	});
+    onChan.value = true;
 }
 
 
 const createMessage = () => {
-	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: user.value}, response => {
-        console.log(response);
+    console.log(chandisp.value.idch)
+    socket.emit('joinRoom', chandisp.value.channame);
+	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: user.value, to: 1}, response => {
+        console.log('message', response);
 	});
 }
 
 function displayChats () {
 	socket.emit('findAllChats', (response) => {
 		chan.value = response
+	});
+}
+
+function displayMessages () {
+	socket.emit('findAllMessages', {chanId: chandisp.value.idch }, (response) => {
+		messageText.value = response
 	});
 }
 
@@ -86,6 +91,14 @@ function createChat () {
 				ownerId: user.value,
 				password: createChan.value.password
 			})
+}
+
+function settings () {
+    if (setting.value == true)
+        setting.value = false
+    else
+        setting.value = true
+    console.log('coucou')
 }
 
 const checked = ref(false)
@@ -118,10 +131,25 @@ const togglePrivacy = ref(false)
 			</ol>
         </div>
         <div class="chat-display">
-            <div class="chat-header">
-                <p>
-                    Title
-                </p>
+            <div class="formSetting" v-if="setting === true">
+                <form>
+				    <input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
+				    <label for="checkbox" @click="togglePrivacy">{{ checked ? 'private' : 'public' }}</label>
+				    <label for="password">Mot de passe</label>
+				    <input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
+                </form>
+            </div>                  
+            <div class="chat-header" >
+                <div class="title">
+                    {{ chandisp.channame }}
+                </div>
+
+                <div class="settings" v-if="onChan === true">
+                    <button @click="settings()">
+                        <span class="material-icons">settings</span>
+                    </button>
+
+                </div>
             </div>
             <div class="chat-messages">
                 <ol v-for="name in chandisp.messages">
@@ -139,10 +167,11 @@ const togglePrivacy = ref(false)
 			</ol>
             </div>
             <div class="typing-messages">
-                <form @submit.prevent="createMessage">
+                <form @submit.prevent="createMessage" v-if="onChan === true">
                     <input type="text" placeholder="type your message" v-model="messageText" required>
-                    <button type="submit"><span class="material-icons">send</span></button>
+                    <button @click="displayMessages"><span class="material-icons">send</span></button>
                 </form>
+               
             </div>
         </div>
     </div>
@@ -189,7 +218,10 @@ const togglePrivacy = ref(false)
 
     }
 }
-
+.formSetting {
+    display: flex;
+    z-index: 10;
+}
 .chat-display {
     position: relative;
     height: 100%;
@@ -198,18 +230,28 @@ const togglePrivacy = ref(false)
     display: flex;
     flex-flow: column;
     background-color:rgb(143, 143, 158);
+    overflow-y: scroll;
 }
 
 .chat-header {
-    position: absolute;
+    // position: absolute;
     display: flex;
     align-items: center;
-    height: 64px;
+    min-height: 64px;
     width: 100%;
-    z-index: 10;
     margin-right: 1px;
     background-color: azure;
-    justify-content: center;
+    justify-content: center; 
+    .title {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    .settings {
+        display: flex;
+        justify-content: end;
+    }
+
 }
 
 .chat-messages{
@@ -217,7 +259,6 @@ const togglePrivacy = ref(false)
     flex: 1;
     flex:content;
     overflow-y: auto;
-    margin-top: 64px;
     ol {
         margin: 0;
         padding: 0;
@@ -286,7 +327,7 @@ const togglePrivacy = ref(false)
 
 .Autre{
     display:flex;
-    justify-content: end;
+    justify-content: start;
     padding: 0;
     margin: 0;
     p{
