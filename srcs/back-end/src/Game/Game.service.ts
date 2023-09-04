@@ -17,6 +17,7 @@ interface com{
     y :number,
     w : number,
     h : number,
+    score : number
 }
 
 @Injectable({})
@@ -42,6 +43,8 @@ export class GameService {
             this.com.y = 0
             this.com.w = 8
             this.com.h = 37
+            this.com.score = 0
+            this.play.score = 0
             this.play.x = 15
             this.play.y = 150/2
             this.play.w = 8
@@ -91,7 +94,7 @@ export class GameService {
 
 
     calcball(){
-        let comlel = 0.5;
+        let comlel = 0.1;
         this.com.y = this.com.y + (this.ball.y - (this.com.y + this.com.h/2)) * comlel;
         this.ball.x += this.ball.velX;
         this.ball.y += this.ball.velY;
@@ -102,14 +105,6 @@ export class GameService {
         if(this.ball.y - this.ball.r < 0){
             this.ball.y = 0 + this.ball.r
             this.ball.velY = -this.ball.velY
-        }
-        if(this.ball.x + this.ball.r > 300){
-            this.ball.x = 300 - this.ball.r
-            this.ball.velX = -this.ball.velX
-        }
-        if(this.ball.x - this.ball.r < 0){
-            this.ball.x = 0 + this.ball.r
-            this.ball.velX = -this.ball.velX
         }
         let player = (this.ball.x < 300/2) ? this.play : this.com;
         if(this.colition(this.ball,player))
@@ -124,6 +119,21 @@ export class GameService {
             if(this.ball.speed < 7)
                 this.ball.speed += 0.2;
         }
+        if(this.ball.x + this.ball.r > 300){
+            this.play.score++
+            this.resetball()
+        }
+        if(this.ball.x - this.ball.r < 0){
+            this.com.score++
+            this.resetball()
+        }
+    }
+    resetball()
+    {
+        this.ball.x = 150
+        this.ball.y = 75
+        this.ball.speed = 2
+        this.ball.velX = 2 * ((this.ball.velX > 0) ? 1 : -1)
     }
 
     findall() : Socket[]{
@@ -140,7 +150,11 @@ export class GameService {
     {
         try {
             GameService.calcball();
-            Queue.forEach((element) => element.emit('com',GameService.com.y))
+            if(GameService.com.score > 4 || GameService.play.score > 4)
+            {
+                Queue.forEach((element) => element.emit('finish'))
+            }
+            Queue.forEach((element) => element.emit('com',GameService.com.y,GameService.com.score,GameService.play.score))
             Queue.forEach((element) => element.emit('ball', GameService.ball.x , GameService.ball.y))
             Queue.forEach((element,index) => {
                 if(index != 0)

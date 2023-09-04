@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {onMounted,onBeforeMount, Ref, ref , onUnmounted} from "vue";
 import {io} from 'socket.io-client'
+import { useRouter } from "vue-router";
 
 
-// The important part: the name of the variable needs to be equal to the ref's name of the canvas element in the template
+const router = useRouter()
 const canvasElement: Ref<HTMLCanvasElement | undefined> = ref();
 const context: Ref<CanvasRenderingContext2D | undefined> = ref();
 const socket = io('http://localhost:3000/game');
@@ -47,14 +48,20 @@ onBeforeMount(() => {
         ball.value.y = arg2
         render()
     })
-    socket.on('com', (arg1 : number) => {
+    socket.on('com', (arg1 : number, arg2 : number , arg3: number ) => {
         com.value.y = arg1
+        com.value.score = arg2
+        paddle.value.score = arg3
     })
     socket.on('update', () => {
         canvasElement.value?.addEventListener("mousemove",Updatexy);
     })
     socket.on('play',(arg1 : number) => {
         paddle.value.y = arg1
+    })
+    socket.on('finish',() => {
+        console.log("finish")
+        router.push('/')
     })
     socket.connect();
 }),
@@ -73,6 +80,8 @@ function render() {
         return;
     }
     clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
+    drawText(paddle.value.score,canvasElement.value?.width/4,canvasElement.value?.height/5);
+    drawText(com.value.score,3*canvasElement.value?.width/4,canvasElement.value?.height/5);
     drowball(ball.value.x,ball.value.y,ball.value.r,ball.value.color);
     drowpaddle(com.value.x,com.value.y,com.value.w,com.value.h,com.value.color);
     drowpaddle(paddle.value.x,paddle.value.y,paddle.value.w,paddle.value.h,paddle.value.color); 
@@ -93,6 +102,14 @@ function Updatexy(e : any){
     socket.emit('position',paddle.value.y)
 };
 
+function drawText(text : number,x : number ,y : number){
+    if (!context.value) {
+        return;
+    }
+    context.value.fillStyle = "#FFF";
+    context.value.font = "20px fantasy";
+    context.value.fillText(text, x, y);
+}
 
 function drowpaddle(x: number,y: number,w: number,h: number,color: string)
 {
