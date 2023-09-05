@@ -52,31 +52,32 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('findAllMessages')
-	findAllMessages(chanId: number) {
-		console.log(chanId)
-		return this.chatService.findAllMessages(chanId);
+	findAllMessages(@Body() chanid: number) {
+		return this.chatService.findAllMessages(chanid);
 	}
 
 	@SubscribeMessage('joinRoom')
-	join(client: Socket, chanName: string) 
+	join(client: Socket, chanName: string, userId: number) 
 	{
+		const user = this.chatService.findAllUsersChan(7);
+		console.log(chanName)
+		this.server.to(chanName).emit('join', user);
 		client.join(chanName)
 	}
-	// @SubscribeMessage('join')
-	// joinRoom(
-	// 	@MessageBody('name') name: string,
+
+	@SubscribeMessage('leaveRoom')
+	leave(client: Socket, channelName: string) 
+	{
+		client.leave(channelName)
+	}
+
+	// @SubscribeMessage('typing')
+	// async typing(
+	// 	@MessageBody('isTyping') isTyping: boolean,
 	// 	@ConnectedSocket() client: Socket,
 	// ) {
-	// 	return this.chatService.identifyUser(name, client.id);
+	// 	const name = await this.chatService.getClientbyId(client.id);
+	// 	client.broadcast.emit('typing', { name, isTyping });
 	// }
-
-	@SubscribeMessage('typing')
-	async typing(
-		@MessageBody('isTyping') isTyping: boolean,
-		@ConnectedSocket() client: Socket,
-	) {
-		const name = await this.chatService.getClientbyId(client.id);
-		client.broadcast.emit('typing', { name, isTyping });
-	}
 
 }

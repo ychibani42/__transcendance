@@ -11,7 +11,6 @@ import { Exclude } from 'class-transformer';
 export class ChatService {
 	constructor(private prismaService: PrismaService) {}
 	async createChat(createChatDto: CreateChatDto) {
-		// console.log(createChatDto);
 		await this.prismaService.channel.create({
 			data: {
 				channelName: createChatDto.channelName,
@@ -41,7 +40,6 @@ export class ChatService {
 					dm:true
 				}
 			});
-			console.log(chan)
 			return chan;
 		} catch (error) {
 			console.log(error)
@@ -49,14 +47,12 @@ export class ChatService {
 	}
 
 	async findOneChat(chanId: number) {
-		console.log('test', chanId);
 		try {
 			const chan = await this.prismaService.channel.findUniqueOrThrow({
 				where: {
 					id: chanId,
 				},
 			});
-			console.log(chan);
 			const test: string | undefined = chan?.channelName;
 			return test;
 		} catch (error) {
@@ -93,7 +89,6 @@ export class ChatService {
 					},
 				},
 			});
-			console.log('message', message)
 			return message;
 		} catch (error) {
 
@@ -109,7 +104,6 @@ export class ChatService {
 					channelId: chanId,
 				},
 			});
-			console.log(message)
 			return message;
 		} catch (error) {
 			console.log(error)
@@ -121,7 +115,17 @@ export class ChatService {
 	// 	return Object.values(this.clientToUser);
 	// }
 
-	getClientbyId(clientId: string) {
-		// return this.clientToUser[clientId];
+	async findAllUsersChan(chanId: number) {
+		try {
+			const user = await this.prismaService.user.findMany({
+				where: {
+					id : chanId,
+				},
+			});
+			return user;
+		} catch (error) {
+			console.log(error)
+		}
 	}
+
 }

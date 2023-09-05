@@ -12,6 +12,7 @@ const chandisp = ref({
 	messages : [],
 	idch : 0,
 	channame : '',
+    users: []
 })
 
 const user = ref(0)
@@ -36,7 +37,7 @@ const messageText = ref('');
 const onChan = ref(false);
 
 const setting = ref(false);
-
+const channels = ref([])
 
 
 onBeforeMount(() => {
@@ -47,36 +48,31 @@ onBeforeMount(() => {
         user.value = response.data.id
 	})
     socket.on('message',(arg1 : string) => {
-        console.log('message recu', arg1)
-        chandisp.value.messages.push(arg1);
+        chandisp.value.messages.push(arg1, 1);
+    })
+    socket.on('join', (arg1: string) => {
+        console.log(arg1, 'has joined');
+        chandisp.value.users.push(arg1);
     })
 });
 
 
 
 function enterchat(chan : any){
-    socket.emit('findAllMessages', { id: chan.id}, response => {
-        console.log(response)
+    socket.emit('leaveRoom', channels.value)
+	chandisp.value.idch=chan.id
+    socket.emit('findAllMessages', chan.id , response => {
         chandisp.value.messages = response
     })
-	chandisp.value.idch=chan.id
-	// chandisp.value.messages=chan.messages
 	chandisp.value.channame=chan.channelName
-	console.log(chandisp.value.messages);
     onChan.value = true;
-    console.log(chandisp.value.channame)
-    socket.emit('joinRoom', chandisp.value.channame,  response => {
-        console.log('join', response);
-	});
+    socket.emit('joinRoom', chandisp.value.channame);
+    channels.value = chandisp.value.channame
 }
 
 
 const createMessage = () => {
-    console.log(chandisp.value.idch)
-
-	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: user.value, to: 1}, response => {
-        console.log('message', response);
-	});
+	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: user.value, to: 1});
 }
 
 function displayChats () {
@@ -101,7 +97,6 @@ function settings () {
         setting.value = false
     else
         setting.value = true
-    console.log('coucou')
 }
 
 const checked = ref(false)
@@ -137,9 +132,14 @@ const togglePrivacy = ref(false)
             <div class="formSetting" v-if="setting === true">
                 <form>
 				    <input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
-				    <label for="checkbox" @click="togglePrivacy">{{ checked ? 'private' : 'public' }}</label>
-				    <label for="password">Mot de passe</label>
-				    <input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
+				    <label for="checkbox" @click="togglePrivacy">Status: {{ checked ? 'private' : 'public' }}</label>
+				    <label for="password">
+                        Mot de passe
+                        <input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
+                    </label>
+                    <option v-for="username in users" :key="username.id">{{username.username}}</option>  
+
+				    
                 </form>
             </div>                  
             <div class="chat-header" >
@@ -222,8 +222,13 @@ const togglePrivacy = ref(false)
     }
 }
 .formSetting {
-    display: flex;
-    z-index: 10;
+    form{
+        display:flex;
+        flex-direction:column;
+        align-items: start;
+        margin-left: 3px;
+    }
+ 
 }
 .chat-display {
     position: relative;
