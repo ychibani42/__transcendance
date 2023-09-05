@@ -55,8 +55,12 @@ onBeforeMount(() => {
 
 
 function enterchat(chan : any){
+    socket.emit('findAllMessages', { id: chan.id}, response => {
+        console.log(response)
+        chandisp.value.messages = response
+    })
 	chandisp.value.idch=chan.id
-	chandisp.value.messages=chan.messages
+	// chandisp.value.messages=chan.messages
 	chandisp.value.channame=chan.channelName
 	console.log(chandisp.value.messages);
     onChan.value = true;

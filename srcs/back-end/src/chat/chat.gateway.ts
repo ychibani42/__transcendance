@@ -37,7 +37,7 @@ export class ChatGateway {
 		);
 		if (message == null)
 			return null
-		this.server.to(message.channel.channelName).emit('message', message.text);
+		this.server.to(message.channel.channelName).emit('message', message);
 		return message;
 	}
 
@@ -53,6 +53,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('findAllMessages')
 	findAllMessages(chanId: number) {
+		console.log(chanId)
 		return this.chatService.findAllMessages(chanId);
 	}
 

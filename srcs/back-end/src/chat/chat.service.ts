@@ -108,17 +108,6 @@ export class ChatService {
 				where: {
 					channelId: chanId,
 				},
-				select: {
-					userId: true,
-					channelId: true,
-					name: true,
-					text: true,
-					channel: {
-						select: {
-							channelName: true,
-						}
-					},
-				},
 			});
 			console.log(message)
 			return message;
