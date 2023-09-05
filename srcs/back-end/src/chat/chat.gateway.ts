@@ -55,6 +55,12 @@ export class ChatGateway {
 	findAllMessages(chanId: number) {
 		return this.chatService.findAllMessages(chanId);
 	}
+
+	@SubscribeMessage('joinRoom')
+	join(client: Socket, chanName: string) 
+	{
+		client.join(chanName)
+	}
 	// @SubscribeMessage('join')
 	// joinRoom(
 	// 	@MessageBody('name') name: string,

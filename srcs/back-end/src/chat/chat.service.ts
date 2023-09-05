@@ -74,7 +74,7 @@ export class ChatService {
 
 	async createMessage( createMessageDto: CreateMessageDto, clientId: number) {
 		try {
-			let message = await this.prismaService.message.create({
+			const message = await this.prismaService.message.create({
 				data: {
 					userId: createMessageDto.user,
 					channelId: createMessageDto.id,
@@ -93,8 +93,10 @@ export class ChatService {
 					},
 				},
 			});
+			console.log('message', message)
 			return message;
 		} catch (error) {
+
 			console.log(error);
 		}
 		// return this.prismaService.message.findAll();

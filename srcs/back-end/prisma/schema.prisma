@@ -58,7 +58,7 @@ model Channel {
   adminId    Int[]
   ownerId    Int
   user       User[]    @relation("chan/user")
-  messages   Message[] @relation(fields: [channelId], references: [id]) // Define the relation with Message
+  messages   Message[] // Define the relation with Message
   blockedUsers Blocked[]
   mutedUsers  Muted[]
   dm			Boolean

@@ -47,6 +47,7 @@ onBeforeMount(() => {
         user.value = response.data.id
 	})
     socket.on('message',(arg1 : string) => {
+        console.log('message recu', arg1)
         chandisp.value.messages.push(arg1);
     })
 });
@@ -59,12 +60,16 @@ function enterchat(chan : any){
 	chandisp.value.channame=chan.channelName
 	console.log(chandisp.value.messages);
     onChan.value = true;
+    console.log(chandisp.value.channame)
+    socket.emit('joinRoom', chandisp.value.channame,  response => {
+        console.log('join', response);
+	});
 }
 
 
 const createMessage = () => {
     console.log(chandisp.value.idch)
-    socket.emit('joinRoom', chandisp.value.channame);
+
 	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: user.value, to: 1}, response => {
         console.log('message', response);
 	});
@@ -73,12 +78,6 @@ const createMessage = () => {
 function displayChats () {
 	socket.emit('findAllChats', (response) => {
 		chan.value = response
-	});
-}
-
-function displayMessages () {
-	socket.emit('findAllMessages', {chanId: chandisp.value.idch }, (response) => {
-		messageText.value = response
 	});
 }
 
@@ -169,7 +168,7 @@ const togglePrivacy = ref(false)
             <div class="typing-messages">
                 <form @submit.prevent="createMessage" v-if="onChan === true">
                     <input type="text" placeholder="type your message" v-model="messageText" required>
-                    <button @click="displayMessages"><span class="material-icons">send</span></button>
+                    <button><span class="material-icons">send</span></button>
                 </form>
                
             </div>
