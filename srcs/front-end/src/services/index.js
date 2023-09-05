@@ -9,9 +9,10 @@ const Axios = axios.create({
 
 Axios.interceptors.response.use(response =>{
     return response;
-},error => { 
+},error => {
     if(error.response.status == 401)
     {
+        $cookies.remove('access_token')
         router.push("/login")
         return;
     }

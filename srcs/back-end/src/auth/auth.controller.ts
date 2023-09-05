@@ -23,7 +23,7 @@ export class AuthController {
 	async loginInviter(@Body() nbr:any, @Res() res:any){
 		const user = await this.authService.loginInviter(nbr.id42._value);
 		const jwt = await this.authService.tokenreturn(user);
-		res.cookie("access_token",jwt,{httpOnly : true , secure : true , samesite : true});
+		res.cookie("access_token",jwt);
 		res.json({redirect : '/'})
 		return (res);
 	}
@@ -39,7 +39,7 @@ export class AuthController {
 	@Post("Button2FA")
 	@UseGuards(JwtAuthGuard)
 	async Button2FA(@Body() nbr:any){
-		console.log(nbr.id);
+		console.log("id",nbr)
 		const good = this.authService.changeotp(nbr.id);
 		return good;
 	}

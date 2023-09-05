@@ -1,12 +1,7 @@
-import {
-	Injectable,
-	NotFoundException,
-	UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import * as argon from 'argon2';
+
 
 @Injectable({})
 export class AuthService {
@@ -19,7 +14,6 @@ export class AuthService {
 		console.log(id,link);
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
-			console.log("USER find",users);
 			return users;
 		} 
 		catch (error) {
@@ -29,7 +23,6 @@ export class AuthService {
 					name :link
 				}
 			});
-			console.log("USER created",user);
 			return user;
 		}
 	}
@@ -37,8 +30,6 @@ export class AuthService {
 	async tokenreturn(User : any) {
 		const payload = {id : User.id, Profile: User.profilefinish , TwoFa : User.otpenable};
 		const jwt = await this.jwtService.signAsync(payload);
-		const decode = await this.jwtService.decode(jwt);
-		console.log("Decode",decode);
 		return(jwt);
 	}
 
@@ -49,11 +40,10 @@ export class AuthService {
 		return decode;
 	}
 
-	async loginInviter(id : number ,) {
+	async loginInviter(id : number) {
 		console.log(id);
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
-			console.log("USER find",users);
 			return users;
 		} 
 		catch (error) {
@@ -62,7 +52,6 @@ export class AuthService {
 					id42 :id,
 				}
 			});
-			console.log("USER created",user);
 			return user;
 		}
 	}
@@ -70,13 +59,14 @@ export class AuthService {
 	async changeotp(id : number){
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
+			let user ;
 			if (users.otpenable == true)
 			{
-				const user = await this.prismaService.user.update({where : {id : id},data : {otpenable : false}})
+				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : false}})
 			}
 			else
 			{
-				const user = await this.prismaService.user.update({where : {id : id},data : {otpenable : true}})
+				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : true}})
 			}
 			return true
 		} 

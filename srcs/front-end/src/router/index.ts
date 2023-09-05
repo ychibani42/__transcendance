@@ -4,6 +4,7 @@ import SiteLayout from '../components/SiteLayout.vue'
 import Axios from '../services'
 import store from '../store/store'
 
+
 const routes: Array<RouteRecordRaw> = [
   
   {
@@ -20,7 +21,10 @@ const routes: Array<RouteRecordRaw> = [
               component: () => import(/* webpackChunkName: "about" */ '../views/Matchmaking.vue') },
           {
             path: '/game', name: 'game',
-              component: () => import(/* webpackChunkName: "about" */ '../views/Game.vue')}
+              component: () => import(/* webpackChunkName: "about" */ '../views/Game.vue')},
+          {
+            path: '/Config', name: 'Config',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')}
     ]
 
   },
@@ -43,17 +47,20 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  if(to.path == '/login')
+  if(to.path == '/login' && $cookies.get('access_token') === null)
   {
-    return
+    console.log("here")
   }
   try {
-    Axios.get("auth/checkjwt").then(res => {
-      store.commit('setUserId',res.data.id)
-    });
-  } 
-  catch (error) {
-
+    Axios.get("auth/checkjwt").then(res => {store.commit('setUserId',res.data.id)});
+    
+  } catch (error) {
+    
+  }
+  console.log(store.state.user.profileCompleted)
+  if(store.state.user.profileCompleted === false && to.path == '/')
+  {
+    return "/config"
   }
 })
 

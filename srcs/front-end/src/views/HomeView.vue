@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useStore } from 'vuex';
 import { onMounted } from 'vue';
-import { Axios } from '../services';
 
 const store = useStore();
 const User  = store.getters.getuser;

@@ -21,9 +21,10 @@ interface com{
 }
 
 interface Room{
-    ball : ball;
-    play : com;
-    com : com;
+    name : string,
+    ball : ball,
+    play : com,
+    com : com,
 }
 
 @Injectable({})
