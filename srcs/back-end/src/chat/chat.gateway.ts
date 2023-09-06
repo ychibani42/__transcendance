@@ -33,7 +33,6 @@ export class ChatGateway {
 		@MessageBody() createMessageDto: CreateMessageDto,data : number,@ConnectedSocket() client: Socket) {
 		const message = await this.chatService.createMessage(
 			createMessageDto,
-			data,
 		);
 		if (message == null)
 			return null
@@ -57,13 +56,24 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('joinRoom')
-	join(client: Socket, chanName: string, userId: number) 
+	async join(client: Socket, chan: any) 
 	{
-		const user = this.chatService.findAllUsersChan(7);
-		console.log(chanName)
-		this.server.to(chanName).emit('join', user);
-		client.join(chanName)
+		console.log('chanid ', chan.id)
+		// const chan = await this.chatService.findOneChat(channelId)
+		// if(chan?.channelName == null)
+		// 	return null
+		this.server.to(chan.channelName).emit('join', chan.user);
+		client.join(chan.channelName)
 	}
+
+	@SubscribeMessage('pushUserChan')
+	async pushUserChan(client: Socket, user: any) 
+	{
+		console.log('users', user)
+		return this.chatService.pushUserChan(user)
+		
+	}
+
 
 	@SubscribeMessage('leaveRoom')
 	leave(client: Socket, channelName: string) 

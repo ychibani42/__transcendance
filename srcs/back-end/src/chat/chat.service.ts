@@ -32,7 +32,7 @@ export class ChatService {
 					channelName: true,   
 					adminId:true,
 					ownerId:true,
-					user :true,
+					user: true,
 					messages: true,
 					blockedUsers:true,
 					mutedUsers :true,
@@ -53,8 +53,8 @@ export class ChatService {
 					id: chanId,
 				},
 			});
-			const test: string | undefined = chan?.channelName;
-			return test;
+			// const test: string | undefined = chan?.channelName;
+			return chan;
 		} catch (error) {
 			console.log(error);
 		}
@@ -68,7 +68,7 @@ export class ChatService {
 		return;
 	}
 
-	async createMessage( createMessageDto: CreateMessageDto, clientId: number) {
+	async createMessage( createMessageDto: CreateMessageDto) {
 		try {
 			const message = await this.prismaService.message.create({
 				data: {
@@ -128,4 +128,27 @@ export class ChatService {
 		}
 	}
 
+	async pushUserChan(users: any) {
+		try {
+			console.log(users.User.id)
+			const userChan = await this.prismaService.channel.update({
+				where: {
+					id: users.chan.id,
+				},
+				data: {
+					user: {
+						connect: {
+							id: users.User.id
+						},
+					},
+				},
+			});
+
+			return users.User;
+		} catch (error) {
+			console.log(error)
+		}
+	}
 }
+
+

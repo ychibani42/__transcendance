@@ -12,8 +12,14 @@ const chandisp = ref({
 	messages : [],
 	idch : 0,
 	channame : '',
-    users: []
+    user: []
 })
+
+const store = useStore()
+
+const User = store.getters.getuser;
+User.id = 5
+User.username = 'teo'
 
 const user = ref(0)
 
@@ -48,11 +54,7 @@ onBeforeMount(() => {
         user.value = response.data.id
 	})
     socket.on('message',(arg1 : string) => {
-        chandisp.value.messages.push(arg1, 1);
-    })
-    socket.on('join', (arg1: string) => {
-        console.log(arg1, 'has joined');
-        chandisp.value.users.push(arg1);
+        chandisp.value.messages.push(arg1);
     })
 });
 
@@ -60,13 +62,19 @@ onBeforeMount(() => {
 
 function enterchat(chan : any){
     socket.emit('leaveRoom', channels.value)
-	chandisp.value.idch=chan.id
+	chandisp.value.idch=chan.id  
     socket.emit('findAllMessages', chan.id , response => {
         chandisp.value.messages = response
     })
-	chandisp.value.channame=chan.channelName
     onChan.value = true;
-    socket.emit('joinRoom', chandisp.value.channame);
+
+    socket.emit('pushUserChan', { User, chan }, response => {
+         chandisp.value.user.push(response)
+    })
+    chandisp.value.user.push(chan.user)
+    console.log(chandisp.value.user)
+    console.log(chan.user)
+    socket.emit('joinRoom', chan);
     channels.value = chandisp.value.channame
 }
 
@@ -77,8 +85,9 @@ const createMessage = () => {
 
 function displayChats () {
 	socket.emit('findAllChats', (response) => {
-		chan.value = response
+		chan.value = response  
 	});
+  
 }
 
 function createChat () {
@@ -103,6 +112,7 @@ const checked = ref(false)
 const isFocused = ref(false)
 const password = ref('')
 const togglePrivacy = ref(false)
+
 
 </script>
 
@@ -130,22 +140,45 @@ const togglePrivacy = ref(false)
         </div>
         <div class="chat-display">
             <div class="formSetting" v-if="setting === true">
+                <p>Propriete du chat</p>
                 <form>
+                    
 				    <input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
 				    <label for="checkbox" @click="togglePrivacy">Status: {{ checked ? 'private' : 'public' }}</label>
 				    <label for="password">
                         Mot de passe
                         <input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
                     </label>
-                    <option v-for="username in users" :key="username.id">{{username.username}}</option>  
+                        <select name="admin" id="admin">
+                            <option>Select admin</option>
+                            <option v-for="users in chandisp.user" value="1">
+                                <input> {{ users.username }} 
+                            </option>
+                            <option value="2">coucou</option>
+                        </select>
+                        <select name="ban" id="ban">
+                            <option>Select user to ban</option>
+                            <option v-for="users in chandisp.user" value="1">
+                                <input> {{ users.username }} 
+                            </option>
+                            <option value="2">coucou</option>
+                        </select>
+                        <select name="mute" id="mute">
+                            <option>Select user to mute</option>
+                            <option v-for="users in chandisp.user" value="1">
+                                <input> {{ users.username }} 
+                            </option>
+                            <option value="2">coucou</option>
+                        </select>
 
-				    
+    
                 </form>
             </div>                  
             <div class="chat-header" >
                 <div class="title">
                     {{ chandisp.channame }}
                 </div>
+            
 
                 <div class="settings" v-if="onChan === true">
                     <button @click="settings()">
@@ -222,13 +255,16 @@ const togglePrivacy = ref(false)
     }
 }
 .formSetting {
+    background-color: rgb(240, 240, 231);
     form{
         display:flex;
         flex-direction:column;
         align-items: start;
         margin-left: 3px;
+        li {
+            list-style: none;
+        }
     }
- 
 }
 .chat-display {
     position: relative;
