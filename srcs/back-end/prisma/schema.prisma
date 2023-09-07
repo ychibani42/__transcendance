@@ -17,7 +17,7 @@ datasource db {
 
 model User {
   id          Int       @id @unique @default(autoincrement())
-  // Avatar hihi ^^ uwuw <23333
+  avatar	  String
 
   id42        Int       @unique
   name        String?    @unique

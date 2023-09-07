@@ -1,8 +1,10 @@
 <template>
 	<div class="profile">
-		<img src="../assets/logo.png" class="img_class">
+		<label for="fileField"><img src="../assets/logo.png" class="img_class"></label>
 		<h1>{{ name }}</h1>
-		<p>Edit Avatar: <input type="file" class="avatar_class" @change="editImage"> </p>
+		<form enctype="multipart/form-data" novalidate>
+		<input type="file" id="fileField" name="file" accept="image/*" style="display:none">
+		</form>
 		<p>Edit Name: <input type="text" class="edit_name_class" @change="editName"></p>
 		<User />
 		<!-- <button @click="btn2FA">BTN 2FA</button> -->
@@ -14,18 +16,19 @@
 import { ref, OnBeforeMount } from 'vue'
 
 					/* Variables */
+
 const currentImageIndex = ref(0)
 const name = ref('Name')
 
 					/*Before Mount */
 
+
+
 					/* function */
-function changeImage() {
-	// .img_class {
 
-	// }
+function uploadImage() {
+	
 
-	// .edit_name_class + .avatar_class
 }
 
 
@@ -33,5 +36,6 @@ function changeImage() {
 
 <style lang="scss" scoped>
 
+#filefield { display: none; }
 
 </style>
