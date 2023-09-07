@@ -11,11 +11,18 @@ const store = createStore(
                 blocked: [],
                 friend: []
             },
+            chandisp :{
+                idch: 0,
+                channame: '',
+                messages: [],
+                user: []
+            },
             gamesock:null,
         },
         getters:{
             getuser : state => state.user,
-            getGamesocket : state => state.gamesock
+            getGamesocket : state => state.gamesock,
+            getChandisp : state => state.chandisp
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -25,6 +32,13 @@ const store = createStore(
             setProfileC(state , bool){ state.user.profileCompleted = bool},
             setFriend(state , friend){ state.user.friend = friend},
             setGamesocket(state, socket){ state.gamesock = socket},
+            setChandisp(state, chandisp) {
+                state.chandisp.idch = chandisp.idch,
+                state.chandisp.channame = chandisp.channame,
+                state.chandisp.messages = chandisp.messages,
+                state.chandisp.user = chandisp.user
+
+            }
         },
         actions:{
 

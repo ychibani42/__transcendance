@@ -20,9 +20,20 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: '/game', name: 'game',
               component: () => import(/* webpackChunkName: "about" */ '../views/Game.vue')},
-              {
-                path: '/chat', name: 'chat',
-                  component: () => import(/* webpackChunkName: "about" */ '../views/TestChat.vue')}
+          {
+            path: '/chat', name: 'chat',
+              component: () => import(/* webpackChunkName: "about" */ '../views/TestChat.vue')},
+          {
+            path: '/admins', name: 'admins',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Admins.vue')},
+          {
+            path: '/mute', name: 'mute',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Mute.vue')},
+          {
+            path: '/banned', name: 'banned',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Banned.vue')},
+                  
+
     ]
 
   },

@@ -58,10 +58,6 @@ export class ChatGateway {
 	@SubscribeMessage('joinRoom')
 	async join(client: Socket, chan: any) 
 	{
-		console.log('chanid ', chan.id)
-		// const chan = await this.chatService.findOneChat(channelId)
-		// if(chan?.channelName == null)
-		// 	return null
 		this.server.to(chan.channelName).emit('join', chan.user);
 		client.join(chan.channelName)
 	}
@@ -69,9 +65,7 @@ export class ChatGateway {
 	@SubscribeMessage('pushUserChan')
 	async pushUserChan(client: Socket, user: any) 
 	{
-		console.log('users', user)
 		return this.chatService.pushUserChan(user)
-		
 	}
 
 

@@ -130,20 +130,20 @@ export class ChatService {
 
 	async pushUserChan(users: any) {
 		try {
-			console.log(users.User.id)
-			const userChan = await this.prismaService.channel.update({
+			console.log(users.chan.id)
+			await this.prismaService.channel.update({
 				where: {
 					id: users.chan.id,
 				},
 				data: {
 					user: {
 						connect: {
-							id: users.User.id
+							id: users.User.id,
+							name: users.User.name,
 						},
 					},
 				},
 			});
-
 			return users.User;
 		} catch (error) {
 			console.log(error)

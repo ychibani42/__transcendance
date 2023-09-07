@@ -12,14 +12,17 @@ const chandisp = ref({
 	messages : [],
 	idch : 0,
 	channame : '',
-    user: []
+    user: [],
+    ownerId: 0,
+    adminId: [],
+    bannedId: [],
+    mutedId: []
 })
 
 const store = useStore()
 
 const User = store.getters.getuser;
-User.id = 5
-User.username = 'teo'
+
 
 const user = ref(0)
 
@@ -38,6 +41,11 @@ const createChan = ref({
 	ownerId: 0,
 })
 
+const userChan = ref({
+    id: 0,
+    username: '',
+})
+
 const messageText = ref('');
 
 const onChan = ref(false);
@@ -51,36 +59,39 @@ onBeforeMount(() => {
     displayChats()
 	Axios.get('auth/Checkjwt')
 	.then(function(response)  {
-        user.value = response.data.id
+        // user.value = response.data.id
+        store.commit('setUserId', response.data.id)
 	})
     socket.on('message',(arg1 : string) => {
         chandisp.value.messages.push(arg1);
     })
+
 });
 
 
 
 function enterchat(chan : any){
     socket.emit('leaveRoom', channels.value)
-	chandisp.value.idch=chan.id  
+
+	chandisp.value.idch=chan.id     
+    onChan.value = true;
+    chandisp.value.channame = chan.channelName
+    chandisp.value.ownerId = chan.ownerId
+    channels.value = chandisp.value.channame
+
     socket.emit('findAllMessages', chan.id , response => {
         chandisp.value.messages = response
     })
-    onChan.value = true;
-
     socket.emit('pushUserChan', { User, chan }, response => {
-         chandisp.value.user.push(response)
+        chandisp.value.user.push(response)
     })
-    chandisp.value.user.push(chan.user)
-    console.log(chandisp.value.user)
-    console.log(chan.user)
+    // chandisp.value.user = chan.user
     socket.emit('joinRoom', chan);
-    channels.value = chandisp.value.channame
+    
 }
 
-
 const createMessage = () => {
-	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: user.value, to: 1});
+	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: User.id, to: 1});
 }
 
 function displayChats () {
@@ -96,7 +107,7 @@ function createChat () {
 				is_private: createChan.value.is_private,
 				password: createChan.value.password,
 				dm: createChan.value.dm,
-				ownerId: user.value,
+				ownerId: User.id,
 				password: createChan.value.password
 			})
 }
@@ -112,6 +123,10 @@ const checked = ref(false)
 const isFocused = ref(false)
 const password = ref('')
 const togglePrivacy = ref(false)
+
+function setChandisp (chandisp: any) {
+    store.commit("setChandisp", chandisp)
+}
 
 
 </script>
@@ -141,37 +156,31 @@ const togglePrivacy = ref(false)
         <div class="chat-display">
             <div class="formSetting" v-if="setting === true">
                 <p>Propriete du chat</p>
+
                 <form>
                     
 				    <input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
 				    <label for="checkbox" @click="togglePrivacy">Status: {{ checked ? 'private' : 'public' }}</label>
 				    <label for="password">
-                        Mot de passe
+                        Password
                         <input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
                     </label>
-                        <select name="admin" id="admin">
-                            <option>Select admin</option>
-                            <option v-for="users in chandisp.user" value="1">
-                                <input> {{ users.username }} 
-                            </option>
-                            <option value="2">coucou</option>
-                        </select>
-                        <select name="ban" id="ban">
-                            <option>Select user to ban</option>
-                            <option v-for="users in chandisp.user" value="1">
-                                <input> {{ users.username }} 
-                            </option>
-                            <option value="2">coucou</option>
-                        </select>
-                        <select name="mute" id="mute">
-                            <option>Select user to mute</option>
-                            <option v-for="users in chandisp.user" value="1">
-                                <input> {{ users.username }} 
-                            </option>
-                            <option value="2">coucou</option>
-                        </select>
+                    <div class="router">
+                        <router-link to="/admins" class="button" @click="setChandisp(chandisp)">
+                            Select admin
+                        </router-link>
+                    </div>
+                    <div class="router">
+                        <router-link to="/banned" class="button" @click="setChandisp(chandisp)">
+                            Select user to ban
+                        </router-link>
+                    </div>
+                    <div class="router">
+                        <router-link to="/mute" class="button" @click="setChandisp(chandisp)">
+                            Select user to mute
+                        </router-link>
+                    </div>
 
-    
                 </form>
             </div>                  
             <div class="chat-header" >
@@ -180,7 +189,7 @@ const togglePrivacy = ref(false)
                 </div>
             
 
-                <div class="settings" v-if="onChan === true">
+                <div class="settings" v-if="onChan === true && (chandisp.ownerId === User.id)">
                     <button @click="settings()">
                         <span class="material-icons">settings</span>
                     </button>
@@ -189,7 +198,7 @@ const togglePrivacy = ref(false)
             </div>
             <div class="chat-messages">
                 <ol v-for="name in chandisp.messages">
-                    <div class="message" v-if="name.userId === user" >
+                    <div class="message" v-if="name.userId === User.id" >
                           <p>
                             {{ name.text }} {{name.userId }}
                           </p>  
@@ -203,8 +212,8 @@ const togglePrivacy = ref(false)
 			</ol>
             </div>
             <div class="typing-messages">
-                <form @submit.prevent="createMessage" v-if="onChan === true">
-                    <input type="text" placeholder="type your message" v-model="messageText" required>
+                <form id='test' @submit.prevent="createMessage" v-if="onChan === true">
+                    <input class="text" type="text" placeholder="type your message" v-model="messageText" required>
                     <button><span class="material-icons">send</span></button>
                 </form>
                
@@ -220,7 +229,6 @@ const togglePrivacy = ref(false)
     display: flex;
     background-color: aliceblue;
 }
-
 .channel-list {
     display: flex;
     flex-flow: column;
@@ -261,10 +269,21 @@ const togglePrivacy = ref(false)
         flex-direction:column;
         align-items: start;
         margin-left: 3px;
-        li {
-            list-style: none;
+        label input {
+            width: 70%;
         }
     }
+}
+.router {
+    display: flex;
+    justify-content: center;
+    margin: 5px;
+    .button {
+        color: black;
+    }
+    background-color: rgb(223, 224, 208);
+    padding: 10px;
+    border-radius: 10px;
 }
 .chat-display {
     position: relative;
