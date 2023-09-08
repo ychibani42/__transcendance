@@ -1,10 +1,12 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
+    "avatar" TEXT NOT NULL,
     "id42" INTEGER NOT NULL,
     "name" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "profilefinish" BOOLEAN NOT NULL DEFAULT false,
     "otpenable" BOOLEAN NOT NULL DEFAULT false,
     "otpvalider" BOOLEAN NOT NULL DEFAULT false,
 
@@ -27,10 +29,11 @@ CREATE TABLE "Game" (
 CREATE TABLE "Channel" (
     "id" SERIAL NOT NULL,
     "is_private" BOOLEAN NOT NULL,
-    "password" TEXT NOT NULL,
+    "password" TEXT,
     "channelName" TEXT NOT NULL,
     "adminId" INTEGER[],
     "ownerId" INTEGER NOT NULL,
+    "dm" BOOLEAN NOT NULL,
 
     CONSTRAINT "Channel_pkey" PRIMARY KEY ("id")
 );

@@ -6,10 +6,8 @@ import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 
 
-class Chat {
-	const chan = ref([]);
-}
 
+const chan = ref([]);
 const socket = this.$store.getters['socketModule/getSocket'];
 // const addNewRoom = ref(false)
 const chanId : number = ref(0)
@@ -39,7 +37,6 @@ const messageText = ref('');
 
 
 onBeforeMount(() => {
-
     displayChats()
 	Axios.get('auth/Checkjwt')
 	.then(function(response)  {

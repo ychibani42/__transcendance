@@ -28,6 +28,7 @@ export class AuthService {
 				data: {
 					id42: id,
 					name: link,
+					avatar: './storage/uploads/default.jpg',
 				},
 			});
 			console.log('USER created', user);
@@ -63,6 +64,7 @@ export class AuthService {
 		} catch (error) {
 			const user = await this.prismaService.user.create({
 				data: {
+					avatar: './storage/uploads/default.jpg',
 					id42: id,
 				},
 			});
