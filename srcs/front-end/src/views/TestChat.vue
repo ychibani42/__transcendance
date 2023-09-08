@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import { io } from 'socket.io-client';
-import { onBeforeMount, ref, reactive, computed } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref, reactive, computed } from 'vue';
 import Axios from '../services';
 import { useStore, mapState } from 'vuex'
+import Modal from '../components/Modal.vue';
 // import { useState, useActions } from 'vuex-composition-helpers/dist'
 
+const store = useStore()
 const socket = io('http://localhost:3000');
 const addNewRoom = ref(false)
 const chan = ref([])
@@ -19,19 +21,8 @@ const chandisp = ref({
     mutedId: []
 })
 
-const store = useStore()
-
 const User = store.getters.getuser;
-
-
-const user = ref(0)
-
-
-// const {count, msg} = useState(["count", "msg"])
-							//useMutations (changement d'etat de variable)
-							//useAction (fonctions sur variable)
-							//useGetter (pas compris)
-
+User.id = 2
 
 const createChan = ref({
 	channelName: '',
@@ -40,18 +31,18 @@ const createChan = ref({
 	dm: false,
 	ownerId: 0,
 })
-
-const userChan = ref({
-    id: 0,
-    username: '',
-})
-
 const messageText = ref('');
-
 const onChan = ref(false);
 
 const setting = ref(false);
-const channels = ref([])
+
+const checked = ref(false)
+const isFocused = ref(false)
+const password = ref('')
+const togglePrivacy = ref(false)
+const isModalAdmin = ref(false)
+const isModalBan = ref(false)
+const isModalMute = ref(false)
 
 
 onBeforeMount(() => {
@@ -68,26 +59,27 @@ onBeforeMount(() => {
 
 });
 
-
+onBeforeUnmount(() => {
+    socket.disconnect()
+})
 
 function enterchat(chan : any){
-    socket.emit('leaveRoom', channels.value)
-
-	chandisp.value.idch=chan.id     
-    onChan.value = true;
-    chandisp.value.channame = chan.channelName
-    chandisp.value.ownerId = chan.ownerId
-    channels.value = chandisp.value.channame
-
-    socket.emit('findAllMessages', chan.id , response => {
-        chandisp.value.messages = response
-    })
-    socket.emit('pushUserChan', { User, chan }, response => {
-        chandisp.value.user.push(response)
-    })
-    // chandisp.value.user = chan.user
-    socket.emit('joinRoom', chan);
+    console.log(chan.user[1].id)
+    let userid: number = User.id
+    let chanid: number = chan.id
+    let oldChatId: number = chandisp.value.idch
     
+   
+    socket.emit('joinRoom', { userid, chanid, oldChatId }, response => {
+        chandisp.value.messages = response.messages
+        chandisp.value.idch=response.id     
+        onChan.value = true;
+        chandisp.value.channame = response.channelName
+        chandisp.value.ownerId = response.ownerId
+        chandisp.value.user = response.user
+        setting.value = false
+        store.commit("setChandisp", chandisp.value)
+    });
 }
 
 const createMessage = () => {
@@ -119,15 +111,6 @@ function settings () {
         setting.value = true
 }
 
-const checked = ref(false)
-const isFocused = ref(false)
-const password = ref('')
-const togglePrivacy = ref(false)
-
-function setChandisp (chandisp: any) {
-    store.commit("setChandisp", chandisp)
-}
-
 
 </script>
 
@@ -139,7 +122,7 @@ function setChandisp (chandisp: any) {
                 <button type="submit"> Create Room </button>
                 <button class="button-cancel" @click="addNewRoom = false">Cancel</button>
 				<input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
-				<label for="checkbox" @click="togglePrivacy">{{ checked ? 'private' : 'public' }}</label>
+				<label for="checkbox" @click="togglePrivacy = checked">{{ checked ? 'private' : 'public' }}</label>
 				<label for="password">Mot de passe</label>
 				<input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
             </form>
@@ -158,28 +141,45 @@ function setChandisp (chandisp: any) {
                 <p>Propriete du chat</p>
 
                 <form>
-                    
+
 				    <input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
 				    <label for="checkbox" @click="togglePrivacy">Status: {{ checked ? 'private' : 'public' }}</label>
 				    <label for="password">
                         Password
                         <input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
                     </label>
-                    <div class="router">
-                        <router-link to="/admins" class="button" @click="setChandisp(chandisp)">
-                            Select admin
-                        </router-link>
-                    </div>
-                    <div class="router">
-                        <router-link to="/banned" class="button" @click="setChandisp(chandisp)">
-                            Select user to ban
-                        </router-link>
-                    </div>
-                    <div class="router">
-                        <router-link to="/mute" class="button" @click="setChandisp(chandisp)">
-                            Select user to mute
-                        </router-link>
-                    </div>
+
+                    <button type="button" class="btn" @click="isModalAdmin = true">
+                        Select admin
+                    </button>
+                    <Modal v-if="isModalAdmin === true" @close="isModalAdmin = false">
+                        <template v-slot:header>
+                            Admin
+                        </template>
+
+                    </Modal>
+                         
+
+                    <button type="button" class="btn" @click="isModalBan = true">
+                        Select user to ban
+                    </button>
+                    <Modal v-if="isModalBan === true" @close="isModalBan = false">
+                        <template v-slot:header>
+                            Someone to ban ?
+                        </template>
+
+
+                    </Modal>
+
+
+                    <button type="button" class="btn" @click="isModalMute = true">
+                        Select user to mute
+                    </button>
+                    <Modal v-if="isModalMute === true" @close="isModalMute = false">
+                        <template v-slot:header>
+                            Someone to mute ?
+                        </template>
+                    </Modal>
 
                 </form>
             </div>                  
@@ -274,12 +274,13 @@ function setChandisp (chandisp: any) {
         }
     }
 }
-.router {
+.btn {
     display: flex;
     justify-content: center;
     margin: 5px;
-    .button {
+    button {
         color: black;
+        background-color: rgb(223, 224, 208);
     }
     background-color: rgb(223, 224, 208);
     padding: 10px;

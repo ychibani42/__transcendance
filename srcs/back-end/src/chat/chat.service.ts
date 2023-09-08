@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from './entities/message.entity';
 import { Exclude } from 'class-transformer';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class ChatService {
@@ -128,27 +129,104 @@ export class ChatService {
 		}
 	}
 
-	async pushUserChan(users: any) {
+	async pushAdminChan(userid: number, chanid: number) {
 		try {
-			console.log(users.chan.id)
-			await this.prismaService.channel.update({
+			console.log(userid)
+			const admin = await this.prismaService.channel.update({
 				where: {
-					id: users.chan.id,
+					id: chanid,
 				},
 				data: {
-					user: {
-						connect: {
-							id: users.User.id,
-							name: users.User.name,
-						},
-					},
-				},
+					adminId: userid
+				}
 			});
-			return users.User;
+			return admin;
 		} catch (error) {
 			console.log(error)
 		}
 	}
+
+	async findOneChan(chanid: number) {
+		try {
+			const chan = await this.prismaService.channel.findUniqueOrThrow({
+				where: {
+					id: chanid,
+				},
+				select: {
+					password: false,
+					id: true,
+					channelName: true,   
+					adminId:true,
+					ownerId:true,
+					user: true,
+					messages: true,
+					blockedUsers:true,
+					mutedUsers :true,
+					is_private: true,
+					dm:true
+				}
+				
+			});
+			return chan
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	async joinRoom(client: Socket, userid: number, chanid: number)
+	{
+		try {
+			const chan = await this.findOneChan(chanid)
+			const user = await this.prismaService.channel.findUnique({
+				where: {
+					user: {
+						id: userid
+					}
+				}.user,
+			}) // for banned
+			if (chan)
+			{
+				const userInChan = await this.prismaService.channel.update({
+					where: {
+						id: chan.id,
+					},
+					data: {
+						user: {
+							connect: {
+								id: userid
+							},
+						},
+					},
+					select: {
+						password: false,
+						id: true,
+						channelName: true,   
+						adminId:true,
+						ownerId:true,
+						user: true,
+						messages: true,
+						blockedUsers:true,
+						mutedUsers :true,
+						is_private: true,
+						dm:true
+					}
+				});
+				client.join(chan.channelName)
+				return (userInChan)
+			}
+
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	async leaveRoom(client: Socket, oldChatId: number) {
+		const oldChan = await this.findOneChan(oldChatId)
+		
+		if (oldChan)
+			client.leave(oldChan.channelName)
+	}
 }
+
 
 

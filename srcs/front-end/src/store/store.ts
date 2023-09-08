@@ -18,6 +18,7 @@ const store = createStore(
                 user: []
             },
             gamesock:null,
+            chatsock: null,
         },
         getters:{
             getuser : state => state.user,
@@ -32,6 +33,7 @@ const store = createStore(
             setProfileC(state , bool){ state.user.profileCompleted = bool},
             setFriend(state , friend){ state.user.friend = friend},
             setGamesocket(state, socket){ state.gamesock = socket},
+            setChatsocket(state, socket){state.chat = socket},
             setChandisp(state, chandisp) {
                 state.chandisp.idch = chandisp.idch,
                 state.chandisp.channame = chandisp.channame,

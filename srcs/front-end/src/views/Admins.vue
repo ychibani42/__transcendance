@@ -1,19 +1,17 @@
 <template>
     <div class="admin">
         <h2>Admin</h2>
-        <div class="content">
-            <div  v-for="users in chandisp.user" > 
-                <input type="checkbox" id="checked">
-                {{ users.id }}
-                
-                
+        <form @submit.prevent="funct" class="content">
+            <div v-for="users in chandisp.user" > 
+                <input type="checkbox" :value="users.id" v-model="checked"> {{ users.id }}    
             </div>
+            <span>{{ checked }}</span>
             <div class="routers">
                 <div class="router">
                     
-                    <router-link to="/chat" class="button">
+                    <button type="submit">
                         Submit
-                    </router-link>
+                    </button>
                 </div>
                 <div class="router">
                     <router-link to="/chat" class="button">
@@ -21,7 +19,7 @@
                     </router-link>
                 </div>
             </div>
-    </div>
+        </form>
 </div>
 </template>
         
@@ -32,12 +30,11 @@ import { useStore, mapState } from 'vuex'
 import { onBeforeMount, ref, reactive, computed, Vue } from 'vue';
 const store = useStore()
 const chandisp = store.getters.getChandisp;
-const test = ref({
-    checked: ''
-})
+const checked = ref([])
 
 function funct() {
-     console.log(test.checked)   
+     console.log(checked.value) 
+     console.log(chandisp.user) 
 }
 
 

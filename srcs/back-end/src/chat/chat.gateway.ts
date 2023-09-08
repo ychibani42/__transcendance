@@ -56,24 +56,26 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('joinRoom')
-	async join(client: Socket, chan: any) 
+	async join(client: Socket, data: any) 
 	{
-		this.server.to(chan.channelName).emit('join', chan.user);
-		client.join(chan.channelName)
+		console.log(data)
+		if (data.oldChatId != 0)
+			this.chatService.leaveRoom(client, data.oldChatId)
+		return this.chatService.joinRoom(client, data.userid, data.chanid)
 	}
-
-	@SubscribeMessage('pushUserChan')
-	async pushUserChan(client: Socket, user: any) 
-	{
-		return this.chatService.pushUserChan(user)
-	}
-
 
 	@SubscribeMessage('leaveRoom')
 	leave(client: Socket, channelName: string) 
 	{
 		client.leave(channelName)
 	}
+
+	@SubscribeMessage('admin')
+	admin(userid: number, chanid: number) 
+	{
+		return this.chatService.pushAdminChan(userid, chanid)
+	}
+
 
 	// @SubscribeMessage('typing')
 	// async typing(
