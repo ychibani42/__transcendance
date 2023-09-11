@@ -19,6 +19,5 @@ export class UserService {
 			console.log(error)
 			return false
 		}
-		
 	}
 }

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import router from '../router'
+import store from '../store/store';
 
 const Axios = axios.create({
     withCredentials :true,
@@ -12,9 +13,16 @@ Axios.interceptors.response.use(response =>{
 },error => {
     if(error.response.status == 401)
     {
+        store.replaceState({user:{
+            id: 0,
+            username: '',
+            profileCompleted: false,
+            blocked: [],
+            friend: [],
+            first : true
+        },
+        gamesock:null})
         $cookies.remove('access_token')
-        router.push("/login")
-        return;
     }
 });
 export default Axios

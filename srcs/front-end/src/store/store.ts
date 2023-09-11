@@ -9,7 +9,8 @@ const store = createStore(
                 username: '',
                 profileCompleted: false,
                 blocked: [],
-                friend: []
+                friend: [],
+                first : true
             },
             gamesock:null,
         },
@@ -24,6 +25,7 @@ const store = createStore(
             setBlocked(state , listblock){ state.user.blocked = listblock},
             setProfileC(state , bool){ state.user.profileCompleted = bool},
             setFriend(state , friend){ state.user.friend = friend},
+            setF(state , bool){ state.user.first = bool},
             setGamesocket(state, socket){ state.gamesock = socket},
         },
         actions:{

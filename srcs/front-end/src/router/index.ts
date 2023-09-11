@@ -46,22 +46,39 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from) => {
-  if(to.path == '/login' && $cookies.get('access_token') === null)
+async function checkJwt() : Promise<boolean>
+{
+  if($cookies.get('access_token') !== null)
   {
-    console.log("here")
+    try {
+        await Axios.get("auth/checkjwt").then(res => {
+            if(res !== undefined && store.state.user.first === true){
+              store.commit('setUserId',res.data.id)
+              store.commit('setProfileC',res.data.Profile)
+              store.commit('setF',false)
+            }
+          });
+          return true
+    } catch (error) {
+        return false
+    }
   }
-  try {
-    Axios.get("auth/checkjwt").then(res => {store.commit('setUserId',res.data.id)});
-    
-  } catch (error) {
-    
-  }
-  console.log(store.state.user.profileCompleted)
-  if(store.state.user.profileCompleted === false && to.path == '/')
+  else
   {
-    return "/config"
+    return false
   }
-})
+}
 
+router.beforeEach((to, from) => {
+  checkJwt().then((valid : boolean) => {
+    if (valid === false && to.path !== '/login' && $cookies.get('access_token') === null)
+    {
+      router.push("/login")
+    }
+    if(store.state.user.profileCompleted === false && valid === true)
+    {
+      router.push("/config")
+    }
+})
+})
 export default router

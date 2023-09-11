@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { io } from 'socket.io-client';
 import {onMounted,onBeforeMount, Ref, ref , onUnmounted, computed} from "vue";
@@ -8,7 +7,6 @@ import { useStore } from 'vuex';
 const socket: Ref<Socket> = ref()
 const store = useStore()
 const router = useRouter()
-const User = store.getters.getuser
 
 onMounted(() =>{
     store.commit('setGamesocket',io('http://localhost:3000/game'))
@@ -24,26 +22,18 @@ onMounted(() =>{
     })
 })
 
-onUnmounted(() =>{
-  socket.value.disconnect()
-})
-
 function joinQueue(){
+    console.log("HERE")
     socket.value.emit("JoinQueue",store.state.user.id)
 }
+
 </script>
 
 <template>
-    <div class="matchmaking">
-      <h4>Please wait till a player wants to play</h4>
+    <div>
+        <Button onclick="joinQueue">Join Queue</Button>
     </div>
-    <div class="button">
-        <Button class="button" v-on:click="joinQueue()">Join Queue</Button>
-    </div>
-    <p>Your ID is {{ User.id }}</p>
-  </template>
-  
-  <style lang="scss" scoped>
+</template>
 
-  </style>
-  
+<style>
+</style>
