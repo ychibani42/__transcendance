@@ -19,8 +19,8 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Post('upload')
-	// @UseInterceptors(FileInterceptor('file', MulterConfig))
-	uploadFile(@Req() file :any) {
-		console.log(file);
+	@UseInterceptors(FileInterceptor('file', MulterConfig))
+	uploadFile(@UploadedFile() file: Express.Multer.File) {
+		console.log("[" + file + "]");
 	}
 }
