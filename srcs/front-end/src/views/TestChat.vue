@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { io } from 'socket.io-client';
-import { onBeforeMount, onBeforeUnmount, ref, reactive, computed } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref, defineEmits, reactive, computed } from 'vue';
 import Axios from '../services';
 import { useStore, mapState } from 'vuex'
 import Modal from '../components/Modal.vue';
@@ -22,7 +22,6 @@ const chandisp = ref({
 })
 
 const User = store.getters.getuser;
-User.id = 2
 
 const createChan = ref({
 	channelName: '',
@@ -44,6 +43,8 @@ const isModalAdmin = ref(false)
 const isModalBan = ref(false)
 const isModalMute = ref(false)
 
+const emit = defineEmits(['ban', 'admin', 'mute'])
+
 
 onBeforeMount(() => {
 
@@ -56,6 +57,8 @@ onBeforeMount(() => {
     socket.on('message',(arg1 : string) => {
         chandisp.value.messages.push(arg1);
     })
+    store.commit('setChatsocket', socket)
+    console.log(socket)
 
 });
 
@@ -64,7 +67,6 @@ onBeforeUnmount(() => {
 })
 
 function enterchat(chan : any){
-    console.log(chan.user[1].id)
     let userid: number = User.id
     let chanid: number = chan.id
     let oldChatId: number = chandisp.value.idch
@@ -152,7 +154,7 @@ function settings () {
                     <button type="button" class="btn" @click="isModalAdmin = true">
                         Select admin
                     </button>
-                    <Modal v-if="isModalAdmin === true" @close="isModalAdmin = false">
+                    <Modal emit='admin' v-if="isModalAdmin === true" @close="isModalAdmin = false">
                         <template v-slot:header>
                             Admin
                         </template>
@@ -163,7 +165,7 @@ function settings () {
                     <button type="button" class="btn" @click="isModalBan = true">
                         Select user to ban
                     </button>
-                    <Modal v-if="isModalBan === true" @close="isModalBan = false">
+                    <Modal emit='banned' v-if="isModalBan === true" @close="isModalBan = false">
                         <template v-slot:header>
                             Someone to ban ?
                         </template>
@@ -175,7 +177,7 @@ function settings () {
                     <button type="button" class="btn" @click="isModalMute = true">
                         Select user to mute
                     </button>
-                    <Modal v-if="isModalMute === true" @close="isModalMute = false">
+                    <Modal emit='muted' v-if="isModalMute === true" @close="isModalMute = false">
                         <template v-slot:header>
                             Someone to mute ?
                         </template>

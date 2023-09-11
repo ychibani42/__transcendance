@@ -5,13 +5,13 @@
             <slot name="header"></slot>
         </h2>
         <div class="modal-body">
-            <form @submit.prevent="funct" class="content">
+            <form @submit.prevent="status" class="content">
                 <div v-for="users in chandisp.user" > 
                   <input type="checkbox" :value="users.id" v-model="checked"> {{ users.id }}    
                 </div>
                 <span>{{ checked }}</span>
                     
-                    <button type="submit">
+                    <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true">
                         Submit
                     </button>
 
@@ -27,14 +27,32 @@
 
 <script lang="ts" setup>
 import { useStore, mapState } from 'vuex'
-import { onBeforeMount, ref, reactive, computed, Vue, defineEmits } from 'vue';
+import { onBeforeMount, onBeforeUnmount, Ref, ref, reactive, computed, Vue } from 'vue';
+
+const props = defineProps({'emit': String})
+
 const emit = defineEmits(['close'])
 const store = useStore()
 const chandisp = store.getters.getChandisp;
 const checked = ref([])
+const socket = store.getters.getChansocket;
+const banned = ref(false)
+const muted = ref(false)
+const admin = ref(false)
 
-function funct() {
-     console.log(checked.value) 
+onBeforeMount(() => {
+  console.log('ok');
+  console.log(props.emit)
+  console.log(socket)
+})
+ 
+
+function status() {
+      let userid: number = checked.value
+      let chanid: number = chandisp.idch
+        socket.emit(props.emit, { userid, chanid }, response => {
+          console.log('ici', response)
+        })
 }
 
 

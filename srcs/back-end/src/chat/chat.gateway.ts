@@ -71,9 +71,25 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('admin')
-	admin(userid: number, chanid: number) 
+	admin(@Body() data: any) 
 	{
-		return this.chatService.pushAdminChan(userid, chanid)
+		console.log('gateway' , data)
+		return this.chatService.pushAdminChan(data.userid, data.chanid)
+	}
+
+	@SubscribeMessage('banned')
+	banned(@Body() data: any) 
+	{
+		console.log('gateway' , data)
+		this.chatService.pushBannedChan(data.userid, data.chanid)
+		return 
+	}
+
+	@SubscribeMessage('muted')
+	muted(@Body() data: any) 
+	{
+		console.log('gateway' , data)
+		return this.chatService.pushMutedChan(data.userid, data.chanid)
 	}
 
 
