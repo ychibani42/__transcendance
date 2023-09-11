@@ -92,8 +92,8 @@ export class GameService {
         newplay = {
             x : 0,
             y : 0,
-            w : 0,
-            h : 0,
+            w : 8,
+            h : 37,
             score : 0,
             socket : client,
             id : id
@@ -108,9 +108,6 @@ export class GameService {
         if(this.Matchmacking.length >= 2){
             this.createroom(this.Matchmacking.shift(),this.Matchmacking.shift())
         }
-        console.log("Room",this.Rooms.length)
-        if(this.Rooms[0])
-            console.log("Room",this.Rooms[0])
     }
 
     async createroom(play : player|undefined , play2 : player|undefined){
@@ -137,6 +134,8 @@ export class GameService {
             }
             if(this.Rooms.length == 0)
                 this.addInterval()
+            room.play.x = 15
+            room.play2.x = 300 - 15 - 8
             this.Rooms.push(room)
             console.log("Room here",this.Rooms.length)
         }

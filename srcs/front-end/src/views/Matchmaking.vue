@@ -38,7 +38,7 @@ function joinQueue(){
       <h4>Please wait till a player wants to play</h4>
     </div>
     <div class="button">
-        <Button class="button" v-on:click="joinQueue()">Join Queue</Button>
+        <button class="button" @click="joinQueue()">Join Queue</button>
     </div>
     <p>Your ID is {{ User.id }}</p>
   </template>

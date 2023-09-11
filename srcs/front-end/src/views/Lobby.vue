@@ -6,7 +6,6 @@ import { useStore } from 'vuex';
 
 const socket: Ref<Socket> = ref()
 const store = useStore()
-const router = useRouter()
 
 onMounted(() =>{
     store.commit('setGamesocket',io('http://localhost:3000/game'))
@@ -30,8 +29,8 @@ function joinQueue(){
 </script>
 
 <template>
-    <div>
-        <Button onclick="joinQueue">Join Queue</Button>
+    <div class="btn">
+        <button class="btn" v-on="joinQueue"></button>
     </div>
 </template>
 
