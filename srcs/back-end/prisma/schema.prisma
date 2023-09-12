@@ -54,6 +54,7 @@ model Channel {
   id         Int       @id @unique @default(autoincrement())
   is_private Boolean
   password        String?
+  locked      Boolean @default(false)    
   channelName     String @unique     
   adminUsers    Admin[] @relation("chan/admin")
   ownerId    Int

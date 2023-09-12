@@ -13,6 +13,7 @@ import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { Chat } from './entities/chat.entity';
 import { Param } from '@nestjs/common';
+import { channel } from 'diagnostics_channel';
 
 @WebSocketGateway({
 	cors: {
@@ -41,13 +42,16 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('createRoom')
-	createRoom(@Body() body :any): Promise<Chat> {
-		return this.chatService.createChat(body);
+	async createRoom(@Body() body :any){
+		const chan = await this.chatService.createChat(body);
+		this.server.emit('createRoom', chan)
 	}
 
 	@SubscribeMessage('findAllChats')
-	findAll() {
-		return this.chatService.findAllChats();
+	async findAll() {
+		const chats = await this.chatService.findAllChats();
+		console.log('display',chats)
+		return chats
 	}
 
 	@SubscribeMessage('findAllMessages')
@@ -59,9 +63,10 @@ export class ChatGateway {
 	async join(client: Socket, data: any) 
 	{
 		console.log(data)
+		
 		if (data.oldChatId != 0)
-			this.chatService.leaveRoom(client, data.oldChatId)
-		return this.chatService.joinRoom(client, data.userid, data.chanid)
+			await this.chatService.leaveRoom(client, data.oldChatId)
+		return await this.chatService.joinRoom(client, data.userid, data.chanid)
 	}
 
 	@SubscribeMessage('leaveRoom')
@@ -70,36 +75,57 @@ export class ChatGateway {
 		client.leave(channelName)
 	}
 
-	@SubscribeMessage('admin')
-	admin(@Body() data: any) 
+	@SubscribeMessage('password')
+	password(client: Socket, data: any) 
 	{
-		console.log('gateway' , data)
-		return this.chatService.pushAdminChan(data.userid, data.chanid)
+		this.chatService.joinRoomWithPassword(client, data.pasword, data.userid, data.chanid)
+		client.emit('joinRoom')
+	}
+
+	@SubscribeMessage('admin')
+	async admin(@Body() data: any) 
+	{
+		const chan = await this.chatService.findOneChan(data.chanid)
+		const admin = await this.chatService.pushAdminChan(data.userid, data.chanid)
+		if (chan)
+		{
+			if (admin)
+			{
+				this.server.to(chan.channelName).emit('admin', admin)
+			}
+		}
+		return admin
 	}
 
 	@SubscribeMessage('banned')
-	banned(@Body() data: any) 
+	async banned(@Body() data: any) 
 	{
-		console.log('gateway' , data)
-		this.chatService.pushBannedChan(data.userid, data.chanid)
-		return 
+		const chan = await this.chatService.findOneChan(data.chanid)
+		const banned = await this.chatService.pushBannedChan(data.userid, data.chanid)
+		if (chan)
+		{
+			if (banned)
+			{
+				this.server.to(chan.channelName).emit('banned', banned)
+			}
+		}
+		return banned
+
 	}
 
 	@SubscribeMessage('muted')
-	muted(@Body() data: any) 
+	async muted(@Body() data: any) 
 	{
-		console.log('gateway' , data)
-		return this.chatService.pushMutedChan(data.userid, data.chanid)
+		const chan = await this.chatService.findOneChan(data.chanid)
+		const muted = await this.chatService.pushMutedChan(data.userid, data.chanid)
+		if (chan)
+		{
+			if (muted)
+			{
+				this.server.to(chan.channelName).emit('muted', muted)
+			}
+		}
+		return muted
+		
 	}
-
-
-	// @SubscribeMessage('typing')
-	// async typing(
-	// 	@MessageBody('isTyping') isTyping: boolean,
-	// 	@ConnectedSocket() client: Socket,
-	// ) {
-	// 	const name = await this.chatService.getClientbyId(client.id);
-	// 	client.broadcast.emit('typing', { name, isTyping });
-	// }
-
 }

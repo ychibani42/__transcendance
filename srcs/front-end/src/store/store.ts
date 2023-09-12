@@ -41,7 +41,8 @@ const store = createStore(
                 state.chandisp.messages = chandisp.messages,
                 state.chandisp.user = chandisp.user
 
-            }
+            },
+            setChanid(state, id: number){state.chandisp.idch = id}
         },
         actions:{
 

@@ -2,7 +2,7 @@
     <div class="modal-backdrop">
       <div class="modal">
         <h2 class="modal-header">
-            <slot name="header"></slot>
+            <slot name="header"> {{ header }}</slot>
         </h2>
         <div class="modal-body">
             <form @submit.prevent="status" class="content">
@@ -27,9 +27,9 @@
 
 <script lang="ts" setup>
 import { useStore, mapState } from 'vuex'
-import { onBeforeMount, onBeforeUnmount, Ref, ref, reactive, computed, Vue } from 'vue';
+import { ref } from 'vue';
 
-const props = defineProps({'emit': String})
+const props = defineProps({'emit': String, 'header': String})
 
 const emit = defineEmits(['close'])
 const store = useStore()
@@ -40,19 +40,10 @@ const banned = ref(false)
 const muted = ref(false)
 const admin = ref(false)
 
-onBeforeMount(() => {
-  console.log('ok');
-  console.log(props.emit)
-  console.log(socket)
-})
- 
-
 function status() {
       let userid: number = checked.value
       let chanid: number = chandisp.idch
-        socket.emit(props.emit, { userid, chanid }, response => {
-          console.log('ici', response)
-        })
+      socket.emit(props.emit, { userid, chanid })
 }
 
 
@@ -77,5 +68,6 @@ function status() {
     overflow-x: auto;
     display: flex;
     flex-direction: column;
+    border-radius: 8px;
   }
 </style>

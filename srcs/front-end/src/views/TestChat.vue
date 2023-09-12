@@ -4,6 +4,7 @@ import { onBeforeMount, onBeforeUnmount, ref, defineEmits, reactive, computed } 
 import Axios from '../services';
 import { useStore, mapState } from 'vuex'
 import Modal from '../components/Modal.vue';
+import Password from '../components/Password.vue';
 // import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 const store = useStore()
@@ -18,7 +19,7 @@ const chandisp = ref({
     ownerId: 0,
     adminId: [],
     bannedId: [],
-    mutedId: []
+    mutedId: [],
 })
 
 const User = store.getters.getuser;
@@ -42,8 +43,7 @@ const togglePrivacy = ref(false)
 const isModalAdmin = ref(false)
 const isModalBan = ref(false)
 const isModalMute = ref(false)
-
-const emit = defineEmits(['ban', 'admin', 'mute'])
+const isPassword = ref(false)
 
 
 onBeforeMount(() => {
@@ -51,11 +51,26 @@ onBeforeMount(() => {
     displayChats()
 	Axios.get('auth/Checkjwt')
 	.then(function(response)  {
-        // user.value = response.data.id
         store.commit('setUserId', response.data.id)
 	})
     socket.on('message',(arg1 : string) => {
         chandisp.value.messages.push(arg1);
+    })
+    socket.on('admin', (arg1:string) => {
+        chandisp.value.adminId.push(arg1)
+    })
+    socket.on('banned', (arg1:string) => {
+        chandisp.value.bannedId.push(arg1)
+    })
+    socket.on('muted', (arg1:string) => {
+        chandisp.value.mutedId.push(arg1)
+    })
+    socket.on('createRoom', (arg1: string) => {
+        chan.value.push(arg1)
+    })
+    socket.on('error', (arg1: string) => {
+        if (arg1 == 'banned')
+            onChan.value = false
     })
     store.commit('setChatsocket', socket)
     console.log(socket)
@@ -66,22 +81,41 @@ onBeforeUnmount(() => {
     socket.disconnect()
 })
 
+
+
 function enterchat(chan : any){
+    
+    if (chan.locked == true)
+    {
+        onChan.value = false
+        isPassword.value = true
+        store.commit("setChanid", chan.id)
+        return
+    }
+    
+    isPassword.value = false
     let userid: number = User.id
     let chanid: number = chan.id
     let oldChatId: number = chandisp.value.idch
     
-   
+    
+    
     socket.emit('joinRoom', { userid, chanid, oldChatId }, response => {
+        console.log(response)
         chandisp.value.messages = response.messages
         chandisp.value.idch=response.id     
         onChan.value = true;
         chandisp.value.channame = response.channelName
         chandisp.value.ownerId = response.ownerId
         chandisp.value.user = response.user
+        chandisp.value.adminId = response.adminUsers
+        chandisp.value.bannedId = response.bannedUsers
+        chandisp.value.mutedId = response.mutedUsers
         setting.value = false
         store.commit("setChandisp", chandisp.value)
     });
+    
+    
 }
 
 const createMessage = () => {
@@ -90,19 +124,17 @@ const createMessage = () => {
 
 function displayChats () {
 	socket.emit('findAllChats', (response) => {
-		chan.value = response  
+		chan.value = response
 	});
-  
 }
 
 function createChat () {
 			socket.emit('createRoom', {
 				channelName: createChan.value.channelName,
-				is_private: createChan.value.is_private,
-				password: createChan.value.password,
+				is_private: checked.value,
+				password: password.value,
 				dm: createChan.value.dm,
 				ownerId: User.id,
-				password: createChan.value.password
 			})
 }
 
@@ -113,11 +145,48 @@ function settings () {
         setting.value = true
 }
 
+function isAdmin() {
+    for (let i = 0; i < chandisp.value.adminId.length; i++)
+    {
+        if (chandisp.value.adminId[i].id == User.id)
+            return true
+    }
+    if (User.id == chandisp.value.ownerId)
+        return true
+    return false
+    
+}
+
+function isMuted() {
+    for (let i = 0; i < chandisp.value.mutedId.length; i++)
+    {
+        if (chandisp.value.mutedId[i].id == User.id)
+            return true
+    }
+    return false
+    
+}
+
+function isBanned() {
+    console.log('ici')
+    for (let i = 0; i < chandisp.value.bannedId.length; i++)
+    {
+        if (chandisp.value.bannedId[i].id == User.id)
+        {
+            
+            onChan.value = false
+            return true
+        }    
+    }
+    return false
+    
+}
 
 </script>
 
 <template>
     <div class="chat-page">
+        
         <div class="add-chat">
           <form v-if="addNewRoom" @submit.prevent.clear="createChat">
                 <input type="text" placeholder="Add username"  v-model="createChan.channelName" required>
@@ -131,14 +200,23 @@ function settings () {
         </div>
         <div class="channel-list">
             <button @click="addNewRoom = true">+</button>
-            <button @click="displayChats">refresh</button>
 			<ol>
 				<li v-for="name in chan">
-					<button @click="enterchat(name)">{{ name.channelName }} </button>
+                    <div v-if="name.locked === false" class="unlocked">
+                        <button @click="enterchat(name)">
+                            {{ name.channelName }} 
+                        </button>
+                    </div>
+                    <div v-else class="locked">
+                        <button @click="enterchat(name)">
+                            {{ name.channelName }} 
+                        </button>
+                    </div>
 				</li>
 			</ol>
         </div>
         <div class="chat-display">
+            <Password v-if="isPassword === true"/>
             <div class="formSetting" v-if="setting === true">
                 <p>Propriete du chat</p>
 
@@ -154,52 +232,35 @@ function settings () {
                     <button type="button" class="btn" @click="isModalAdmin = true">
                         Select admin
                     </button>
-                    <Modal emit='admin' v-if="isModalAdmin === true" @close="isModalAdmin = false">
-                        <template v-slot:header>
-                            Admin
-                        </template>
-
-                    </Modal>
-                         
+                    <Modal emit='admin' header="Admin" v-if="isModalAdmin === true" @close="isModalAdmin = false"/>
 
                     <button type="button" class="btn" @click="isModalBan = true">
                         Select user to ban
                     </button>
-                    <Modal emit='banned' v-if="isModalBan === true" @close="isModalBan = false">
-                        <template v-slot:header>
-                            Someone to ban ?
-                        </template>
-
-
-                    </Modal>
-
+                    <Modal emit='banned' header="Select to ban?" v-if="isModalBan === true" @close="isModalBan = false"/>
 
                     <button type="button" class="btn" @click="isModalMute = true">
                         Select user to mute
                     </button>
-                    <Modal emit='muted' v-if="isModalMute === true" @close="isModalMute = false">
-                        <template v-slot:header>
-                            Someone to mute ?
-                        </template>
-                    </Modal>
-
+                    <Modal emit='muted'  header="Select to mute?" v-if="isModalMute === true" @close="isModalMute = false"/>
+                    
                 </form>
             </div>                  
             <div class="chat-header" >
-                <div class="title">
+                <div class="title" v-if="onChan === true">
                     {{ chandisp.channame }}
                 </div>
             
 
-                <div class="settings" v-if="onChan === true && (chandisp.ownerId === User.id)">
+                <div class="settings" v-if="onChan === true && isAdmin()">
                     <button @click="settings()">
                         <span class="material-icons">settings</span>
                     </button>
 
                 </div>
             </div>
-            <div class="chat-messages">
-                <ol v-for="name in chandisp.messages">
+            <div class="chat-messages" >
+                <ol v-for="name in chandisp.messages" v-if="onChan === true">
                     <div class="message" v-if="name.userId === User.id" >
                           <p>
                             {{ name.text }} {{name.userId }}
@@ -211,10 +272,10 @@ function settings () {
                         </p>
                            
                     </div>
-			</ol>
+			    </ol>
             </div>
             <div class="typing-messages">
-                <form id='test' @submit.prevent="createMessage" v-if="onChan === true">
+                <form id='test' @submit.prevent="createMessage" v-if="onChan === true && !isMuted()">
                     <input class="text" type="text" placeholder="type your message" v-model="messageText" required>
                     <button><span class="material-icons">send</span></button>
                 </form>
@@ -250,15 +311,24 @@ function settings () {
         list-style: none;
         text-align: left;
         gap: 0.5%;
+       
         li {
             width: 100%;
- 
+            .locked button{
+                 background-color: rgb(235, 81, 81);
+            
+            }
+            .unlocked button{
+                 background-color: rgb(188, 226, 126);
+            
+            }
+            
             button {
                 width: 100%;
                 border-radius: 8px;
                 padding-top: 5%;
                 padding-bottom: 5%;
-
+            
             }
         }
 
