@@ -18,14 +18,18 @@ onMounted(() =>{
     {
         console.log("ON QUEUE")
     })
-    socket.value.on('onRoom', () =>
+    socket.value.on("playerdef", (arg1 : number , arg2 : string) => {
+        if(arg1 == 1)
+            store.commit('setGameplay',false)
+        else
+            store.commit('setGameplay',true)
+        store.commit('setGamename',arg2)
+    })
+    socket.value.on('OnRoom', () =>
     {
         console.log("ON ROOM")
+        router.push("/game")
     })
-})
-
-onUnmounted(() =>{
-  socket.value.disconnect()
 })
 
 function joinQueue(){

@@ -13,10 +13,14 @@ const store = createStore(
                 first : true
             },
             gamesock:null,
+            gamename:'',
+            gameplay:false
         },
         getters:{
             getuser : state => state.user,
-            getGamesocket : state => state.gamesock
+            getGamesocket : state => state.gamesock,
+            getGamename : state => state.gamename,
+            getGameplay : state => state.gameplay,
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -27,6 +31,8 @@ const store = createStore(
             setFriend(state , friend){ state.user.friend = friend},
             setF(state , bool){ state.user.first = bool},
             setGamesocket(state, socket){ state.gamesock = socket},
+            setGamename(state, name){ state.gamename = name},
+            setGameplay(state, play){ state.gameplay = play},
         },
         actions:{
 

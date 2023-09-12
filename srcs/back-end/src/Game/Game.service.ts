@@ -36,6 +36,8 @@ interface Room{
     ball : ball,
     play : player,
     play2 : player,
+    ready : boolean,
+    ready2 : boolean
 }
 
 @Injectable({})
@@ -46,10 +48,6 @@ export class GameService {
     ) {}
     Queue : Array<Socket> = [];
     Rooms : Array<Room> = [];
-    private ball = {} as ball
-    private play2 = {} as player
-    private play = {} as player
-
     Matchmacking: Array<player> = [];
     
     //ROOM GESTION
@@ -57,34 +55,6 @@ export class GameService {
 
     created(socket : Socket) {
         this.Queue.push(socket)
-
-            this.ball.x = 150
-            this.ball.y = 5
-            this.ball.r = 5
-            this.ball.speed = 2
-            this.ball.velX = 2
-            this.ball.velY = 2
-            this.play2.x = 300 - 15 - 8
-            this.play2.y = 0
-            this.play2.w = 8
-            this.play2.h = 37
-            this.play2.score = 0
-            this.play.score = 0
-            this.play.x = 15
-            this.play.y = 150/2
-            this.play.w = 8
-            this.play.h = 37
-        if(this.Queue[0])
-        {
-            this.Queue[0].emit("update")
-        }
-        if(this.Queue.length > 1)
-        {
-            this.Queue.forEach((element,index) => {
-                if(index != 0)
-                    element.emit('spectate')
-            })
-        }
     }
 
     JoinQueue(client : Socket, id : number){
@@ -105,48 +75,98 @@ export class GameService {
         this.Matchmacking.push(newplay)
         client.emit("onQueue")
         console.log(this.Matchmacking.length)
-        if(this.Matchmacking.length >= 2){
+        while(this.Matchmacking.length >= 2){
             this.createroom(this.Matchmacking.shift(),this.Matchmacking.shift())
         }
     }
 
     async createroom(play : player|undefined , play2 : player|undefined){
-        console.log(play?.id)
-        console.log(play2?.id)
         play?.socket.emit("onQueue")
         play2?.socket.emit("onQueue")
-        let id = play?.id 
-        const user = await this.prismaService.user.findUniqueOrThrow({where : {id : id}})
-        if(user.name && play && play2){
-            const room : Room = {
-                state : 1,
-                name : user.name,
-                ball : {
-                    x : 150,
-                    y : 5,
-                    r : 5,
-                    speed :2,
-                    velX : 2,
-                    velY : 2,
-                },
-                play : play,
-                play2 : play2
+        let id = play?.id
+        if(play){
+            const user = await this.prismaService.user.findUniqueOrThrow({where : {id : id}})
+            if(user.name && play && play2){
+                const room : Room = {
+                    state : state.onroom,
+                    name : user.name,
+                    ball : {
+                        x : 150,
+                        y : 5,
+                        r : 5,
+                        speed :2,
+                        velX : 2,
+                        velY : 2,
+                    },
+                    play : play,
+                    play2 : play2,
+                    ready : false,
+                    ready2 : false
+                }
+                if(this.Rooms.length == 0)
+                    this.addInterval()
+                room.play.x = 15
+                room.play2.x = 300 - 15 - 8
+                room.play2.socket.emit("playerdef",1,room.name)
+                room.play.socket.emit("playerdef",0,room.name)
+                this.Rooms.push(room)
             }
-            if(this.Rooms.length == 0)
-                this.addInterval()
-            room.play.x = 15
-            room.play2.x = 300 - 15 - 8
-            this.Rooms.push(room)
-            console.log("Room here",this.Rooms.length)
         }
+    }
+
+    ReadyGame(client : Socket , name : string){
+        this.Rooms.forEach(element => {
+            if(element.name == name){
+                if (element.play.socket == client)
+                    element.ready = true
+                if (element.play2.socket == client)
+                    element.ready2 = true
+                if(element.ready == true && element.ready2 == true)
+                {
+                    element.state = state.play
+                }
+            }
+        })
     }
 
 
 
 
     //GAME CALCUL
-    updateY(pos : number){
-        this.play.y = pos
+    rungame(GameService : GameService)
+    {
+        try {
+            GameService.Rooms.forEach((element) => {
+                if(element.state == state.play)
+                {
+                    GameService.calcball(element)
+                    element.play.socket.emit("pos",element.play2.y,element.ball.x,element.ball.y)
+                    element.play2.socket.emit("pos",element.play.y,element.ball.x,element.ball.y)
+                }
+                if(element.state == state.onroom)
+                {
+                    element.play2.socket.emit("OnRoom")
+                    element.play.socket.emit("OnRoom")
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    updateY(pos : number , name : string , client : Socket){
+        this.Rooms.forEach(element => {
+            if(element.name == name){
+                if (element.play.socket == client)
+                {
+                    element.play.y = pos
+                }
+                if (element.play2.socket == client)
+                {
+                    element.play2.y = pos
+                }
+            }
+        })
     }
 
     colition(bal : ball, play : player){
@@ -176,51 +196,64 @@ export class GameService {
     }
 
 
-    calcball(){
-        let playerlel = 0.1;
-        this.play2.y = this.play2.y + (this.ball.y - (this.play2.y + this.play2.h/2)) * playerlel;
-        this.ball.x += this.ball.velX;
-        this.ball.y += this.ball.velY;
-        if(this.ball.y + this.ball.r > 150){
-            this.ball.y = 150 - this.ball.r
-            this.ball.velY = -this.ball.velY
+    calcball(room : Room){
+        let ball = room.ball
+        ball.x += ball.velX;
+        ball.y += ball.velY;
+        if(ball.y + ball.r > 150){
+            ball.y = 150 - ball.r
+            ball.velY = -ball.velY
         }
-        if(this.ball.y - this.ball.r < 0){
-            this.ball.y = 0 + this.ball.r
-            this.ball.velY = -this.ball.velY
+        if(ball.y - ball.r < 0){
+            ball.y = 0 + ball.r
+            ball.velY = -ball.velY
         }
-        let player = (this.ball.x < 300/2) ? this.play : this.play2;
-        if(this.colition(this.ball,player))
+        let player = (ball.x < 300/2) ? room.play : room.play2;
+        if(this.colition(ball,player))
         {
-            let colpoint = this.ball.y - (player.y + 37/2);
+            let colpoint = ball.y - (player.y + 37/2);
             colpoint = colpoint/(player.h/2);
             let anglered = colpoint * Math.PI/4;
 
-            let dir = (this.ball.x < 300/2) ? 1 : -1;
-            this.ball.velX = dir * this.ball.speed * Math.cos(anglered);
-            this.ball.velY = this.ball.speed * Math.sin(anglered);
-            if(this.ball.speed < 7)
-                this.ball.speed += 0.2;
+            let dir = (ball.x < 300/2) ? 1 : -1;
+            ball.velX = dir * ball.speed * Math.cos(anglered);
+            ball.velY = ball.speed * Math.sin(anglered);
+            if(ball.speed < 7)
+                ball.speed += 0.2;
         }
-        if(this.ball.x + this.ball.r > 300){
-            this.play.score++
-            this.resetball()
+        if(ball.x + ball.r > 300){
+            room.play.score++
+            this.resetball(room)
+            room.play2.socket.emit("score",room.play.score,room.play2.score)
+            room.play.socket.emit("score",room.play.score,room.play2.score)
         }
-        if(this.ball.x - this.ball.r < 0){
-            this.play2.score++
-            this.resetball()
+        if(ball.x - ball.r < 0){
+            room.play2.score++
+            this.resetball(room)
+            room.play2.socket.emit("score",room.play.score,room.play2.score)
+            room.play.socket.emit("score",room.play.score,room.play2.score)
         }
-    }
-    resetball()
-    {
-        this.ball.x = 150
-        this.ball.y = 75
-        this.ball.speed = 2
-        this.ball.velX = 2 * ((this.ball.velX > 0) ? 1 : -1)
+        room.ball = ball
+        if(room.play.score == 5)
+        {
+            room.state = state.finish
+            room.play.socket.emit("finish", "Winner")
+            room.play2.socket.emit("finish","Looser")
+        }
+        if(room.play2.score == 5)
+        {
+            room.state = state.finish
+            room.play2.socket.emit("finish", "Winner")
+            room.play.socket.emit("finish","Looser")
+        }
     }
 
-    findall() : Socket[]{
-        return this.Queue
+    resetball(room : Room)
+    {
+        room.ball.x = 150
+        room.ball.y = 75
+        room.ball.speed = 2
+        room.ball.velX = 2 * ((room.ball.velX > 0) ? 1 : -1)
     }
 
     remove(socket : Socket){
@@ -228,23 +261,13 @@ export class GameService {
         this.Rooms.forEach((element) => {
             if(element.play.socket == socket || element.play2.socket == socket)
             {
-                element.state = 3
+                element.state = state.finish
                 id = this.Rooms.indexOf(element)
                 this.Rooms.splice(id,1)
                 this.stoploop()
             }
         })
     }
-
-    rungame(GameService : GameService)
-    {
-        try {
-            GameService.Rooms.forEach((element) => (console.log(element.name)))
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
 
     //INTERVAL GESTION 
 

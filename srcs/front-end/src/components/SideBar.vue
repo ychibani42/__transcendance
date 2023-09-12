@@ -11,7 +11,7 @@
 			<router-link to="/chat" class="button">
 				<span class="material-icons">chat</span>
 			</router-link>
-			<router-link to="/game" class="button">
+			<router-link to="/matchmaking" class="button">
 				<span class="material-icons">sports_tennis</span>
 			</router-link>
 			<button class="material-icon">

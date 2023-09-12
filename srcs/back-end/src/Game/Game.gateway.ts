@@ -3,6 +3,11 @@ import { Server , Socket} from "socket.io";
 import { GameService } from "./Game.service";
 import { subscribe } from "diagnostics_channel";
 
+interface pos {
+    y : number,
+    name : string
+}
+
 
 @WebSocketGateway({
     cors: {
@@ -36,7 +41,12 @@ export class GameGateway{
     }
 
     @SubscribeMessage('position')
-    positionY(client : Socket,Y : number){
-        this.GameService.updateY(Y);
+    positionY(client : Socket,Y : pos){
+        this.GameService.updateY(Y[0],Y[1] , client);
+    }
+
+    @SubscribeMessage('ready')
+    ready(client : Socket , name : string){
+        this.GameService.ReadyGame(client,name)
     }
 }

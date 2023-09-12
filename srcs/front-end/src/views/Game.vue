@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted,onBeforeMount, Ref, ref , onUnmounted, computed} from "vue";
+import {onMounted,onBeforeMount, Ref, ref , onUnmounted, play2puted} from "vue";
 import {Socket, io} from 'socket.io-client'
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -7,21 +7,22 @@ import { useStore } from "vuex";
 
 const router = useRouter()
 const state = useStore()
-const socket: Ref<Socket> = ref() 
+const socket: Ref<Socket | undefined> = ref() 
 const canvasElement: Ref<HTMLCanvasElement | undefined> = ref();
 const context: Ref<CanvasRenderingContext2D | undefined> = ref();
-
+const myplay : Ref<Boolean> = ref(false)
+const roomname : Ref<string> = ref("")
 const ball = ref({
         x: 0,
         y : 0,
-        r : 0,
+        r : 5,
         speed : 2,
         velX : 2,
         velY : 0,
         color : 'blue',
 });
 
-const paddle = ref({
+const play1 = ref({
         x: 15,
         y : 75,
         w : 8,
@@ -30,7 +31,7 @@ const paddle = ref({
         score : 0,
 });
 
-const com = ref({
+const play2 = ref({
         x: 300 - 15 - 8,
         y : 0,
         w : 8,
@@ -40,43 +41,60 @@ const com = ref({
 });
 
 onUnmounted(() => {
-    socket.value.disconnect();
-    console.log("LEAVE");
+    if(socket.value)
+        socket.value.disconnect();
 }),
 
 onBeforeMount(() => {
-    console.log('Here');
-    state.commit('setGamesocket',io('http://localhost:3000/game'))
     socket.value = state.state.gamesock
-    socket.value.on('ball' , (arg1 : number, arg2 : number ) => {
-        ball.value.x = arg1
-        ball.value.y = arg2
+    if(!socket.value)
+        return
+    socket.value.on('pos', (arg1 : number, arg2 : number , arg3: number ) => {
+        if(myplay.value == true)
+            play2.value.y = arg1
+        else
+            play1.value.y = arg1
+        ball.value.x = arg2
+        ball.value.y = arg3
         render()
     })
-    socket.value.on('com', (arg1 : number, arg2 : number , arg3: number ) => {
-        com.value.y = arg1
-        com.value.score = arg2
-        paddle.value.score = arg3
+    socket.value.on('score',(arg1 : number , arg2 : number) => {
+        play1.value.score = arg1
+        play2.value.score = arg2
     })
-    socket.value.on('update', () => {
-        canvasElement.value?.addEventListener("mousemove",Updatexy);
-    })
-    socket.value.on('play',(arg1 : number) => {
-        paddle.value.y = arg1
-    })
-    socket.value.on('finish',() => {
+    socket.value.on('finish',(arg1 : string) => {
         console.log("finish")
-        router.push('/')
+        socket.value?.off("pos")
+        socket.value?.off("score")
+        renderfinish(arg1)
     })
-    socket.value.connect();
+    roomname.value = state.state.gamename
+    myplay.value = state.state.gameplay
 }),
+
+
 
 onMounted(() => {
     context.value = canvasElement.value?.getContext('2d') || undefined;
-    ball.value.r= 5;
-    socket.value.emit('message');
+    canvasElement.value?.addEventListener("mousemove",Updatexy);
+    canvasElement.value?.addEventListener("click",ready);
     render();
 });
+
+function ready(){
+    socket.value?.emit("ready",roomname.value)
+}
+
+function renderfinish(text : string){
+    if(!canvasElement.value)
+        return 
+    if (!context.value) {
+        return;
+    }
+    clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
+    context.value.fillStyle = "yellow"
+    context.value.fillText(text, 150, 75);
+}
 
 function render() {
     if(!canvasElement.value)
@@ -85,26 +103,30 @@ function render() {
         return;
     }
     clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
-    drawText(paddle.value.score,canvasElement.value?.width/4,canvasElement.value?.height/5);
-    drawText(com.value.score,3*canvasElement.value?.width/4,canvasElement.value?.height/5);
+    drawText(play1.value.score,canvasElement.value?.width/4,canvasElement.value?.height/5);
+    drawText(play2.value.score,3*canvasElement.value?.width/4,canvasElement.value?.height/5);
     drowball(ball.value.x,ball.value.y,ball.value.r,ball.value.color);
-    drowpaddle(com.value.x,com.value.y,com.value.w,com.value.h,com.value.color);
-    drowpaddle(paddle.value.x,paddle.value.y,paddle.value.w,paddle.value.h,paddle.value.color); 
+    drowplay1(play2.value.x,play2.value.y,play2.value.w,play2.value.h,play2.value.color);
+    drowplay1(play1.value.x,play1.value.y,play1.value.w,play1.value.h,play1.value.color); 
 };
 
 function Updatexy(e : any){
-    if(!canvasElement.value){
+    if(!canvasElement.value || !socket.value){
         return;
     }
     let rect = canvasElement.value.getBoundingClientRect();
-    paddle.value.y = ((e.y - rect.top) / (rect.height/150)) - paddle.value.h/2;
-    if(paddle.value.y < 0)
-        paddle.value.y = 0;
-    if(paddle.value.y > canvasElement.value.height - paddle.value.h)
+    let pos;
+    pos = ((e.y - rect.top) / (rect.height/150)) - 37/2;
+    if(pos < 0)
+        pos = 0;
+    if(pos > canvasElement.value.height - 37)
     {
-        paddle.value.y = canvasElement.value.height - paddle.value.h
+        pos = canvasElement.value.height - 37
     }
-    socket.value.emit('position',paddle.value.y)
+    if(myplay.value == true) 
+    {play1.value.y = pos }
+    else{ play2.value.y = pos }
+    socket.value.emit('position',pos,roomname.value)
 };
 
 function drawText(text : number,x : number ,y : number){
@@ -116,7 +138,7 @@ function drawText(text : number,x : number ,y : number){
     context.value.fillText(text, x, y);
 }
 
-function drowpaddle(x: number,y: number,w: number,h: number,color: string)
+function drowplay1(x: number,y: number,w: number,h: number,color: string)
 {
     if (!context.value) {
         return;
