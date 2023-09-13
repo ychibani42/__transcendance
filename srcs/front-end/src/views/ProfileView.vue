@@ -51,6 +51,23 @@ const uploadImage = async () => {
 </script>
 
 <style lang="scss" scoped>
+  
+.profile{
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    flex-wrap: nowrap;
+    align-items: center;
+  h1{
+    padding:5px;
+  }
+  input[type="text"] {
+      width:200px;
+      height:30px;
+      border-radius:5px;
+      background-color: lightblue;
+      margin-left:2px;
+  }
 
 #filefield { display: none; }
 

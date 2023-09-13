@@ -54,13 +54,14 @@ model Channel {
   id         Int       @id @unique @default(autoincrement())
   is_private Boolean
   password        String?
-  channelName     String      
-  adminId    Int[]
+  locked      Boolean @default(false)    
+  channelName     String @unique     
+  adminUsers    Admin[] @relation("chan/admin")
   ownerId    Int
   user       User[]    @relation("chan/user")
   messages   Message[] // Define the relation with Message
-  blockedUsers Blocked[]
-  mutedUsers  Muted[]
+  bannedUsers Banned[] @relation("chan/banned")
+  mutedUsers  Muted[] @relation("chan/muted")
   dm			Boolean
 }
 
@@ -74,14 +75,6 @@ model Message {
   name      String
 }
 
-model Blocked {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  duration  Int
-  userId    Int
-  channel    Channel  @relation(fields: [channelId], references: [id])
-  channelId Int
-}
 
 model BlockedU {
   id        Int      @id @unique @default(autoincrement())
@@ -102,8 +95,21 @@ model Friends {
 model Muted {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
-  duration  Int
-  userId    Int
-  channel    Channel  @relation(fields: [channelId], references: [id])
+  // duration  Int
+  channel    Channel[]  @relation("chan/muted")
+  channelId Int
+}
+
+model Admin {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  channel    Channel[]  @relation("chan/admin")
+  channelId Int
+}
+
+model Banned {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  channel    Channel[]  @relation("chan/banned")
   channelId Int
 }
