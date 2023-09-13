@@ -14,7 +14,7 @@ import {FortyTwoStrategy} from "./Strategy/42.strategy";
 		JwtModule.register({
 			global: true,
 			secret: process.env.SECRET_ACCESS_TOKEN,
-			signOptions: { expiresIn: '24h' },
+			signOptions: { expiresIn: '1h' },
 		}),
 	],
 	controllers: [AuthController],

@@ -33,27 +33,31 @@ export class AuthController {
 	async loginInviter(@Body() nbr: any, @Res() res: any) {
 		const user = await this.authService.loginInviter(nbr.id42._value);
 		const jwt = await this.authService.tokenreturn(user);
-		res.cookie('access_token', jwt, {
-			httpOnly: true,
-			secure: true,
-			samesite: true,
-		});
-		res.json({ redirect: '/' });
-		return res;
+		res.cookie("access_token",jwt);
+		res.json({redirect : '/'})
+		return (res);
 	}
 
 	@Get('Checkjwt')
-	@UseGuards(JwtAuthGuard)
-	async CheckJWT(@Req() req: any) {
-		const decode = await this.authService.decodedtok(req.cookies.access_token);
+	@UseGuards(JwtAuthGuard) 
+	CheckJWT(@Req() req:any)
+	{
+		const decode = this.authService.decodedtok(req.cookies.access_token)
+		console.log(decode)
 		return decode;
 	}
 
 	@Post('Button2FA')
 	@UseGuards(JwtAuthGuard)
-	async Button2FA(@Body() nbr: any) {
-		console.log(nbr.id);
+	async Button2FA(@Body() nbr:any){
 		const good = this.authService.changeotp(nbr.id);
 		return good;
+	}
+
+	@Post("Generate2FA")
+	@UseGuards(JwtAuthGuard)
+	async GenerateQR(@Req() req, @Body() nbr:any)
+	{
+
 	}
 }

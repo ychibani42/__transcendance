@@ -20,7 +20,7 @@ model User {
   avatar	  String
 
   id42        Int       @unique
-  name        String?    @unique
+  name        String?   @unique
   
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
