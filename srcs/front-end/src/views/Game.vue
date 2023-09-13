@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import {onMounted,onBeforeMount, Ref, ref , onUnmounted, play2puted} from "vue";
-import {Socket, io} from 'socket.io-client'
+import { onMounted,onBeforeMount, Ref, ref , onUnmounted} from "vue";
+import { Socket} from 'socket.io-client'
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-interface room {
-    id : number
-}
 
 const router = useRouter()
 const state = useStore()
@@ -13,7 +10,10 @@ const socket: Ref<Socket | undefined> = ref()
 const canvasElement: Ref<HTMLCanvasElement | undefined> = ref();
 const context: Ref<CanvasRenderingContext2D | undefined> = ref();
 const myplay : Ref<Boolean> = ref(false)
+const finished :  Ref<Boolean> = ref(false)
+const playing :  Ref<Boolean> = ref(false)
 const roomname : Ref<string> = ref("")
+
 const ball = ref({
         x: 147,
         y : 75,
@@ -35,7 +35,7 @@ const play1 = ref({
 
 const play2 = ref({
         x: 300 - 15 - 8,
-        y : 0,
+        y : 75,
         w : 8,
         h : 37,
         color : 'red',
@@ -45,7 +45,7 @@ const play2 = ref({
 const net = ref({
         x : 145,
         y : 5,
-        w : 5,
+        w : 2,
         h : 5,
         color : 'white',
 });
@@ -87,12 +87,15 @@ onBeforeMount(() => {
 onMounted(() => {
     context.value = canvasElement.value?.getContext('2d') || undefined;
     canvasElement.value?.addEventListener("mousemove",Updatexy);
-    canvasElement.value?.addEventListener("click",ready);
+    canvasElement.value?.addEventListener("click",ReadyOrQuit);
     render();
 });
 
-function ready(){
-    socket.value?.emit("ready",roomname.value)
+function ReadyOrQuit(){
+    if(playing.value == false)
+        socket.value?.emit("ready",roomname.value)
+    if(finished.value == true)
+        router.push('/')
 }
 
 function renderfinish(text : string){

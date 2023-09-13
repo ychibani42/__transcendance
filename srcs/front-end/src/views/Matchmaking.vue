@@ -1,11 +1,11 @@
 
 <script setup lang="ts">
-import { io } from 'socket.io-client';
+import { io , Socket} from 'socket.io-client';
 import {onMounted,onBeforeMount, Ref, ref , onUnmounted, computed} from "vue";
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
-const socket: Ref<Socket> = ref()
+const socket: Ref<Socket | undefined> = ref()
 const store = useStore()
 const router = useRouter()
 const User = store.getters.getuser
@@ -13,6 +13,8 @@ const User = store.getters.getuser
 onMounted(() =>{
     store.commit('setGamesocket',io('http://localhost:3000/game'))
     socket.value = store.state.gamesock
+    if(!socket.value)
+        return
     socket.value.connect();
     socket.value.on('onQueue', () =>
     {
@@ -33,7 +35,8 @@ onMounted(() =>{
 })
 
 function joinQueue(){
-    socket.value.emit("JoinQueue",store.state.user.id)
+
+    socket.value?.emit("JoinQueue",store.state.user.id)
 }
 </script>
 

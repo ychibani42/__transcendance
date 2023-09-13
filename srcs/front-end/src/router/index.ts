@@ -19,12 +19,12 @@ const routes: Array<RouteRecordRaw> = [
               component: () => import(/* webpackChunkName: "about" */ '../views/ProfileView.vue') },
           { path: '/matchmaking', name: 'matchmaking',
               component: () => import(/* webpackChunkName: "about" */ '../views/Matchmaking.vue') },
-          {
-            path: '/game', name: 'game',
+          { path: '/game', name: 'game',
               component: () => import(/* webpackChunkName: "about" */ '../views/Game.vue')},
-          {
-            path: '/Config', name: 'Config',
-              component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')}
+          { path: '/Config', name: 'Config',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
+          { path: '/Twofa', name: 'Twofa',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')}
     ]
 
   },
@@ -55,6 +55,7 @@ async function checkJwt() : Promise<boolean>
             if(res !== undefined && store.state.user.first === true){
               store.commit('setUserId',res.data.id)
               store.commit('setProfileC',res.data.Profile)
+              store.commit("setTwofa",res.data.TwoFa)
               store.commit('setF',false)
             }
           });
@@ -78,6 +79,10 @@ router.beforeEach((to, from) => {
     if(store.state.user.profileCompleted === false && valid === true)
     {
       router.push("/config")
+    }
+    if(store.state.user.Twofa === true && valid === true)
+    {
+      router.push("/Twofa")
     }
 })
 })

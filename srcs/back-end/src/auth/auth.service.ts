@@ -34,9 +34,9 @@ export class AuthService {
 	}
 
 
-	async decodedtok(token : string)
+	decodedtok(token : string)
 	{
-		const decode = await this.jwtService.decode(token)
+		const decode = this.jwtService.decode(token)
 		return decode;
 	}
 
@@ -61,13 +61,9 @@ export class AuthService {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
 			let user ;
 			if (users.otpenable == true)
-			{
 				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : false}})
-			}
 			else
-			{
 				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : true}})
-			}
 			return true
 		} 
 		catch (error) {

@@ -1,6 +1,8 @@
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server , Socket} from "socket.io";
 import { GameService } from "./Game.service";
+import { UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "src/auth/Guard/jwt-guard";
 
 interface pos {
     y : number,
@@ -19,6 +21,7 @@ export class GameGateway{
     @WebSocketServer()
     server: Server;
 
+    @UseGuards(JwtAuthGuard)
     handleConnection(client : Socket){
         console.log("Connection");
         this.GameService.created(client)

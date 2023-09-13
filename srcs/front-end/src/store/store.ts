@@ -1,4 +1,4 @@
-import { createStore } from "vuex";
+import { createStore} from "vuex";
 
 
 const store = createStore(
@@ -10,7 +10,8 @@ const store = createStore(
                 profileCompleted: false,
                 blocked: [],
                 friend: [],
-                first : true
+                first : true,
+                Twofa : false
             },
             gamesock:null,
             gamename:'',
@@ -30,14 +31,20 @@ const store = createStore(
             setProfileC(state , bool){ state.user.profileCompleted = bool},
             setFriend(state , friend){ state.user.friend = friend},
             setF(state , bool){ state.user.first = bool},
+            setTwofa(state, bool){ state.user.Twofa = bool},
             setGamesocket(state, socket){ state.gamesock = socket},
             setGamename(state, name){ state.gamename = name},
             setGameplay(state, play){ state.gameplay = play},
         },
         actions:{
-
         }
     }
 )
+
+store.initialState = clone(store.state)
+
+store.resetState = () => {
+    store.replaceState(store.initialState)
+}
 
 export default store
