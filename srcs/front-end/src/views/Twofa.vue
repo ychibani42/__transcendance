@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Axios from '@/services';
+import Axios from '../services';
 import {onMounted, Ref, ref} from "vue";
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';

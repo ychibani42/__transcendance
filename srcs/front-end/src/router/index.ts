@@ -53,6 +53,7 @@ async function checkJwt() : Promise<boolean>
     try {
         await Axios.get("auth/checkjwt").then(res => {
             if(res !== undefined && store.state.user.first === true){
+              console.log("IFAXIOS" , store.state.user.first)
               store.commit('setUserId',res.data.id)
               store.commit('setProfileC',res.data.Profile)
               store.commit("setTwofa",res.data.TwoFa)

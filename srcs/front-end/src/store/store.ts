@@ -58,7 +58,7 @@ const store = createStore(
         actions :{
             reset()
             {
-                console.log("agwvduyawvduawvudv")
+                
                 this.state.chandisp.channame = ""
                 this.state.chandisp.idch = 0                
                 this.state.chandisp.messages = []
