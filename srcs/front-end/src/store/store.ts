@@ -41,10 +41,5 @@ const store = createStore(
     }
 )
 
-store.initialState = clone(store.state)
-
-store.resetState = () => {
-    store.replaceState(store.initialState)
-}
 
 export default store
