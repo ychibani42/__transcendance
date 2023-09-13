@@ -1,16 +1,29 @@
 <script lang="ts" setup>
-import { io } from 'socket.io-client';
-import { onBeforeMount, ref, reactive } from 'vue';
+import { onBeforeMount, ref, reactive, computed } from 'vue';
+import Axios from '../services';
+import { useStore, mapState } from 'vuex'
+import { useState, useActions } from 'vuex-composition-helpers/dist'
 
-const socket = io('http://localhost:3000');
-const addNewRoom = ref(false)
+
+
+
+const chan = ref([]);
+const socket = this.$store.getters['socketModule/getSocket'];
+// const addNewRoom = ref(false)
 const chanId : number = ref(0)
-const chan = ref([])
 const chandisp = ref({
 	messages : [],
-	idch : 0,
-	channame : '',
+	idCh : 0,
+	chanName : '',
 })
+
+
+const {socket, msg} = useState([socket, false, "msg"])
+							//useMutations (changement d'etat de variable)
+							//useAction (fonctions sur variable)
+							//useGetter (pas compris)
+
+
 const createChan = ref({
 	channelName: '',
 	is_private: false,
@@ -19,16 +32,25 @@ const createChan = ref({
 	ownerId: 1,
 })
 
+const messageText = ref('');
+
+
+
 onBeforeMount(() => {
     displayChats()
-
+	Axios.get('auth/Checkjwt')
+	.then(function(response)  {
+		console.log(response);
+	})
 });
+
+
+
 function enterchat(chan : any){
-	console.log(chan);
 	chandisp.value.idch=chan.id
 	chandisp.value.messages=chan.messages
 	chandisp.value.channame=chan.channelName
-	console.log(chandisp.value);
+	console.log(chandisp.value.messages);
 }
 
 function findChat () {
@@ -38,55 +60,81 @@ function findChat () {
 		console.log(response);
 	});
 }
-function displayChats () {
-	console.log('ici')
-	socket.emit('findAllChats', (response) => {
-		chan.value = response
-		console.log(response)
-		return (response)
+
+
+const createMessage = () => {
+	socket.emit('createMessage', { id: 1, name: 'tea', text: messageText.value  }, response => {
+        console.log(response);
 	});
 }
-function createChat () {
-			socket.emit('createRoom', {
-				channelName: createChan.value.channelName,
-				is_private: createChan.value.is_private,
-				password: createChan.value.password,
-				dm: createChan.value.dm,
-				ownerId: createChan.value.ownerId
-			})
+
+function displayChats () {
+	socket.emit('findAllChats', (response) => {
+		chan.value = response
+	});
 }
+
+function createChat () {
+	const createChatData = {
+		channelName: createChan.value.channelName,
+    	is_private: createChan.value.is_private,
+    	password: createChan.value.password,
+    	dm: createChan.value.dm,
+    	ownerId: createChan.value.ownerId,
+		password: createChan.value.password
+	}
+		socket.emit('createRoom', createChatData)
+}
+
+const checked = ref(false)
+const isFocused = ref(false)
+const password = ref('')
+const togglePrivacy = ref(false)
+
 </script>
 
 <template>
+{{count + 123}}
     <div class="chat-page">
         <div class="add-chat">
           <form v-if="addNewRoom" @submit.prevent="createChat">
                 <input type="text" placeholder="Add username"  v-model="createChan.channelName" required>
                 <button type="submit"> Create Room </button>
                 <button class="button-cancel" @click="addNewRoom = false">Cancel</button>
+				<input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
+				<label for="checkbox" @click="togglePrivacy">
+  				{{ checked ? 'private' : 'public' }}
+				</label>
+				<label for="password">Mot de passe</label>
+				<input type="password" id="password" v-model="password" required @focus="isFocused = true" @blur="isFocused = false">
             </form>
         </div>
         <div class="channel-list">
             <button @click="addNewRoom = true">+</button>
             <button @click="displayChats">refresh</button>
-			<ul>
+			<ol>
 				<li v-for="name in chan">
 					<button @click="enterchat(name)">{{ name.channelName }} </button>
 				</li>
-			</ul>
+			</ol>
         </div>
         <div class="chat-display">
             <div class="chat-header">
-                
             </div>
             <div class="chat-messages">
-                        message
+                <ol>
+				    <li v-for="name in chandisp.messages">
+                        {{ name.text }}
+				</li>
+			</ol>
             </div>
             <div class="typing-messages">
-
+                <form @submit.prevent="createMessage">
+                    <input type="text" placeholder="type your message" v-model="messageText" required>
+                    <button type="submit">Send</button>
+                </form>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -106,7 +154,29 @@ function createChat () {
     position: relative;
     height: 100%;
     background-color: rgb(240, 240, 231);
+    ol {
+        padding: 0;
+        width: 100%;
+        display: flex;
+        flex:content;
+        flex-flow: column;
+        align-items: flex-start;
+        list-style: none;
+        text-align: left;
+        gap: 0.5%;
+        li {
+            width: 100%;
+ 
+            button {
+                width: 100%;
+                border-radius: 0;
+                padding-top: 5%;
+                padding-bottom: 5%;
 
+            }
+        }
+
+    }
 }
 
 .chat-display {
@@ -136,6 +206,18 @@ function createChat () {
     overflow-y: auto;
     margin-right: 1px;
     margin-top: 65px;
+    ol {
+        padding: 0;
+        width: 100%;
+        display: flex;
+        flex:content;
+        flex-flow: column;
+        align-items: flex-start;
+        list-style: none;
+        text-align: left;
+        gap: 0.5%;
+    }
+ 
 }
 
 .typing-messages {

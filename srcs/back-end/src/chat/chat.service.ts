@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { ChatDto } from './dto/chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -9,7 +10,7 @@ import { Message } from './entities/message.entity';
 export class ChatService {
 	constructor(private prismaService: PrismaService) {}
 	async createChat(createChatDto: CreateChatDto) {
-		console.log(createChatDto);
+		// console.log(createChatDto);
 		await this.prismaService.channel.create({
 			data: {
 				channelName: createChatDto.channelName,
@@ -23,14 +24,27 @@ export class ChatService {
 	}
 
 	async findAllChats() {
-		const chan = await this.prismaService.channel.findMany({include : {
-			messages : true
-		}})
+		const chan = await this.prismaService.channel.findMany({
+			include: {
+				messages: true,
+			},
+		});
 		return chan;
 	}
-	
-	findOneChat(id: number) {
-		return `This action returns a #${id} chat`;
+
+	async findOneChat(chanId: number) {
+		console.log('test', chanId);
+		try {
+			const chan = await this.prismaService.channel.findUniqueOrThrow({
+				where: {
+					id: chanId,
+				},
+			});
+			const test: string | undefined = chan?.channelName;
+			return test;
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	updateChat(id: number, updateChatDto: UpdateChatDto) {
@@ -41,11 +55,24 @@ export class ChatService {
 		return;
 	}
 
-	async createMessage(createMessageDto: CreateMessageDto, clientId: string) {
+	async createMessage(
+		createMessageDto: CreateMessageDto,
+		clientId: number,
+		chanId: number,
+	) {
 		console.log(createMessageDto);
 		try {
+			let message = await this.prismaService.message.create({
+				data: {
+					userId: clientId,
+					channelId: chanId,
+					name: createMessageDto.name,
+					text: createMessageDto.text,
+				},
+			});
+			return message;
 		} catch (error) {
-			throw error;
+			console.log(error);
 		}
 		// return this.prismaService.message.findAll();
 	}

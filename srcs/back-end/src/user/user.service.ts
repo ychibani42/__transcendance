@@ -6,9 +6,24 @@ export type User = any;
 
 @Injectable()
 export class UserService {
-	constructor(
-		private prismaService: PrismaService,
-	){}
+	constructor (private readonly prismaService: PrismaService) {}
+
+	async updatePp(id: number, file: any) {
+		try
+		{
+			await this.prismaService.user.update({
+				where: {
+					id: id,
+				},
+				data: {
+					avatar: file.path,
+				},
+			});
+		} catch (error) {
+
+		}
+	}
+	
 	async changename(idto : number , nameto :string){
 		try {
 			const user = await this.prismaService.user.update({where :{id : idto},data :{name: nameto}})
@@ -20,4 +35,5 @@ export class UserService {
 			return false
 		}
 	}
+	/*	real Update User	*/
 }

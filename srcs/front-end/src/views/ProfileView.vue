@@ -1,84 +1,57 @@
-
 <template>
-    
-    <div class="profile">
-      <img src="../assets/logo.png" class="default">
-      <h1>{{ name }}</h1>
-      <p>Edit Avatar: <input type="file" class="avatar" @change="editImage"> </p>
-      <p>Edit Name: <input type="text" class="name" @change="editName"></p> 
-      <User />
-      <button @click="btn2FA">BTN 2FA</button>
-    </div>
-  </template>
+	<div class="profile">
+		<label for="fileField"><img src="../assets/logo.png" class="img_class"></label>
+		<h1>{{ name }}</h1>
+		<form @submit.prevent="uploadImage" className="" ref="selectedFile">
+		<input type="file" id="fileField" name="file" accept="image/*" style="display:none" @change="handleFile($event)">
+		<button type="submit" className="button_picture">change Avatar</button>
+		</form>
+		<p>Edit Name: <input type="text" class="edit_name_class" @change="editName"></p>
+		<!-- <button @click="btn2FA">BTN 2FA</button> -->
+	</div>
+</template>
   
-<script lang="ts">
+<script lang="ts" setup>
+
+import { ref, OnBeforeMount } from 'vue'
 import Axios from '../services'
 
-export default {
-  data () {
-    return {
-     def: null,
-     name: 'Name'
-    }
-  },
-  methods: {
-    editImage(event) {
-        const img = event.target.files[0];
-         this.def = img.name;
-     // const image = this.$el.querySelector(".newfile");
-        this.$el.querySelector(".default").src = "/src/assets/" + this.def;
-        console.log(this.$el.querySelector(".default"))
-    },
-    editName() {
-      this.name = this.$el.querySelector(".name").value;
-      this.$el.querySelector(".name").value = "";
-    },
-    btn2FA()
-    {
-      Axios.post("Auth/Button2FA",{id : 1});
-      console.log("here");
-    }
-  }
-};
+					/* Variables */
+
+const selectedFile = ref('')
+const name = ref('Name')
+
+					/*Before Mount */
+
+
+
+					/* function */
+function handleFile( event ) {
+	selectedFile.value = event.target.files[0];
+}
+
+const uploadImage = async () => {
+
+	const formData = new FormData();
+	console.log(selectedFile.value);
+      formData.append("file", selectedFile.value);
+	try {
+		console.log(formData);
+		const response = await Axios.post("users/upload", formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			}
+		});
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+
 </script>
 
 <style lang="scss" scoped>
-  
-.profile{
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    flex-wrap: wrap;
-    align-items: center;
-  h1{
-    padding:5px;
-  }
-  input[type="text"] {
-      width:200px;
-      height:30px;
-      border-radius:5px;
-      background-color: lightblue;
-      margin-left:2px;
-  }
 
-    p {
-      // margin: 0 300px;
-      text-align:left;
-      padding:10px;
-      font-family:AR CENA;
-      font-size:20px;
+#filefield { display: none; }
 
-    }
-  .default {
-    // margin:50px 400px 0;
-    width: 42;
-    height: 1;
-    border: 2px solid;
-    border-radius: 50%;
-    border-color: black;
-    background-color: rgb(118, 150, 180);
-
-    }
-
-  }
-  </style>
+</style>
