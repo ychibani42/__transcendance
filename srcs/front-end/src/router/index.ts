@@ -13,8 +13,8 @@ const routes: Array<RouteRecordRaw> = [
     component: SiteLayout,
     children :[
           { path: '/',name: 'home',component: HomeView},
-          { path: '/chat', name: 'chat',
-            component: () => import(/* webpackChunkName: "about" */ '../views/ChatView.vue') },
+          // { path: '/chat', name: 'chat',
+          //   component: () => import(/* webpackChunkName: "about" */ '../views/ChatView.vue') },
           { path: '/profile', name: 'profile',
               component: () => import(/* webpackChunkName: "about" */ '../views/ProfileView.vue') },
           { path: '/matchmaking', name: 'matchmaking',

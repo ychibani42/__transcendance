@@ -10,25 +10,28 @@ export class AuthService {
 		private prismaService: PrismaService,
 	) {}
 
-	async login(id : number , link : string) {
-		console.log(id,link);
+	async login(id: number, link: string) {
+		console.log(id, link);
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
 			return users;
-		} 
-		catch (error) {
+		} catch (error) {
 			const user = await this.prismaService.user.create({
 				data: {
-					id42 :id,
-					name :link
-				}
+					id42: id,
+					name: link,
+				},
 			});
 			return user;
 		}
 	}
 
-	async tokenreturn(User : any) {
-		const payload = {id : User.id, Profile: User.profilefinish , TwoFa : User.otpenable};
+	async tokenreturn(User: any) {
+		const payload = {
+			id: User.id,
+			Profile: User.profilefinish,
+			TwoFa: User.otpenable,
+		};
 		const jwt = await this.jwtService.signAsync(payload);
 		return(jwt);
 	}
@@ -45,18 +48,17 @@ export class AuthService {
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
 			return users;
-		} 
-		catch (error) {
+		} catch (error) {
 			const user = await this.prismaService.user.create({
 				data: {
-					id42 :id,
-				}
+					id42: id,
+				},
 			});
 			return user;
 		}
 	}
 
-	async changeotp(id : number){
+	async changeotp(id: number) {
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
 			let user ;

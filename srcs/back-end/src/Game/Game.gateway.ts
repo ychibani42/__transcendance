@@ -10,16 +10,16 @@ interface pos {
 }
 
 @WebSocketGateway({
-    cors: {
-      origin: "http://localhost:5173",
-    },
-    namespace : 'game'
+	cors: {
+		origin: 'http://localhost:5173',
+	},
+	namespace: 'game',
 })
-export class GameGateway{
-    constructor(private GameService: GameService){}
+export class GameGateway {
+	constructor(private GameService: GameService) {}
 
-    @WebSocketServer()
-    server: Server;
+	@WebSocketServer()
+	server: Server;
 
     @UseGuards(JwtAuthGuard)
     handleConnection(client : Socket){
