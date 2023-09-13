@@ -3,7 +3,9 @@ import {onMounted,onBeforeMount, Ref, ref , onUnmounted, play2puted} from "vue";
 import {Socket, io} from 'socket.io-client'
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-
+interface room {
+    id : number
+}
 
 const router = useRouter()
 const state = useStore()
@@ -13,13 +15,13 @@ const context: Ref<CanvasRenderingContext2D | undefined> = ref();
 const myplay : Ref<Boolean> = ref(false)
 const roomname : Ref<string> = ref("")
 const ball = ref({
-        x: 0,
-        y : 0,
+        x: 147,
+        y : 75,
         r : 5,
         speed : 2,
         velX : 2,
         velY : 0,
-        color : 'blue',
+        color : 'yellow',
 });
 
 const play1 = ref({
@@ -38,6 +40,14 @@ const play2 = ref({
         h : 37,
         color : 'red',
         score : 0,
+});
+
+const net = ref({
+        x : 145,
+        y : 5,
+        w : 5,
+        h : 5,
+        color : 'white',
 });
 
 onUnmounted(() => {
@@ -92,6 +102,7 @@ function renderfinish(text : string){
         return;
     }
     clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
+    drownet()
     context.value.fillStyle = "yellow"
     context.value.fillText(text, 150, 75);
 }
@@ -105,6 +116,7 @@ function render() {
     clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
     drawText(play1.value.score,canvasElement.value?.width/4,canvasElement.value?.height/5);
     drawText(play2.value.score,3*canvasElement.value?.width/4,canvasElement.value?.height/5);
+    drownet()
     drowball(ball.value.x,ball.value.y,ball.value.r,ball.value.color);
     drowplay1(play2.value.x,play2.value.y,play2.value.w,play2.value.h,play2.value.color);
     drowplay1(play1.value.x,play1.value.y,play1.value.w,play1.value.h,play1.value.color); 
@@ -129,12 +141,20 @@ function Updatexy(e : any){
     socket.value.emit('position',pos,roomname.value)
 };
 
+function drownet(){
+    if(!canvasElement.value)
+        return
+    for (let i = 0; i < canvasElement.value.height ; i+=15) {
+        drowplay1(net.value.x,net.value.y + i,net.value.w,net.value.h,net.value.color)
+    }
+}
+
 function drawText(text : number,x : number ,y : number){
     if (!context.value) {
         return;
     }
     context.value.fillStyle = "#FFF";
-    context.value.font = "20px fantasy";
+    context.value.font = "30px serif";
     context.value.fillText(text, x, y);
 }
 
@@ -193,8 +213,8 @@ canvas {
     display: flex;
     height: 100%;
     width: 100%;
-    min-width: 60vw;
-    min-height: 60vh;
+    min-width: 50vw;
+    min-height: 50vh;
     max-width: 80vw;
     max-height: 80vw;
     justify-content: center;
