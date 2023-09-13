@@ -58,6 +58,7 @@ const uploadImage = async () => {
     align-content: center;
     flex-wrap: nowrap;
     align-items: center;
+	}
   h1{
     padding:5px;
   }
@@ -68,7 +69,5 @@ const uploadImage = async () => {
       background-color: lightblue;
       margin-left:2px;
   }
-
-#filefield { display: none; }
 
 </style>

@@ -12,18 +12,7 @@ Axios.interceptors.response.use(response =>{
 },error => {
     if(error.response.status == 401)
     {
-        store.replaceState({
-        user:{
-            id : 0,
-            username: '',
-            profileCompleted: false,
-            blocked: [],
-            friend: [],
-            first : true,
-            Twofa : false
-        },
-        gamesock:null})
-        $cookies.remove('access_token')
+        store.dispatch("reset")
     }
 });
 export default Axios

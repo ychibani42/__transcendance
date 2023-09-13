@@ -55,7 +55,26 @@ const store = createStore(
             setGamename(state, name){ state.gamename = name},
             setGameplay(state, play){ state.gameplay = play},
         },
-        actions :{}
+        actions :{
+            reset()
+            {
+                console.log("agwvduyawvduawvudv")
+                this.state.chandisp.channame = ""
+                this.state.chandisp.idch = 0                
+                this.state.chandisp.messages = []
+                this.state.chandisp.user = []
+                this.state.chatsock = null
+                this.state.gamename = ""
+                this.state.gamesock = null
+                this.state.user.id = 0,
+                this.state.user.username = '',
+                this.state.user.profileCompleted =false,
+                this.state.user.blocked = [],
+                this.state.user.friend =[],
+                this.state.user.first = true,
+                this.state.user.Twofa = false
+            }
+        }
     }
 )
 

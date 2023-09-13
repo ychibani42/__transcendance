@@ -74,6 +74,7 @@ router.beforeEach((to, from) => {
   checkJwt().then((valid : boolean) => {
     if (valid === false && to.path !== '/login' && $cookies.get('access_token') === null)
     {
+      store.dispatch("reset")
       router.push("/login")
     }
     if(store.state.user.profileCompleted === false && valid === true)

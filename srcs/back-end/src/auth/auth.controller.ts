@@ -43,7 +43,6 @@ export class AuthController {
 	CheckJWT(@Req() req:any)
 	{
 		const decode = this.authService.decodedtok(req.cookies.access_token)
-		console.log(decode)
 		return decode;
 	}
 
