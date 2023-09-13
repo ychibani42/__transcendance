@@ -276,18 +276,12 @@ export class ChatService {
 							},
 						},
 					},
-					select: {
-						password: false,
-						id: true,
-						channelName: true,   
-						adminUsers:true,
-						ownerId:true,
-						user: true,
-						messages: true,
+					include: {
 						bannedUsers:true,
 						mutedUsers :true,
-						is_private: true,
-						dm:true
+						messages: true,
+						user:true,
+						adminUsers:true,
 					}
 				});
 			i++
@@ -390,7 +384,7 @@ export class ChatService {
 	{
 		try {
 			const chan = await this.findOneChan(chanid)
-			const banned = await this.prismaService.banned.findUniqueOrThrow({
+			/*const banned = await this.prismaService.banned.findUniqueOrThrow({
 				where: {
 					id: userid,
 				},
@@ -406,7 +400,7 @@ export class ChatService {
 					return null
 				}
 					
-			}
+			}*/
 			if (chan)
 			{
 				const userInChan = await this.prismaService.channel.update({
@@ -420,27 +414,29 @@ export class ChatService {
 							},
 						},
 					},
-					select: {
-						password: false,
-						id: true,
-						channelName: true,   
-						adminUsers:true,
-						ownerId:true,
+					include: {
 						user: true,
 						messages: true,
 						bannedUsers:true,
 						mutedUsers :true,
-						is_private: true,
-						dm:true
 					}
 				});
 				client.join(chan.channelName)
+				const user = this.exclude(userInChan,["password"])
+				console.log("USER",user)
+				console.log("USERINCHAN",userInChan)
 				return (userInChan)
 			}
 
 		} catch (error) {
 			console.log(error)
 		}
+	}
+
+	exclude(user, keys) {
+		return Object.fromEntries(
+		  Object.entries(user).filter(([key]) => !keys.includes(key))
+		);
 	}
 
 	async leaveRoom(client: Socket, oldChatId: number) {

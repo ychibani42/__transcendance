@@ -22,7 +22,6 @@ const store = createStore(
             },
             gamesock:null,
             chatsock: null,
-                
             gamename:'',
             gameplay:false 
         },
