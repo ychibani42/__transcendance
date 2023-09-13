@@ -56,7 +56,7 @@ const store = createStore(
             setGamename(state, name){ state.gamename = name},
             setGameplay(state, play){ state.gameplay = play},
         },
-        action: {}
+        actions :{}
     }
 )
 
