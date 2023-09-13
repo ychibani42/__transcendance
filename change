@@ -1,0 +1,9 @@
+let colpoint = this.ball.y - (player.y + player.h/2);
+colpoint = colpoint/(player.h/2);
+let anglered = colpoint * (Math.PI/4);
+
+let dir = (this.ball.x < 300/2) ? 1 : -1;
+this.ball.velX = dir * this.ball.speed * Math.cos(anglered);
+this.ball.velY = this.ball.speed * Math.sin(anglered);
+if(this.ball.speed < 5)
+    this.ball.speed += 0.2;

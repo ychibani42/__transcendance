@@ -1,3 +1,15 @@
+<script lang="ts" setup>
+import { useStore } from 'vuex';
+import { onMounted } from 'vue';
+
+const store = useStore();
+const User  = store.getters.getuser;
+
+onMounted(() => {
+})
+
+</script>
+
 <template>
   <div class="hello">
     <h1>Welcome to our Pong</h1>
@@ -10,13 +22,10 @@
          Let's play
       </button>
     </router-link>
+    <p>Your ID is {{ User.id }}</p>
 
   </div>
 </template>
-
-<script lang="ts" setup>
-
-</script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>

@@ -1,4 +1,4 @@
-import { createStore } from "vuex";
+import { createStore} from "vuex";
 
 
 const store = createStore(
@@ -9,8 +9,11 @@ const store = createStore(
                 username: '',
                 profileCompleted: false,
                 blocked: [],
-                friend: []
+                friend: [],
+                first : true,
+                Twofa : false
             },
+           
             chandisp :{
                 idch: 0,
                 channame: '',
@@ -19,12 +22,17 @@ const store = createStore(
             },
             gamesock:null,
             chatsock: null,
+                
+            gamename:'',
+            gameplay:false 
         },
         getters:{
             getuser : state => state.user,
             getGamesocket : state => state.gamesock,
             getChandisp : state => state.chandisp,
-            getChansocket: state => state.chatsock
+            getChansocket: state => state.chatsock,
+            getGamename : state => state.gamename,
+            getGameplay : state => state.gameplay,
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -42,11 +50,13 @@ const store = createStore(
                 state.chandisp.user = chandisp.user
 
             },
-            setChanid(state, id: number){state.chandisp.idch = id}
+            setChanid(state, id: number){state.chandisp.idch = id},
+            setF(state , bool){ state.user.first = bool},
+            setTwofa(state, bool){ state.user.Twofa = bool},
+            setGamename(state, name){ state.gamename = name},
+            setGameplay(state, play){ state.gameplay = play},
         },
-        actions:{
-
-        }
+        action: {}
     }
 )
 

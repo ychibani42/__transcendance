@@ -5,6 +5,7 @@ CREATE TABLE "User" (
     "name" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "profilefinish" BOOLEAN NOT NULL DEFAULT false,
     "otpenable" BOOLEAN NOT NULL DEFAULT false,
     "otpvalider" BOOLEAN NOT NULL DEFAULT false,
 
