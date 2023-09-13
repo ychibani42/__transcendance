@@ -1,12 +1,7 @@
-import {
-	Injectable,
-	NotFoundException,
-	UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import * as argon from 'argon2';
+
 
 @Injectable({})
 export class AuthService {
@@ -18,10 +13,7 @@ export class AuthService {
 	async login(id: number, link: string) {
 		console.log(id, link);
 		try {
-			const users = await this.prismaService.user.findUniqueOrThrow({
-				where: { id42: id },
-			});
-			console.log('USER find', users);
+			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
 			return users;
 		} catch (error) {
 			const user = await this.prismaService.user.create({
@@ -30,7 +22,6 @@ export class AuthService {
 					name: link,
 				},
 			});
-			console.log('USER created', user);
 			return user;
 		}
 	}
@@ -42,23 +33,20 @@ export class AuthService {
 			TwoFa: User.otpenable,
 		};
 		const jwt = await this.jwtService.signAsync(payload);
-		const decode = await this.jwtService.decode(jwt);
-		console.log('Decode', decode);
-		return jwt;
+		return(jwt);
 	}
 
-	async decodedtok(token: string) {
-		const decode = await this.jwtService.decode(token);
+
+	decodedtok(token : string)
+	{
+		const decode = this.jwtService.decode(token)
 		return decode;
 	}
 
-	async loginInviter(id: number) {
+	async loginInviter(id : number) {
 		console.log(id);
 		try {
-			const users = await this.prismaService.user.findUniqueOrThrow({
-				where: { id42: id },
-			});
-			console.log('USER find', users);
+			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
 			return users;
 		} catch (error) {
 			const user = await this.prismaService.user.create({
@@ -66,31 +54,23 @@ export class AuthService {
 					id42: id,
 				},
 			});
-			console.log('USER created', user);
 			return user;
 		}
 	}
 
 	async changeotp(id: number) {
 		try {
-			const users = await this.prismaService.user.findUniqueOrThrow({
-				where: { id: id },
-			});
-			if (users.otpenable == true) {
-				const user = await this.prismaService.user.update({
-					where: { id: id },
-					data: { otpenable: false },
-				});
-			} else {
-				const user = await this.prismaService.user.update({
-					where: { id: id },
-					data: { otpenable: true },
-				});
-			}
-			return true;
-		} catch (error) {
-			console.log(error);
-			return false;
+			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
+			let user ;
+			if (users.otpenable == true)
+				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : false}})
+			else
+				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : true}})
+			return true
+		} 
+		catch (error) {
+			console.log(error)
+			return false
 		}
 	}
 }

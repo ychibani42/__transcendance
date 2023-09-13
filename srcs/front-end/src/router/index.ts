@@ -2,6 +2,8 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SiteLayout from '../components/SiteLayout.vue'
 import Axios from '../services'
+import store from '../store/store'
+
 
 const routes: Array<RouteRecordRaw> = [
   
@@ -17,12 +19,12 @@ const routes: Array<RouteRecordRaw> = [
               component: () => import(/* webpackChunkName: "about" */ '../views/ProfileView.vue') },
           { path: '/matchmaking', name: 'matchmaking',
               component: () => import(/* webpackChunkName: "about" */ '../views/Matchmaking.vue') },
-          {
-            path: '/game', name: 'game',
+          { path: '/game', name: 'game',
               component: () => import(/* webpackChunkName: "about" */ '../views/Game.vue')},
-              {
-                path: '/chat', name: 'chat',
-                  component: () => import(/* webpackChunkName: "about" */ '../views/TestChat.vue')}
+          { path: '/Config', name: 'Config',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
+          { path: '/Twofa', name: 'Twofa',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')}
     ]
 
   },
@@ -44,17 +46,44 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from) => {
-  if(to.path == '/login')
+async function checkJwt() : Promise<boolean>
+{
+  if($cookies.get('access_token') !== null)
   {
-    return
+    try {
+        await Axios.get("auth/checkjwt").then(res => {
+            if(res !== undefined && store.state.user.first === true){
+              store.commit('setUserId',res.data.id)
+              store.commit('setProfileC',res.data.Profile)
+              store.commit("setTwofa",res.data.TwoFa)
+              store.commit('setF',false)
+            }
+          });
+          return true
+    } catch (error) {
+        return false
+    }
   }
-  try {
-    Axios.get("auth/checkjwt");
-  } 
-  catch (error) {
+  else
+  {
+    return false
+  }
+}
 
-  }
+router.beforeEach((to, from) => {
+  checkJwt().then((valid : boolean) => {
+    if (valid === false && to.path !== '/login' && $cookies.get('access_token') === null)
+    {
+      router.push("/login")
+    }
+    if(store.state.user.profileCompleted === false && valid === true)
+    {
+      router.push("/config")
+    }
+    if(store.state.user.Twofa === true && valid === true)
+    {
+      router.push("/Twofa")
+    }
 })
-
+})
 export default router
