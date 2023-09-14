@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable, UnauthorizedException} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-
+import  * as QRCode  from 'qrcode'
+import { authenticator } from 'otplib';
 
 @Injectable({})
 export class AuthService {
@@ -74,5 +75,14 @@ export class AuthService {
 		catch (error) {
 			throw new BadRequestException
 		}
+	}
+
+	async generateCode(int : string)
+	{
+		const secret = authenticator.generateSecret()
+		const uri = authenticator.keyuri(int,"test",secret)
+		console.log(secret)
+		const code = await QRCode.toDataURL(uri)
+		return code
 	}
 }

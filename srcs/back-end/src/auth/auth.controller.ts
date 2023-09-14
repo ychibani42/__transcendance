@@ -10,6 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './Guard/jwt-guard';
 import { FortyTwoAuthGuard } from './Guard/42-auth.guard';
+
 @Controller('auth')
 export class AuthController {
 	constructor(private authService: AuthService) {}
@@ -21,7 +22,7 @@ export class AuthController {
 	async login(@Req() req: any, @Res() res: any) {
 		const user = await this.authService.login(
 			req.user._json.id,
-			req.user._json.image.link,
+			req.user._json.image.versions.small,
 		);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie('access_token', jwt);
@@ -58,6 +59,8 @@ export class AuthController {
 	@UseGuards(JwtAuthGuard)
 	async GenerateQR(@Req() req, @Body() nbr:any)
 	{
-
+		console.log("Reach");
+		const qrcode = this.authService.generateCode("1")
+		return qrcode
 	}
 }

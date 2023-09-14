@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SiteLayout from '../components/SiteLayout.vue'
 import Axios from '../services'
-import store from '../store/store'
+import store from '../store'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -51,6 +51,7 @@ async function checkJwt() : Promise<boolean>
   if($cookies.get('access_token') !== null)
   {
     try {
+      console.log(store.state.user)
         await Axios.get("auth/checkjwt").then(res => {
             if(res !== undefined && store.state.user.first === true){
               console.log("IFAXIOS" , store.state.user.first)

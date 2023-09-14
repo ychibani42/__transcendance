@@ -7,9 +7,9 @@
 		<button type="submit" className="button_picture">change Avatar</button>
 		</form>
 		<p>Edit Name: <input type="text" class="edit_name_class" @change="editName"></p>
-		<div class="btn">
-			<button class="false" @click="Button2fa" v-if="btn == false">BTN 2FA FALSE</button>
-			<button class="true" @click="Button2fa" v-else>BTN2 TRUE</button>
+		<div class="btn"> 2FA
+			<button class="false" @click="Button2fa" v-if="btn == false">FALSE</button>
+			<button class="true" @click="Button2fa" v-else>TRUE</button>
 		</div>
 	</div>
 </template>
@@ -30,7 +30,6 @@ const btn = ref(false)
 					/*Before Mount */
 
 onBeforeMount(() => {
-	Axios.get("/users" + User.value.id)
 }),
 
 

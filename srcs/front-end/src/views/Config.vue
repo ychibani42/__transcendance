@@ -8,12 +8,12 @@ const store = useStore()
 const User = store.getters.getuser;
 const name = ref('');
 
-function setupname() {
+async function setupname() {
     console.log("here try")
     const sendname = name.value
     const id = User.id
     console.log(User.id)
-    Axios.post('users/Change',{id , sendname}).then(res => {
+    await Axios.post('users/Change',{id , sendname}).then(res => {
         if(res.data === true)
         {
             store.commit("setProfileC",true)
@@ -30,7 +30,6 @@ function setupname() {
             <input type="text" v-model="name" required>
             <button>Setup Name</button>
         </form>
-        <input type="button" @click="changeotp()" name="2FA">
     </div>
 </template>
 

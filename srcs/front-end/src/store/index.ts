@@ -12,8 +12,7 @@ const store = createStore(
                 friend: [],
                 first : true,
                 Twofa : false
-            },
-           
+            }, 
             chandisp :{
                 idch: 0,
                 channame: '',
@@ -32,6 +31,7 @@ const store = createStore(
             getChansocket: state => state.chatsock,
             getGamename : state => state.gamename,
             getGameplay : state => state.gameplay,
+            getState : state => state,
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -58,7 +58,6 @@ const store = createStore(
         actions :{
             reset()
             {
-                
                 this.state.chandisp.channame = ""
                 this.state.chandisp.idch = 0                
                 this.state.chandisp.messages = []
