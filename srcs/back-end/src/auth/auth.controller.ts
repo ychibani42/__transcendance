@@ -48,7 +48,8 @@ export class AuthController {
 
 	@Post('Button2FA')
 	@UseGuards(JwtAuthGuard)
-	async Button2FA(@Body() nbr:any){
+	async Button2FA(@Body() nbr: any){
+		
 		const good = this.authService.changeotp(nbr.id);
 		return good;
 	}

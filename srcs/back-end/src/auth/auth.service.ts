@@ -1,4 +1,4 @@
-import { Injectable} from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -61,6 +61,7 @@ export class AuthService {
 	}
 
 	async changeotp(id: number) {
+		console.log(id)
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
 			let user ;
@@ -68,11 +69,10 @@ export class AuthService {
 				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : false}})
 			else
 				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : true}})
-			return true
+			return users.otpenable
 		} 
 		catch (error) {
-			console.log(error)
-			return false
+			throw new BadRequestException
 		}
 	}
 }

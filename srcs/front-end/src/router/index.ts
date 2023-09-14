@@ -62,7 +62,9 @@ async function checkJwt() : Promise<boolean>
           });
           return true
     } catch (error) {
-        return false
+      if($cookies.get('access_token'))
+        $cookies.remove('access_token')
+      return false
     }
   }
   else
@@ -73,6 +75,10 @@ async function checkJwt() : Promise<boolean>
 
 router.beforeEach((to, from) => {
   checkJwt().then((valid : boolean) => {
+    if(store.state.user.id === 0)
+    {
+      $cookies.remove('access_token')
+    }
     if (valid === false && to.path !== '/login' && $cookies.get('access_token') === null)
     {
       store.dispatch("reset")

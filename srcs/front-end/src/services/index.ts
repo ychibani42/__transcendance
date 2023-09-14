@@ -13,6 +13,7 @@ Axios.interceptors.response.use(response =>{
     if(error.response.status == 401)
     {
         store.dispatch("reset")
+        $cookies.remove('access_token')
     }
 });
 export default Axios
