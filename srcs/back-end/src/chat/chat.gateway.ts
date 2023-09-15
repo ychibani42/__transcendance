@@ -48,8 +48,8 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('findAllChats')
-	async findAll() {
-		const chats = await this.chatService.findAllChats();
+	async findAll(@Body() userid: number) {
+		const chats = await this.chatService.findAllChats(userid);
 		console.log('display',chats)
 		return chats
 	}
@@ -62,10 +62,9 @@ export class ChatGateway {
 	@SubscribeMessage('joinRoom')
 	async join(client: Socket, data: any) 
 	{
-		console.log(data)
-		
 		if (data.oldChatId != 0)
 			await this.chatService.leaveRoom(client, data.oldChatId)
+	
 		return await this.chatService.joinRoom(client, data.userid, data.chanid)
 	}
 
@@ -76,10 +75,28 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('password')
-	password(client: Socket, data: any) 
+	async password(client: Socket, data: any) 
 	{
-		this.chatService.joinRoomWithPassword(client, data.pasword, data.userid, data.chanid)
-		client.emit('joinRoom')
+		const joined = await this.chatService.verifyPassword(data.pass, data.userid, data.chanid)
+		
+		let oldChatId: number = data.oldChatId
+		let userid: number = data.userid
+		let chanid: number = data.chanid
+		if (joined == true)
+			return this.join(client, { userid, oldChatId, chanid})
+		return null
+	}
+
+	@SubscribeMessage('updatePassword')
+	async updatePassword(@Body() data: any){
+		
+		return await this.chatService.updatePassword(data.pass, data.chanid)
+	}
+
+	@SubscribeMessage('updateStatus')
+	async updateStatus(@Body() data: any){
+		
+		return await this.chatService.updateStatus(data.status, data.chanid)
 	}
 
 	@SubscribeMessage('admin')
@@ -106,7 +123,7 @@ export class ChatGateway {
 		{
 			if (banned)
 			{
-				this.server.to(chan.channelName).emit('banned', banned)
+				this.server.to(chan.channelName).emit('banned', data)
 			}
 		}
 		return banned

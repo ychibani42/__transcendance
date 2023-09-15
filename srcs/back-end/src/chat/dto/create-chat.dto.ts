@@ -9,7 +9,7 @@ export class CreateChatDto {
 	is_private: boolean;
 
 	@IsOptional()
-	password?: string | undefined;
+	password: string;
 
 	@IsBoolean()
 	@IsOptional()

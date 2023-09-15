@@ -15,11 +15,13 @@ const chandisp = ref({
 	messages : [],
 	idch : 0,
 	channame : '',
+    isprivate: false,
     user: [],
     ownerId: 0,
     adminId: [],
     bannedId: [],
     mutedId: [],
+    oldChatId: 0
 })
 
 const User = store.getters.getuser;
@@ -37,8 +39,10 @@ const onChan = ref(false);
 const setting = ref(false);
 
 const checked = ref(false)
+const newstatus = ref(false)
 const isFocused = ref(false)
 const password = ref('')
+const newpass = ref('')
 const togglePrivacy = ref(false)
 const isModalAdmin = ref(false)
 const isModalBan = ref(false)
@@ -56,6 +60,7 @@ onBeforeMount(() => {
         chandisp.value.messages.push(arg1);
     })
     socket.on('admin', (arg1:string) => {
+        
         chandisp.value.adminId.push(arg1)
     })
     socket.on('banned', (arg1:string) => {
@@ -65,6 +70,7 @@ onBeforeMount(() => {
         chandisp.value.mutedId.push(arg1)
     })
     socket.on('createRoom', (arg1: string) => {
+        console.log(chan.value)
         chan.value.push(arg1)
     })
     socket.on('error', (arg1: string) => {
@@ -72,7 +78,6 @@ onBeforeMount(() => {
             onChan.value = false
     })
     store.commit('setChatsocket', socket)
-    console.log(socket)
 
 });
 
@@ -81,10 +86,8 @@ onBeforeUnmount(() => {
 })
 
 
-
 function enterchat(chan : any){
-    
-    if (chan.locked == true)
+    if (chan.locked == true && !isUserChan(chan))
     {
         onChan.value = false
         isPassword.value = true
@@ -97,12 +100,11 @@ function enterchat(chan : any){
     let chanid: number = chan.id
     let oldChatId: number = chandisp.value.idch
     
-    
-    
     socket.emit('joinRoom', { userid, chanid, oldChatId }, response => {
-        console.log(response)
+        chandisp.value.oldChatId = oldChatId
         chandisp.value.messages = response.messages
-        chandisp.value.idch=response.id     
+        chandisp.value.idch=response.id
+        chandisp.value.isprivate = checked.value
         onChan.value = true;
         chandisp.value.channame = response.channelName
         chandisp.value.ownerId = response.ownerId
@@ -118,11 +120,12 @@ function enterchat(chan : any){
 }
 
 const createMessage = () => {
-	socket.emit('createMessage',{ id: chandisp.value.idch, name: 'tea', text: messageText.value , user: User.id, to: 1});
+	socket.emit('createMessage',{ id: chandisp.value.idch, name: User.username, text: messageText.value , user: User.id, to: 1});
 }
 
 function displayChats () {
-	socket.emit('findAllChats', (response) => {
+    let userid: number = User.id
+	socket.emit('findAllChats', { userid }, (response) => {
 		chan.value = response
 	});
 }
@@ -166,18 +169,34 @@ function isMuted() {
     
 }
 
-function isBanned() {
-    console.log('ici')
-    for (let i = 0; i < chandisp.value.bannedId.length; i++)
+function isUserChan(chan: any) {
+    for (let i = 0; i < chan.user.length; i++)
     {
-        if (chandisp.value.bannedId[i].id == User.id)
-        {
-            
-            onChan.value = false
+    
+        if (chan.user[i].id == User.id)
             return true
-        }    
     }
     return false
+    
+}
+
+function updatePassword() {
+    if (newpass.value != '')
+    {
+        let pass: string = newpass.value
+        let chanid: number = chandisp.value.idch
+        socket.emit('updatePassword', { pass, chanid })
+    }
+    if (newstatus.value != chandisp.value.isprivate)
+    {
+        console.log('newstatus', chandisp.value.isprivate)
+        let status: boolean = newstatus.value
+        let chanid: number = chandisp.value.idch
+        socket.emit('updateStatus', { status, chanid }, response => {
+            chandisp.value.isprivate.push(newstatus.value)
+        })
+    }
+    
     
 }
 
@@ -191,8 +210,10 @@ function isBanned() {
                 <input type="text" placeholder="Add username"  v-model="createChan.channelName" required>
                 <button type="submit"> Create Room </button>
                 <button class="button-cancel" @click="addNewRoom = false">Cancel</button>
-				<input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
-				<label for="checkbox" @click="togglePrivacy = checked">{{ checked ? 'private' : 'public' }}</label>
+                <div>
+                        Status:
+				        <input type="checkbox" :value="checked" v-model="checked">  {{ checked ? 'private' : 'public' }}     
+                </div>
 				<label for="password">Mot de passe</label>
 				<input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
             </form>
@@ -200,33 +221,47 @@ function isBanned() {
         <div class="channel-list">
             <button @click="addNewRoom = true">+</button>
 			<ol>
-				<li v-for="name in chan">
-                    <div v-if="name.locked === false" class="unlocked">
-                        <button @click="enterchat(name)">
-                            {{ name.channelName }} 
+				<li v-for="channel in chan">
+                    
+                    <div v-if="channel.locked === false" class="unlocked">
+                        
+                        <button @click="enterchat(channel)">
+                            <div class="channel-name">
+                                {{ channel.channelName }}
+                            </div>
+                            <span class="material-icons">lock_open</span>
                         </button>
                     </div>
                     <div v-else class="locked">
-                        <button @click="enterchat(name)">
-                            {{ name.channelName }} 
+                        <button @click="enterchat(channel)">
+                            <div class="channel-name">
+                                {{ channel.channelName }} 
+                            </div>
+                            <span class="material-icons">lock</span>
                         </button>
+                        
                     </div>
+                    <Password v-if="isPassword === true" @close="isPassword = false" @unlock="channel.locked = false" @enter="enterchat(channel)"/>
 				</li>
 			</ol>
         </div>
         <div class="chat-display">
-            <Password v-if="isPassword === true"/>
+            
+            
             <div class="formSetting" v-if="setting === true">
                 <p>Propriete du chat</p>
 
-                <form>
-
-				    <input type="checkbox" id="checkbox" v-model="checked" style="display: none;">
-				    <label for="checkbox" @click="togglePrivacy">Status: {{ checked ? 'private' : 'public' }}</label>
+                <form @submit.prevent="updatePassword">
+                    <div>
+                        Status:
+				        <input type="checkbox" :value="newstatus" v-model="newstatus">  {{ newstatus ? 'private' : 'public' }}     
+                    </div>
+                    
 				    <label for="password">
                         Password
-                        <input type="password" id="password" v-model="password" @focus="isFocused = true" @blur="isFocused = false">
+                        <input type="password" id="newpass" v-model="newpass" @focus="isFocused = true" @blur="isFocused = false">  
                     </label>
+                    <button type="submit">Submit modification</button>
 
                     <button type="button" class="btn" @click="isModalAdmin = true">
                         Select admin
@@ -313,16 +348,23 @@ function isBanned() {
        
         li {
             width: 100%;
-            .locked button{
-                 background-color: rgb(235, 81, 81);
+            // .locked button{
+            //      background-color: rgb(235, 81, 81);
             
-            }
-            .unlocked button{
-                 background-color: rgb(188, 226, 126);
+            // }
+            // .unlocked button{
+            //      background-color: rgb(188, 226, 126);
             
-            }
+            // }
             
             button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                .channel-name{
+                    width: 90%;
+                }
+
                 width: 100%;
                 border-radius: 8px;
                 padding-top: 5%;
@@ -369,7 +411,6 @@ function isBanned() {
 }
 
 .chat-header {
-    // position: absolute;
     display: flex;
     align-items: center;
     min-height: 64px;
@@ -413,7 +454,6 @@ function isBanned() {
     width: 100%;
     height: 5%;
     border-bottom-right-radius: 4px;
-    z-index: 10;
     background-color: rgb(250, 228, 217);
     form {
         display: flex;

@@ -4,8 +4,10 @@
             <h2>Password</h2>
             <form @submit.prevent="status" class="content">
                <input type="password" v-model="password">
+               <button type="submit">Submit</button>
+               <button @click="emit('close')">Cancel</button>
             </form>
-            <button>Submit</button>
+            
         </div>
     </div>
 </template>
@@ -17,19 +19,36 @@ import { ref } from 'vue';
 const password = ref('')
 const store = useStore()
 const socket = store.getters.getChansocket;
+const emit = defineEmits(['enter', 'unlock', 'close'])
 
 function status() {
       let pass: number = password.value
       let userid: number = store.state.user.id
       let chanid: number = store.state.chandisp.idch
-      socket.emit('password', { pass, userid, chanid })
+      let oldChatId: number = store.state.chandisp.oldChatId
+      socket.emit('password', { pass, userid, chanid, oldChatId }, response => {
+        emit('unlock')
+        emit('enter')
+        emit('close')
+      })
+      
 }
 </script>
 
 <style lang="scss" scoped>
 
+.content {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin: 10px;
+  input {
+    margin: 5px;
+  }
+}
 .modal-backdrop {
-    position: absolute;
+    position: fixed;
+    z-index: 3;
     top: 0;
     bottom: 0;
     left: 0;
