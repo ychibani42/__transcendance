@@ -7,17 +7,20 @@ import { useStore } from 'vuex';
 const store = useStore()
 const User = store.getters.getuser;
 const name = ref('');
+const err = ref(false);
 
 async function setupname() {
-    console.log("here try")
     const sendname = name.value
     const id = User.id
     console.log(User.id)
     await Axios.post('users/Change',{id , sendname}).then(res => {
         if(res.data === true)
         {
-            store.commit("setProfileC",true)
             router.push("/")
+        }
+        else
+        {
+            err.value = true
         }
     })
 }
@@ -29,6 +32,7 @@ async function setupname() {
         <form class="Formname" @submit.prevent="setupname()">
             <input type="text" v-model="name" required>
             <button>Setup Name</button>
+            <span v-if="err === true"> Username already use or invalid</span>
         </form>
     </div>
 </template>

@@ -10,8 +10,8 @@ const store = createStore(
                 profileCompleted: false,
                 blocked: [],
                 friend: [],
-                first : true,
-                Twofa : false
+                Twofa : false,
+                Twofavalid : true
             }, 
             chandisp :{
                 idch: 0,
@@ -22,7 +22,8 @@ const store = createStore(
             gamesock:null,
             chatsock: null,
             gamename:'',
-            gameplay:false 
+            gameplay:false,
+            state:null
         },
         getters:{
             getuser : state => state.user,
@@ -50,10 +51,11 @@ const store = createStore(
 
             },
             setChanid(state, id: number){state.chandisp.idch = id},
-            setF(state , bool){ state.user.first = bool},
             setTwofa(state, bool){ state.user.Twofa = bool},
+            setTwofavalid(state, bool){ state.user.Twofavalid = bool},
             setGamename(state, name){ state.gamename = name},
             setGameplay(state, play){ state.gameplay = play},
+            setState(state, sock){ state.state = sock},
         },
         actions :{
             reset()
@@ -63,6 +65,7 @@ const store = createStore(
                 this.state.chandisp.messages = []
                 this.state.chandisp.user = []
                 this.state.chatsock = null
+                this.state.user.Twofavalid = true
                 this.state.gamename = ""
                 this.state.gamesock = null
                 this.state.user.id = 0,
@@ -70,8 +73,9 @@ const store = createStore(
                 this.state.user.profileCompleted =false,
                 this.state.user.blocked = [],
                 this.state.user.friend =[],
-                this.state.user.first = true,
                 this.state.user.Twofa = false
+                if(this.state.state)
+                    this.state.state.disconnect()
             }
         }
     }

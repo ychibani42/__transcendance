@@ -33,6 +33,7 @@ export class AuthService {
 			id: User.id,
 			Profile: User.profilefinish,
 			TwoFa: User.otpenable,
+			Connected : User.state
 		};
 		const jwt = await this.jwtService.signAsync(payload);
 		return(jwt);
@@ -62,14 +63,13 @@ export class AuthService {
 	}
 
 	async changeotp(id: number) {
-		console.log(id)
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
-			let user ;
+			let user : any;
 			if (users.otpenable == true)
-				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : false}})
+				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : false , otpvalider : true}})
 			else
-				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : true}})
+				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : true , otpvalider : true}})
 			return users.otpenable
 		} 
 		catch (error) {
@@ -77,12 +77,48 @@ export class AuthService {
 		}
 	}
 
-	async generateCode(int : string)
+	async loginInfo(token : any){
+		try {
+			const user = await this.prismaService.user.findUniqueOrThrow({
+				where : {id: token.id},
+				select : {
+					id : true,
+					profilefinish : true,
+					otpenable : true,
+					otpvalider : true,
+				}
+			});
+			return user
+		} catch (error) {
+			throw new BadRequestException
+		}
+	}
+
+	async generateCode(token : string)
 	{
-		const secret = authenticator.generateSecret()
-		const uri = authenticator.keyuri(int,"test",secret)
-		console.log(secret)
-		const code = await QRCode.toDataURL(uri)
-		return code
+		try {
+			const decode = this.jwtService.verify(token)
+			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
+			if(user.name == null)
+				return false
+			const secret = authenticator.generateSecret()
+			await this.prismaService.user.update({where :{ id : decode.id}, data :{optcode : secret}})
+			const uri = authenticator.keyuri(user.name,"test",secret)
+			const code = await QRCode.toDataURL(uri)
+			return code
+		} catch (error) {
+			return null
+		}
+	}
+
+	async verify(code : number, token : string){
+		
+		const decode = this.jwtService.verify(token)
+		try {
+			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
+
+		} catch (error) {
+			return false
+		}
 	}
 }

@@ -6,6 +6,8 @@ import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import {JwtStrategy} from "./Strategy/jwt-strategy";
 import {FortyTwoStrategy} from "./Strategy/42.strategy";
+import { StateService } from './Gateaway/state.service';
+import { StateGateway } from './Gateaway/State.gateaway';
 
 @Module({
 	imports: [
@@ -18,7 +20,7 @@ import {FortyTwoStrategy} from "./Strategy/42.strategy";
 		}),
 	],
 	controllers: [AuthController],
-	providers: [AuthService,FortyTwoStrategy,JwtStrategy],
+	providers: [AuthService,FortyTwoStrategy,JwtStrategy,StateService,StateGateway],
 	exports: [AuthService],
 })
 export class AuthModule {}

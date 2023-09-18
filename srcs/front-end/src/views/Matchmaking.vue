@@ -1,11 +1,12 @@
 
 <script setup lang="ts">
 import { io , Socket} from 'socket.io-client';
-import {onMounted,onBeforeMount, Ref, ref , onUnmounted, computed} from "vue";
+import {onMounted, Ref, ref} from "vue";
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
 const socket: Ref<Socket | undefined> = ref()
+const socket2: Ref<Socket | undefined> = ref()
 const store = useStore()
 const router = useRouter()
 const User = store.getters.getuser
@@ -29,8 +30,9 @@ onMounted(() =>{
     })
     socket.value.on('OnRoom', () =>
     {
-        console.log("ON ROOM")
         router.push("/game")
+        socket2.value = store.state.state
+        socket2.value?.emit('game')
     })
 })
 

@@ -26,12 +26,11 @@ export class UserService {
 	
 	async changename(idto : number , nameto :string){
 		try {
-			const user = await this.prismaService.user.update({where :{id : idto},data :{name: nameto}})
-			console.log("USER",user)
-			await this.prismaService.user.update({where : {id : idto},data:{profilefinish : true}})
+			await this.prismaService.user.update({where :{id : idto},
+				data :{name: nameto,
+				profilefinish : true}})
 			return true
 		} catch (error) {
-			console.log(error)
 			return false
 		}
 	}

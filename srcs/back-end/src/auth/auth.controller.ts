@@ -47,6 +47,14 @@ export class AuthController {
 		return decode;
 	}
 
+	@Get('Me')
+	@UseGuards(JwtAuthGuard) 
+	async GetUser(@Req() req:any){
+		const decode = this.authService.decodedtok(req.cookies.access_token)
+		const user = await this.authService.loginInfo(decode)
+		return user
+	}
+
 	@Post('Button2FA')
 	@UseGuards(JwtAuthGuard)
 	async Button2FA(@Body() nbr: any){
@@ -59,8 +67,15 @@ export class AuthController {
 	@UseGuards(JwtAuthGuard)
 	async GenerateQR(@Req() req, @Body() nbr:any)
 	{
-		console.log("Reach");
-		const qrcode = this.authService.generateCode("1")
+		const qrcode = this.authService.generateCode(req.cookies.access_token)
 		return qrcode
+	}
+
+	@Post("Verify2FA")
+	@UseGuards(JwtAuthGuard)
+	async Verify(@Req() req, @Body() nbr:any)
+	{
+		const bool = this.authService.verify(nbr.code,req.cookies.access_token)
+		return true
 	}
 }

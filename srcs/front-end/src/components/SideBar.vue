@@ -33,7 +33,6 @@ const router = useRouter()
 const store = useStore()
 
 function logout(){
-	console.log("HERE")
 	store.dispatch('reset')
 	$cookies.remove('access_token')
 	router.push('/login')

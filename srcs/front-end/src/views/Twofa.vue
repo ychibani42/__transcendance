@@ -7,17 +7,29 @@ import { useStore } from 'vuex';
 const store = useStore()
 const User = store.getters.getuser;
 const name = ref('');
+const code = ref(0);
 
-
+onMounted(()=>{
+    generateQRCode()
+})
 
 function generateQRCode(){
     Axios.post('auth/Generate2FA').then((res) =>{
         if(res)
         {
             name.value = res.data
-            console.log(res.data)
         }
     })
+}
+
+function sendcode(){
+    try {
+        Axios.post("auth/Verify2FA",{code : code.value}).then(res => {
+            console.log(res.data)
+        } ); 
+    } catch (error) {
+        
+    }
 }
 
 </script>
@@ -28,8 +40,8 @@ function generateQRCode(){
         <img id="qrImage" height="250" width="250" :src="name">
         <button @click="generateQRCode" class="">Generate Code</button>
         <div>
-            <form action="">
-                <input type="text" value="" placeholder="Enter Code">
+            <form class="form" @submit.prevent="sendcode()">
+                <input type="number" v-model="code" placeholder="Enter Code" required>
                 <button type="submit" class="btn btn-primary">Valid Code</button>
             </form>
         </div>

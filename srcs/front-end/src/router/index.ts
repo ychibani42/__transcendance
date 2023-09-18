@@ -51,14 +51,13 @@ async function checkJwt() : Promise<boolean>
   if($cookies.get('access_token') !== null)
   {
     try {
-      console.log(store.state.user)
-        await Axios.get("auth/checkjwt").then(res => {
-            if(res !== undefined && store.state.user.first === true){
-              console.log("IFAXIOS" , store.state.user.first)
+        await Axios.get('auth/Me').then(res => {
+            if(res !== undefined){
+              console.log(res.data)
               store.commit('setUserId',res.data.id)
-              store.commit('setProfileC',res.data.Profile)
-              store.commit("setTwofa",res.data.TwoFa)
-              store.commit('setF',false)
+              store.commit('setProfileC',res.data.profilefinish)
+              store.commit('setTwofa',res.data.otpenable)
+              store.commit('setTwofavalid', res.data.otpvalider)
             }
           });
           return true
