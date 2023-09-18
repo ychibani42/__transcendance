@@ -6,11 +6,12 @@
         </h2>
         <div class="modal-body">
             <form @submit.prevent="status" class="content">
-                <div  v-for="users in chandisp.user"  > 
-                  <div class="checkbox" v-if="User.id != users.id">
-                    <input type="checkbox"  :value="users.id" v-model="checked"> 
-                    {{ users.name }} 
+                <div class="list-user" v-for="users in chandisp.user"  > 
+                  <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId">
+                    <input type="checkbox" :value="users.id" v-model="checked"> 
+                    {{ users.name }}
                   </div>
+                 
                      
                 </div>
                     
@@ -77,10 +78,14 @@ function status() {
     flex-direction: column;
     border-radius: 8px;
   }
-  .checkbox{
+  button {
+    margin-top: 10px;
+  }
+  .list-user {
     display: flex;
     justify-content: flex-start;
     margin-left: 20%;
-    padding: 10px;
+    padding-right: 10px;
   }
+ 
 </style>

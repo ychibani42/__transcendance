@@ -19,7 +19,8 @@ const store = createStore(
                 channame: '',
                 messages: [],
                 user: [],
-                oldChatId: 0
+                oldChatId: 0,
+                ownerId: 0
             },
             gamesock:null,
             chatsock: null,
@@ -49,7 +50,8 @@ const store = createStore(
                 state.chandisp.channame = chandisp.channame,
                 state.chandisp.messages = chandisp.messages,
                 state.chandisp.user = chandisp.user,
-                state.chandisp.oldChatId = chandisp.oldChatId
+                state.chandisp.oldChatId = chandisp.oldChatId,
+                state.chandisp.ownerId = chandisp.ownerId
 
             },
             setChanid(state, id: number){state.chandisp.idch = id},

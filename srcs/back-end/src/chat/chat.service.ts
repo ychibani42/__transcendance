@@ -13,7 +13,8 @@ import * as argon2 from "argon2";
 export class ChatService {
 	constructor(private prismaService: PrismaService) {}
 	async createChat(createChatDto: CreateChatDto) {
-		let channel: any
+		try {
+			let channel: any
 		if (createChatDto.password != '') {
 			const hash = await argon2.hash(createChatDto.password)
 			channel = await this.prismaService.channel.create({
@@ -25,8 +26,14 @@ export class ChatService {
 				password: hash,
 				locked: true,
 			},
+			include: {
+				adminUsers: true,
+				user: true,
+				messages: true,
+				bannedUsers: true,
+				mutedUsers: true,
+			}
 		});
-		console.log('if')
 		}
 		else
 		{
@@ -35,18 +42,28 @@ export class ChatService {
 					channelName: createChatDto.channelName,
 					is_private: createChatDto.is_private,
 					ownerId: createChatDto.ownerId,
-					password: '',
 					dm: createChatDto.dm,
+					password: '',
+					locked: false
 				},
+				include: {
+					adminUsers: true,
+					user: true,
+					messages: true,
+					bannedUsers: true,
+					mutedUsers: true,
+				}
 			});
-			console.log('else')
 		}
-		console.log(channel)
-		return channel
+		return this.exclude(channel, ['password'])
+		} catch (error) {
+			console.log('error')
+			return error
+		}
 		
 	}
 
-	async findAllChats(userid: number) {
+	async findAll() {
 		try {
 			const chan = await this.prismaService.channel.findMany({
 				include: { 
@@ -57,7 +74,7 @@ export class ChatService {
 					user: true
 				},
 			});
-			return (this.exclude(chan, ['password']))
+			return (chan)
 		} catch (error) {
 			console.log(error)
 		}
@@ -65,12 +82,12 @@ export class ChatService {
 
 	async findOneChat(chanId: number) {
 		try {
+			console.log('chanid', chanId)
 			const chan = await this.prismaService.channel.findUniqueOrThrow({
 				where: {
 					id: chanId,
 				},
 			});
-			// const test: string | undefined = chan?.channelName;
 			return chan;
 		} catch (error) {
 			console.log(error);
@@ -126,14 +143,18 @@ export class ChatService {
 		}
 	}
 
-	async findAllUsersChan(chanId: number) {
+	async findAllUsersChan(userid: number) {
 		try {
-			const user = await this.prismaService.user.findMany({
+			const channels = await this.prismaService.channel.findMany({
 				where: {
-					id : chanId,
-				},
+					user: {
+						some: {
+							id: userid
+						}
+					}
+				}
 			});
-			return user;
+			return channels;
 		} catch (error) {
 			console.log(error)
 		}
@@ -228,26 +249,28 @@ export class ChatService {
 						}
 					});
 				}
-				await this.prismaService.channel.update({
-					where: {
-						id: chanid,
-					},
-				
-					data: {
-						adminUsers: {
-							connect: {
-								id: userid[i]
+				else {
+					await this.prismaService.channel.update({
+						where: {
+							id: chanid,
+						},
+						data: {
+							adminUsers: {
+								connect: {
+									id: userid[i]
+								},
 							},
 						},
-					},
-					include: { 
-						adminUsers:true,
-						bannedUsers:true,
-						mutedUsers :true,
-						messages: true,
-						user: true
-					},
-				});
+						include: { 
+							adminUsers:true,
+							bannedUsers:true,
+							mutedUsers :true,
+							messages: true,
+							user: true
+						},
+					});
+				}
+				
 			i++
 			}
 			return admin
@@ -261,60 +284,64 @@ export class ChatService {
 		try {
 			let i:number = 0
 			let banned: any;
-			while (i < userid.length)
-			{
-				banned = await this.findBanned(userid[i])
-				if (!banned)
+				while (i < userid.length)
 				{
-					await this.prismaService.banned.create({
-						data: {
-							id: userid[i],
-							channelId: chanid,
-						},
-						select: {
-							id: true,
-							channelId: true,
-							channel: true,
-						}
-					});
-				}
-				await this.prismaService.channel.update({
-					where: {
-						id: chanid,
-					},
-					data: {
-						bannedUsers: {
-							connect: {
-								id: userid[i]
+					banned = await this.findBanned(userid[i])
+					if (!banned)
+					{
+						await this.prismaService.banned.create({
+							data: {
+								id: userid[i],
+								channelId: chanid,
 							},
-						},
-						user: {
-							disconnect: {
-								id: userid[i]
-							},
-						},
-						adminUsers: {
-							disconnect: {
-								id: userid[i]
-							},
-						},
-						mutedUsers: {
-							disconnect: {
-								id: userid[i]
+							select: {
+								id: true,
+								channelId: true,
+								channel: true,
 							}
-						}
-					},
-					include: { 
-						adminUsers:true,
-						bannedUsers:true,
-						mutedUsers :true,
-						messages: true,
-						user: true
-					},
-				});
-			i++
-		}
-		return banned
+						});
+					}
+					else {
+						await this.prismaService.channel.update({
+							where: {
+								id: chanid,
+							},
+							data: {
+								bannedUsers: {
+									connect: {
+										id: userid[i]
+									},
+								},
+								user: {
+									disconnect: {
+										id: userid[i]
+									},
+								},
+								adminUsers: {
+									disconnect: {
+										id: userid[i]
+									},
+								},
+								mutedUsers: {
+									disconnect: {
+										id: userid[i]
+									}
+								}
+							},
+							include: { 
+								adminUsers:true,
+								bannedUsers:true,
+								mutedUsers :true,
+								messages: true,
+								user: true
+							},
+						});
+					}
+					
+				i++
+			}
+			return banned
+			
 		} catch (error) {
 			console.log(error)
 		}
@@ -343,26 +370,29 @@ export class ChatService {
 						}
 					});
 				}
-				await this.prismaService.channel.update({
-					where: {
-						id: chanid,
-					},
-				
-					data: {
-						mutedUsers: {
-							connect: {
-								id: userid[i]
+				else {
+					await this.prismaService.channel.update({
+						where: {
+							id: chanid,
+						},
+					
+						data: {
+							mutedUsers: {
+								connect: {
+									id: userid[i]
+								},
 							},
 						},
-					},
-					include: { 
-						adminUsers:true,
-						bannedUsers:true,
-						mutedUsers :true,
-						messages: true,
-						user: true
-					},
-				});
+						include: { 
+							adminUsers:true,
+							bannedUsers:true,
+							mutedUsers :true,
+							messages: true,
+							user: true
+						},
+					});
+				}
+				
 			i++
 		}
 		return muted;
@@ -422,16 +452,76 @@ export class ChatService {
 
 	async leaveRoom(client: Socket, oldChatId: number) {
 		try {
-			console.log('ok')
 			const oldChan = await this.findOneChan(oldChatId)
 			
 			if (oldChan)
-			client.leave(oldChan.channelName)
+				client.leave(oldChan.channelName)
 		}
 		catch (error) {
 			console.log(error)
 		}
 		
+	}
+
+	async leaveChannel(chanid: number, userid: number){
+		try {
+			const chan = await this.findOneChan(chanid)
+			
+			if (chan) {
+				let userInChan: any
+				if (chan.ownerId != userid) {
+					const admin = await this.findAdmin(userid)
+					userInChan = await this.prismaService.channel.update({
+						where: {
+							id: chan.id,
+						},
+						data: {
+							user: {
+								disconnect: {
+									id: userid
+								},
+							},
+						},
+						include: { 
+							adminUsers:true,
+							bannedUsers:true,
+							mutedUsers :true,
+							messages: true,
+							user: true
+						},
+					});
+					if (admin)
+					{
+						userInChan = await this.prismaService.channel.update({
+							where: {
+								id: chan.id,
+							},
+							data: {
+								adminUsers: {
+									disconnect: {
+										id: userid
+									}
+								}
+							},
+							include: { 
+								adminUsers:true,
+								bannedUsers:true,
+								mutedUsers :true,
+								messages: true,
+								user: true
+							},
+	
+						});
+						
+					}
+					return (userInChan)
+				}
+
+				
+			}
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
 	exclude(user: any, keys: any) {
@@ -464,21 +554,57 @@ export class ChatService {
 
 	async updatePassword(pass: string, chanid: number) {
 		try {
-			console.log('update pass', chanid)
-			const hash = await argon2.hash(pass)
-			const chan = await this.findOneChan(chanid)
-			if (chan)
+			let updateChan: any
+			if (pass != '')
 			{
-				await this.prismaService.channel.update({
-					where: {
-						id: chan.id,
-					},
-					data: {
-						password: hash,
-					},
-				});
+				const hash = await argon2.hash(pass)
+				const chan = await this.findOneChan(chanid)
+				
+				if (chan)
+				{
+					updateChan = await this.prismaService.channel.update({
+						where: {
+							id: chan.id,
+						},
+						data: {
+							password: hash,
+							locked: true,
+						},
+						include: {
+							messages: true,
+							adminUsers: true,
+							bannedUsers: true,
+							mutedUsers: true,
+							user: true
+						}
+					});
+				}
 			}
-		} catch (error) {
+			else
+			{
+				const chan = await this.findOneChan(chanid)
+				if (chan)
+				{
+					updateChan = await this.prismaService.channel.update({
+						where: {
+							id: chan.id,
+						},
+						data: {
+							password: '',
+							locked: false,
+						},
+						include: {
+							messages: true,
+							adminUsers: true,
+							bannedUsers: true,
+							mutedUsers: true,
+							user: true
+						}
+					});
+				}
+			}
+			return (this.exclude(updateChan, ['password']))
+			} catch (error) {
 			console.log(error, 'updatePassword')
 		}
 	}
@@ -487,9 +613,10 @@ export class ChatService {
 		try {
 			console.log('update status', chanid)
 			const chan = await this.findOneChan(chanid)
+			let updateChan: any
 			if (chan)
 			{
-				await this.prismaService.channel.update({
+				updateChan = await this.prismaService.channel.update({
 					where: {
 						id: chan.id,
 					},
@@ -498,6 +625,7 @@ export class ChatService {
 					},
 				});
 			}
+			return updateChan
 		} catch (error) {
 			console.log(error, 'updateStatus')
 		}

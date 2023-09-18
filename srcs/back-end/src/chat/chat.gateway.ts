@@ -17,10 +17,10 @@ import { channel } from 'diagnostics_channel';
 
 @WebSocketGateway({
 	cors: {
-		origin: '*',
+		origin: 'http://localhost:5173',
 	},
+	namespace: 'chat',
 })
-@Controller('chat')
 export class ChatGateway {
 	@WebSocketServer()
 	server: Server;
@@ -45,13 +45,25 @@ export class ChatGateway {
 	async createRoom(@Body() body :any){
 		const chan = await this.chatService.createChat(body);
 		this.server.emit('createRoom', chan)
+		return chan
 	}
 
 	@SubscribeMessage('findAllChats')
-	async findAll(@Body() userid: number) {
-		const chats = await this.chatService.findAllChats(userid);
-		console.log('display',chats)
+	async findAllUsersChan(@Body() data: any) {
+		const chats = await this.chatService.findAllUsersChan(data.userid);
 		return chats
+	}
+
+	@SubscribeMessage('findAll')
+	async findAll() {
+		const chats = await this.chatService.findAll();
+		return chats
+	}
+
+	@SubscribeMessage('findOneChat')
+	async findOneChat(@Body() data: any)
+	{
+		return await this.chatService.findOneChan(data.chanid)
 	}
 
 	@SubscribeMessage('findAllMessages')
@@ -64,7 +76,6 @@ export class ChatGateway {
 	{
 		if (data.oldChatId != 0)
 			await this.chatService.leaveRoom(client, data.oldChatId)
-	
 		return await this.chatService.joinRoom(client, data.userid, data.chanid)
 	}
 
@@ -72,6 +83,18 @@ export class ChatGateway {
 	leave(client: Socket, channelName: string) 
 	{
 		client.leave(channelName)
+	}
+
+	@SubscribeMessage('leaveChannel')
+	async leaveChannel(client: Socket, data: any) 
+	{
+		const chan = await this.chatService.findOneChat(data.chanid)
+		if (chan)
+		{
+			client.leave(chan.channelName)
+			return await this.chatService.leaveChannel(data.chanid, data.userid)
+		}
+			
 	}
 
 	@SubscribeMessage('password')
