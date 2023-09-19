@@ -17,10 +17,10 @@ import { channel } from 'diagnostics_channel';
 
 @WebSocketGateway({
 	cors: {
-		origin: '*',
+		origin: 'http://localhost:5173',
 	},
+	namespace: 'chat',
 })
-@Controller('chat')
 export class ChatGateway {
 	@WebSocketServer()
 	server: Server;
@@ -45,13 +45,25 @@ export class ChatGateway {
 	async createRoom(@Body() body :any){
 		const chan = await this.chatService.createChat(body);
 		this.server.emit('createRoom', chan)
+		return chan
 	}
 
 	@SubscribeMessage('findAllChats')
-	async findAll() {
-		const chats = await this.chatService.findAllChats();
-		console.log('display',chats)
+	async findAllUsersChan(@Body() data: any) {
+		const chats = await this.chatService.findAllUsersChan(data.userid);
 		return chats
+	}
+
+	@SubscribeMessage('findAll')
+	async findAll() {
+		const chats = await this.chatService.findAll();
+		return chats
+	}
+
+	@SubscribeMessage('findOneChat')
+	async findOneChat(@Body() data: any)
+	{
+		return await this.chatService.findOneChan(data.chanid)
 	}
 
 	@SubscribeMessage('findAllMessages')
@@ -62,8 +74,6 @@ export class ChatGateway {
 	@SubscribeMessage('joinRoom')
 	async join(client: Socket, data: any) 
 	{
-		console.log(data)
-		
 		if (data.oldChatId != 0)
 			await this.chatService.leaveRoom(client, data.oldChatId)
 		return await this.chatService.joinRoom(client, data.userid, data.chanid)
@@ -75,11 +85,53 @@ export class ChatGateway {
 		client.leave(channelName)
 	}
 
-	@SubscribeMessage('password')
-	password(client: Socket, data: any) 
+	@SubscribeMessage('leaveChannel')
+	async leaveChannel(client: Socket, data: any) 
 	{
-		//this.chatService.joinRoomWithPassword(client, data.pasword, data.userid, data.chanid)
-		client.emit('joinRoom')
+		const chan = await this.chatService.findOneChat(data.chanid)
+		if (chan)
+		{
+			client.leave(chan.channelName)
+			return await this.chatService.leaveChannel(chan, data.userid)
+		}
+			
+	}
+
+	@SubscribeMessage('deleteChannel')
+	async deleteChannel(@Body() data: any) 
+	{
+		const chan = await this.chatService.findOneChat(data.chanid)
+		if (chan)
+		{
+			console.log(chan.id)
+			return await this.chatService.deleteChannel(data.chanid)
+		}
+			
+	}
+
+	@SubscribeMessage('password')
+	async password(client: Socket, data: any) 
+	{
+		const joined = await this.chatService.verifyPassword(data.pass, data.userid, data.chanid)
+		
+		let oldChatId: number = data.oldChatId
+		let userid: number = data.userid
+		let chanid: number = data.chanid
+		if (joined == true)
+			return this.join(client, { userid, oldChatId, chanid})
+		return null
+	}
+
+	@SubscribeMessage('updatePassword')
+	async updatePassword(@Body() data: any){
+		
+		return await this.chatService.updatePassword(data.pass, data.chanid)
+	}
+
+	@SubscribeMessage('updateStatus')
+	async updateStatus(@Body() data: any){
+		
+		return await this.chatService.updateStatus(data.status, data.chanid)
 	}
 
 	@SubscribeMessage('admin')
@@ -90,7 +142,9 @@ export class ChatGateway {
 		if (chan)
 		{
 			if (admin)
-			{ this.server.to(chan.channelName).emit('admin', admin) }
+			{ 
+				this.server.to(chan.channelName).emit('admin', admin) 
+			}
 		}
 		return admin
 	}
@@ -103,7 +157,9 @@ export class ChatGateway {
 		if (chan)
 		{
 			if (banned)
-			{ this.server.to(chan.channelName).emit('banned', banned) }
+			{
+				this.server.to(chan.channelName).emit('banned', banned)
+			}
 		}
 		return banned
 

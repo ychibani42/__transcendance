@@ -7,24 +7,33 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from './entities/message.entity';
 import { Exclude } from 'class-transformer';
 import { Socket } from 'socket.io';
+import * as argon2 from "argon2";
 
 @Injectable()
 export class ChatService {
 	constructor(private prismaService: PrismaService) {}
 	async createChat(createChatDto: CreateChatDto) {
-		let channel: any
+		try {
+			let channel: any
 		if (createChatDto.password != '') {
+			const hash = await argon2.hash(createChatDto.password)
 			channel = await this.prismaService.channel.create({
 			data: {
 				channelName: createChatDto.channelName,
 				is_private: createChatDto.is_private,
 				ownerId: createChatDto.ownerId,
 				dm: createChatDto.dm,
-				password: createChatDto.password,
+				password: hash,
 				locked: true,
 			},
+			include: {
+				adminUsers: true,
+				user: true,
+				messages: true,
+				bannedUsers: true,
+				mutedUsers: true,
+			}
 		});
-		console.log('if')
 		}
 		else
 		{
@@ -34,33 +43,38 @@ export class ChatService {
 					is_private: createChatDto.is_private,
 					ownerId: createChatDto.ownerId,
 					dm: createChatDto.dm,
+					password: '',
+					locked: false
 				},
+				include: {
+					adminUsers: true,
+					user: true,
+					messages: true,
+					bannedUsers: true,
+					mutedUsers: true,
+				}
 			});
-			console.log('else')
 		}
-		return channel
+		return this.exclude(channel, ['password'])
+		} catch (error) {
+			console.log('error')
+			return error
+		}
 		
 	}
 
-	async findAllChats() {
+	async findAll() {
 		try {
 			const chan = await this.prismaService.channel.findMany({
-				select: {
-					password: false,
-					id: true,
-					channelName: true,   
+				include: { 
 					adminUsers:true,
-					ownerId:true,
-					user: true,
-					messages: true,
 					bannedUsers:true,
 					mutedUsers :true,
-					is_private: true,
-					dm:true,
-					locked: true
-				}
+					messages: true,
+					user: true
+				},
 			});
-			return chan;
+			return (chan)
 		} catch (error) {
 			console.log(error)
 		}
@@ -68,12 +82,12 @@ export class ChatService {
 
 	async findOneChat(chanId: number) {
 		try {
+			console.log('chanid', chanId)
 			const chan = await this.prismaService.channel.findUniqueOrThrow({
 				where: {
 					id: chanId,
 				},
 			});
-			// const test: string | undefined = chan?.channelName;
 			return chan;
 		} catch (error) {
 			console.log(error);
@@ -129,77 +143,45 @@ export class ChatService {
 		}
 	}
 
-	async findAllUsersChan(chanId: number) {
+	async findAllUsersChan(userid: number) {
 		try {
-			const user = await this.prismaService.user.findMany({
+			const channels = await this.prismaService.channel.findMany({
 				where: {
-					id : chanId,
-				},
+					user: {
+						some: {
+							id: userid
+						}
+					}
+				}
 			});
-			return user;
+			return channels;
 		} catch (error) {
 			console.log(error)
 		}
 	}
 
-	async pushAdminChan(userid: Array<number>, chanid: number) {
+	async findOneChan(chanid: number) {
 		try {
-			let i:number = 0
-			let admin: any;
-			while (i < userid.length)
-			{
-				admin = await this.findAdmin(userid[i])
-				console.log('admin',admin)
-				if (!admin)
-				{
-					await this.prismaService.admin.create({
-						data: {
-							id: userid[i],
-							channelId: chanid,
-						},
-						select: {
-							id: true,
-							channelId: true,
-							channel: true,
-						}
-					});
-				}
-				console.log(userid[i])
-				const adminperson = await this.prismaService.channel.update({
-					where: {
-						id: chanid,
-					},
+			const chan = await this.prismaService.channel.findUniqueOrThrow({
+				where: {
+					id: chanid,
+				},
+				include: { 
+					adminUsers:true,
+					bannedUsers:true,
+					mutedUsers :true,
+					messages: true,
+					user: true
+				},
 				
-					data: {
-						adminUsers: {
-							connect: {
-								id: userid[i]
-							},
-						},
-					},
-					select: {
-						password: false,
-						id: true,
-						channelName: true,   
-						adminUsers:true,
-						ownerId:true,
-						user: true,
-						messages: true,
-						bannedUsers:true,
-						mutedUsers :true,
-						is_private: true,
-						dm:true
-					}
-				});
-			i++
-			}
-			return admin
+			});
+			return chan
 		} catch (error) {
 			console.log(error)
 			return null
+			
 		}
 	}
-
 
 	async findMuted(userid: number) {
 		try {
@@ -220,6 +202,9 @@ export class ChatService {
 			const user = await this.prismaService.banned.findUniqueOrThrow({
 				where: {
 					id: userid
+				},
+				select: {
+					channel: true
 				}
 			})
 			return user
@@ -243,16 +228,16 @@ export class ChatService {
 			
 	}
 
-	async pushBannedChan(userid: Array<number>, chanid: number) {
+	async pushAdminChan(userid: Array<number>, chanid: number) {
 		try {
 			let i:number = 0
-			let banned: any;
+			let admin: any;
 			while (i < userid.length)
 			{
-				banned = await this.findBanned(userid[i])
-				if (!banned)
+				admin = await this.findAdmin(userid[i])
+				if (!admin)
 				{
-					await this.prismaService.banned.create({
+					await this.prismaService.admin.create({
 						data: {
 							id: userid[i],
 							channelId: chanid,
@@ -264,29 +249,99 @@ export class ChatService {
 						}
 					});
 				}
-				const bannedperson = await this.prismaService.channel.update({
-					where: {
-						id: chanid,
-					},
-				
-					data: {
-						bannedUsers: {
-							connect: {
-								id: userid[i]
+				else {
+					await this.prismaService.channel.update({
+						where: {
+							id: chanid,
+						},
+						data: {
+							adminUsers: {
+								connect: {
+									id: userid[i]
+								},
 							},
 						},
-					},
-					include: {
-						bannedUsers:true,
-						mutedUsers :true,
-						messages: true,
-						user:true,
-						adminUsers:true,
-					}
-				});
+						include: { 
+							adminUsers:true,
+							bannedUsers:true,
+							mutedUsers :true,
+							messages: true,
+							user: true
+						},
+					});
+				}
+				
 			i++
+			}
+			return admin
+		} catch (error) {
+			console.log(error)
+			return null
 		}
-		return banned
+	}
+
+	async pushBannedChan(userid: Array<number>, chanid: number) {
+		try {
+			let i:number = 0
+			let banned: any;
+				while (i < userid.length)
+				{
+					banned = await this.findBanned(userid[i])
+					if (!banned)
+					{
+						await this.prismaService.banned.create({
+							data: {
+								id: userid[i],
+								channelId: chanid,
+							},
+							select: {
+								id: true,
+								channelId: true,
+								channel: true,
+							}
+						});
+					}
+					else {
+						await this.prismaService.channel.update({
+							where: {
+								id: chanid,
+							},
+							data: {
+								bannedUsers: {
+									connect: {
+										id: userid[i]
+									},
+								},
+								user: {
+									disconnect: {
+										id: userid[i]
+									},
+								},
+								adminUsers: {
+									disconnect: {
+										id: userid[i]
+									},
+								},
+								mutedUsers: {
+									disconnect: {
+										id: userid[i]
+									}
+								}
+							},
+							include: { 
+								adminUsers:true,
+								bannedUsers:true,
+								mutedUsers :true,
+								messages: true,
+								user: true
+							},
+						});
+					}
+					
+				i++
+			}
+			return banned
+			
 		} catch (error) {
 			console.log(error)
 		}
@@ -299,7 +354,6 @@ export class ChatService {
 			while (i < userid.length)
 			{
 				muted = await this.findMuted(userid[i])
-				console.log(muted)
 				if (!muted)
 				{
 					await this.prismaService.muted.create({
@@ -316,33 +370,29 @@ export class ChatService {
 						}
 					});
 				}
-				console.log(userid[i])
-				await this.prismaService.channel.update({
-					where: {
-						id: chanid,
-					},
-				
-					data: {
-						mutedUsers: {
-							connect: {
-								id: userid[i]
+				else {
+					await this.prismaService.channel.update({
+						where: {
+							id: chanid,
+						},
+					
+						data: {
+							mutedUsers: {
+								connect: {
+									id: userid[i]
+								},
 							},
 						},
-					},
-					select: {
-						password: false,
-						id: true,
-						channelName: true,   
-						adminUsers:true,
-						ownerId:true,
-						user: true,
-						messages: true,
-						bannedUsers:true,
-						mutedUsers :true,
-						is_private: true,
-						dm:true
-					}
-				});
+						include: { 
+							adminUsers:true,
+							bannedUsers:true,
+							mutedUsers :true,
+							messages: true,
+							user: true
+						},
+					});
+				}
+				
 			i++
 		}
 		return muted;
@@ -351,56 +401,24 @@ export class ChatService {
 		}
 	}
 
-	async findOneChan(chanid: number) {
-		try {
-			const chan = await this.prismaService.channel.findUniqueOrThrow({
-				where: {
-					id: chanid,
-				},
-				select: {
-					password: false,
-					id: true,
-					channelName: true,   
-					adminUsers:true,
-					ownerId:true,
-					user: true,
-					messages: true,
-					bannedUsers:true,
-					mutedUsers :true,
-					is_private: true,
-					dm:true
-				}
-				
-			});
-			return chan
-		} catch (error) {
-			console.log(error)
-			return null
-			
-		}
-	}
-
 	async joinRoom(client: Socket, userid: number, chanid: number)
 	{
 		try {
+			console.log('et la ?')
 			const chan = await this.findOneChan(chanid)
-			/*const banned = await this.prismaService.banned.findUniqueOrThrow({
-				where: {
-					id: userid,
-				},
-				select: {
-					channel: true
-				}
-			})
-			for (let i = 0; i < banned.channel.length; i++)
+			const banned = await this.findBanned(userid)
+			if (banned)
 			{
-				if (banned.channel[i].id == chanid)
+				for (let i = 0; i < banned.channel.length; i++)
 				{
-					client.emit('error', 'banned')
-					return null
-				}
+					if (banned.channel[i].id == chanid)
+					{
+						client.emit('error', 'banned')
+						return null
+					}
 					
-			}*/
+				}
+			}
 			if (chan)
 			{
 				const userInChan = await this.prismaService.channel.update({
@@ -414,18 +432,17 @@ export class ChatService {
 							},
 						},
 					},
-					include: {
-						user: true,
-						messages: true,
+					include: { 
+						adminUsers:true,
 						bannedUsers:true,
 						mutedUsers :true,
-					}
+						messages: true,
+						user: true
+					},
+
 				});
 				client.join(chan.channelName)
-				const user = this.exclude(userInChan,["password"])
-				console.log("USER",user)
-				console.log("USERINCHAN",userInChan)
-				return (userInChan)
+				return (this.exclude(userInChan, ['password']))
 			}
 
 		} catch (error) {
@@ -433,19 +450,215 @@ export class ChatService {
 		}
 	}
 
-	exclude(user, keys) {
-		return Object.fromEntries(
-		  Object.entries(user).filter(([key]) => !keys.includes(key))
-		);
-	}
 
 	async leaveRoom(client: Socket, oldChatId: number) {
-		const oldChan = await this.findOneChan(oldChatId)
+		try {
+			const oldChan = await this.findOneChan(oldChatId)
+			
+			if (oldChan)
+				client.leave(oldChan.channelName)
+		}
+		catch (error) {
+			console.log(error)
+		}
 		
-		if (oldChan)
-			client.leave(oldChan.channelName)
+	}
+
+	async leaveChannel(chan: any, userid: number){
+		try {
+			
+				let userInChan: any
+				if (chan.ownerId != userid) {
+					const admin = await this.findAdmin(userid)
+					userInChan = await this.prismaService.channel.update({
+						where: {
+							id: chan.id,
+						},
+						data: {
+							user: {
+								disconnect: {
+									id: userid
+								},
+							},
+						},
+						include: { 
+							adminUsers:true,
+							bannedUsers:true,
+							mutedUsers :true,
+							messages: true,
+							user: true
+						},
+					});
+					if (admin)
+					{
+						userInChan = await this.prismaService.channel.update({
+							where: {
+								id: chan.id,
+							},
+							data: {
+								adminUsers: {
+									disconnect: {
+										id: userid
+									}
+								}
+							},
+							include: { 
+								adminUsers:true,
+								bannedUsers:true,
+								mutedUsers :true,
+								messages: true,
+								user: true
+							},
+	
+						});
+						
+					}
+					return (userInChan)
+				}
+
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	async deleteChannel(chanid: number) {
+		try {
+			console.log('chan', chanid)
+			await this.prismaService.channel.update({
+				where: {
+					id: chanid
+				},
+				data: {
+					adminUsers: {
+						deleteMany: {},
+					},
+					messages: {
+						deleteMany: {},
+					},
+					bannedUsers: {
+						deleteMany: {}
+					},
+					mutedUsers: {
+						deleteMany: {},
+					},
+				}
+			})
+			await this.prismaService.channel.delete({
+				where: {
+					id: chanid
+				}
+			})
+			return 'oui'
+		} catch (error) {
+			console.log(error)
+			return 'non'
+		}
+	}
+
+	exclude(user: any, keys: any) {
+        return Object.fromEntries(
+          Object.entries(user).filter(([key]) => !keys.includes(key))
+        );
+    }
+
+	async verifyPassword(password: string, userid: number, chanid: number) {
+		try {
+			const chan = await this.findOneChan(chanid)
+			if (chan?.password)
+			{
+				if (await argon2.verify(chan.password, password))
+				{
+					console.log('bon mdp')
+					return (true)
+				}
+				else
+				{
+					console.log('mauvais mdp')
+					return false
+				}
+			}
+			
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	async updatePassword(pass: string, chanid: number) {
+		try {
+			let updateChan: any
+			if (pass != '')
+			{
+				const hash = await argon2.hash(pass)
+				const chan = await this.findOneChan(chanid)
+				
+				if (chan)
+				{
+					updateChan = await this.prismaService.channel.update({
+						where: {
+							id: chan.id,
+						},
+						data: {
+							password: hash,
+							locked: true,
+						},
+						include: {
+							messages: true,
+							adminUsers: true,
+							bannedUsers: true,
+							mutedUsers: true,
+							user: true
+						}
+					});
+				}
+			}
+			else
+			{
+				const chan = await this.findOneChan(chanid)
+				if (chan)
+				{
+					updateChan = await this.prismaService.channel.update({
+						where: {
+							id: chan.id,
+						},
+						data: {
+							password: '',
+							locked: false,
+						},
+						include: {
+							messages: true,
+							adminUsers: true,
+							bannedUsers: true,
+							mutedUsers: true,
+							user: true
+						}
+					});
+				}
+			}
+			return (this.exclude(updateChan, ['password']))
+			} catch (error) {
+			console.log(error, 'updatePassword')
+		}
+	}
+
+	async updateStatus(status: boolean, chanid: number) {
+		try {
+			console.log('update status', chanid)
+			const chan = await this.findOneChan(chanid)
+			let updateChan: any
+			if (chan)
+			{
+				updateChan = await this.prismaService.channel.update({
+					where: {
+						id: chan.id,
+					},
+					data: {
+						is_private: status,
+					},
+				});
+			}
+			return updateChan
+		} catch (error) {
+			console.log(error, 'updateStatus')
+		}
 	}
 }
-
-
-

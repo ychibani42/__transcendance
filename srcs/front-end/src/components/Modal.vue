@@ -6,10 +6,14 @@
         </h2>
         <div class="modal-body">
             <form @submit.prevent="status" class="content">
-                <div v-for="users in chandisp.user" > 
-                  <input type="checkbox" :value="users.id" v-model="checked"> {{ users.id }}    
+                <div class="list-user" v-for="users in chandisp.user"  > 
+                  <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId">
+                    <input type="checkbox" :value="users.id" v-model="checked"> 
+                    {{ users.name }}
+                  </div>
+                 
+                     
                 </div>
-                <span>{{ checked }}</span>
                     
                     <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true">
                         Submit
@@ -39,11 +43,14 @@ const socket = store.getters.getChansocket;
 const banned = ref(false)
 const muted = ref(false)
 const admin = ref(false)
+const User = store.getters.getuser;
 
 function status() {
       let userid: number = checked.value
       let chanid: number = chandisp.idch
-      socket.emit(props.emit, { userid, chanid })
+      socket.emit(props.emit, { userid, chanid }, response => {
+        emit('close')
+      })
 }
 
 
@@ -57,6 +64,7 @@ function status() {
     bottom: 0;
     left: 0;
     right: 0;
+    z-index: 3;
     background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
@@ -70,4 +78,14 @@ function status() {
     flex-direction: column;
     border-radius: 8px;
   }
+  button {
+    margin-top: 10px;
+  }
+  .list-user {
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 20%;
+    padding-right: 10px;
+  }
+ 
 </style>

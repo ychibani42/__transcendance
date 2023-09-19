@@ -45,6 +45,7 @@ model User {
   game1       Game[] @relation("User1")
   game2       Game[] @relation("User2")
   blockedUsers BlockedU[]
+  dm          privateMessage[] @relation("dm")
 }
 
 
@@ -63,7 +64,7 @@ model Game {
 model Channel {
   id         Int       @id @unique @default(autoincrement())
   is_private Boolean
-  password        String?
+  password        String
   locked      Boolean @default(false)    
   channelName     String @unique     
   adminUsers    Admin[] @relation("chan/admin")
@@ -75,12 +76,20 @@ model Channel {
   dm			Boolean
 }
 
+model privateMessage {
+  id         Int       @id @unique @default(autoincrement())
+  user       User[]    @relation("dm")
+  messages   Message[] // Define the relation with Message
+}
+
+
 model Message {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   text      String
   channelId Int
   channel    Channel  @relation(fields: [channelId], references: [id])
+  privateMessage privateMessage[]
   userId    Int  
   name      String
 }
