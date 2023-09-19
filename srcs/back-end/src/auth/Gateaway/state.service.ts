@@ -18,10 +18,10 @@ export class StateService {
                 await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
                 await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
             } catch (error) {
-                throw new BadRequestException
+                throw BadRequestException
             }
         } catch (error) {
-            throw new BadRequestException
+            throw BadRequestException
         }
 
     }
@@ -32,7 +32,7 @@ export class StateService {
             await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
             await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Disconected', otpvalider : false}})
         } catch (error) {
-            throw new BadRequestException
+            throw BadRequestException
         }
     }
 
@@ -42,7 +42,7 @@ export class StateService {
             const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
             await this.prismaService.user.update({where : {id : decode.id},data : {state : 'OnGame'}})
         } catch (error) {
-            throw new BadRequestException
+            throw BadRequestException
         }
     }
 
@@ -52,7 +52,7 @@ export class StateService {
             const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
             await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
         } catch (error) {
-            throw new BadRequestException
+            throw BadRequestException
         }
     }
 }
