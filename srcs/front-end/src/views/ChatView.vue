@@ -250,6 +250,13 @@ function leaveChan() {
     })
 }
 
+function deleteChan() {
+    let chanid: number = chandisp.value.idch
+    socket.emit('deleteChannel', { chanid }, response => {
+        console.log(response)
+    })
+}
+
 </script>
 
 <template>
@@ -332,7 +339,8 @@ function leaveChan() {
                         Select user to mute
                     </button>
                     <Modal emit='muted'  header="Select to mute?" v-if="isModalMute === true" @close="isModalMute = false"/>
-                    <button class="leave" @click="leaveChan">Leave channel</button>
+                    <button v-if="User.id != chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
+                    <button v-else class="leave" @click="deleteChan">Delete room</button>
                 </form>
             </div>                  
             <div class="chat-header" >

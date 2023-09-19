@@ -463,11 +463,9 @@ export class ChatService {
 		
 	}
 
-	async leaveChannel(chanid: number, userid: number){
+	async leaveChannel(chan: any, userid: number){
 		try {
-			const chan = await this.findOneChan(chanid)
 			
-			if (chan) {
 				let userInChan: any
 				if (chan.ownerId != userid) {
 					const admin = await this.findAdmin(userid)
@@ -517,10 +515,42 @@ export class ChatService {
 					return (userInChan)
 				}
 
-				
-			}
 		} catch (error) {
 			console.log(error)
+		}
+	}
+
+	async deleteChannel(chanid: number) {
+		try {
+			console.log('chan', chanid)
+			await this.prismaService.channel.update({
+				where: {
+					id: chanid
+				},
+				data: {
+					adminUsers: {
+						deleteMany: {},
+					},
+					messages: {
+						deleteMany: {},
+					},
+					bannedUsers: {
+						deleteMany: {}
+					},
+					mutedUsers: {
+						deleteMany: {},
+					},
+				}
+			})
+			await this.prismaService.channel.delete({
+				where: {
+					id: chanid
+				}
+			})
+			return 'oui'
+		} catch (error) {
+			console.log(error)
+			return 'non'
 		}
 	}
 

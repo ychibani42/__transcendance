@@ -92,7 +92,19 @@ export class ChatGateway {
 		if (chan)
 		{
 			client.leave(chan.channelName)
-			return await this.chatService.leaveChannel(data.chanid, data.userid)
+			return await this.chatService.leaveChannel(chan, data.userid)
+		}
+			
+	}
+
+	@SubscribeMessage('deleteChannel')
+	async deleteChannel(@Body() data: any) 
+	{
+		const chan = await this.chatService.findOneChat(data.chanid)
+		if (chan)
+		{
+			console.log(chan.id)
+			return await this.chatService.deleteChannel(data.chanid)
 		}
 			
 	}
