@@ -2,6 +2,8 @@
 import { useStore } from 'vuex';
 import { io , Socket} from 'socket.io-client';
 import {Ref, ref, onMounted} from "vue";
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const store = useStore();
 const User  = store.getters.getuser;

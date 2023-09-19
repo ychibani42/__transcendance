@@ -61,6 +61,8 @@ async function checkJwt() : Promise<boolean>
               if(res.data.state == 'disconected')
                 store.commit('setOnline',false)
             }
+          }).catch((error) => {
+            console.log(error)
           });
           return true
     } catch (error) {
