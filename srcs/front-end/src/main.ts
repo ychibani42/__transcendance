@@ -4,7 +4,7 @@ import App from './App.vue'
 import Axios  from "./services"
 import router from "./router"
 import VueAxios from "vue-axios";
-import store from './store/store'
+import store from './store'
 import VueCookies from 'vue-cookies'
 
 

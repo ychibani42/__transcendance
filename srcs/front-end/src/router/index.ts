@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SiteLayout from '../components/SiteLayout.vue'
 import Axios from '../services'
-import store from '../store/store'
+import store from '../store'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -51,17 +51,20 @@ async function checkJwt() : Promise<boolean>
   if($cookies.get('access_token') !== null)
   {
     try {
-        await Axios.get("auth/checkjwt").then(res => {
-            if(res !== undefined && store.state.user.first === true){
+        await Axios.get('auth/Me').then(res => {
+            if(res !== undefined){
+              console.log(res.data)
               store.commit('setUserId',res.data.id)
-              store.commit('setProfileC',res.data.Profile)
-              store.commit("setTwofa",res.data.TwoFa)
-              store.commit('setF',false)
+              store.commit('setProfileC',res.data.profilefinish)
+              store.commit('setTwofa',res.data.otpenable)
+              store.commit('setTwofavalid', res.data.otpvalider)
             }
           });
           return true
     } catch (error) {
-        return false
+      if($cookies.get('access_token'))
+        $cookies.remove('access_token')
+      return false
     }
   }
   else
@@ -72,15 +75,20 @@ async function checkJwt() : Promise<boolean>
 
 router.beforeEach((to, from) => {
   checkJwt().then((valid : boolean) => {
+    if(store.state.user.id === 0)
+    {
+      $cookies.remove('access_token')
+    }
     if (valid === false && to.path !== '/login' && $cookies.get('access_token') === null)
     {
+      store.dispatch("reset")
       router.push("/login")
     }
     if(store.state.user.profileCompleted === false && valid === true)
     {
       router.push("/config")
     }
-    if(store.state.user.Twofa === true && valid === true)
+    if(store.state.user.Twofa === true && valid === true && store.state.user.Twofavalid == false)
     {
       router.push("/Twofa")
     }

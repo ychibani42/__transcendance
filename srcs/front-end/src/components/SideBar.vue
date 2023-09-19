@@ -14,40 +14,39 @@
 			<router-link to="/matchmaking" class="button">
 				<span class="material-icons">sports_tennis</span>
 			</router-link>
-			<button class="material-icon">
- 	      		 <select name="add a friend">
-           			 <option>Add</option>
-           			 <option v-for="username in users" :key="username.id">{{username.username}}</option>  
-     		   </select>    
-			</button>
-
+			<div class="button">
+				<button class="material-icons" id="logout" @click="logout">logout</button>
+			</div>
+			
 		</div>
 
 		<div class="flex"></div>
 	</aside>
 </template>
 
-<script lang="ts">
-export default{
-    name: 'UserList',
-    data() {
-        return {
-            username: '',
-            users: [
-                {username:'eder', id:1},
-                {username:'tea', id:2},
-                {username: 'yassine', id:3},
-            ]
-        }
-    }
+<script lang="ts" setup>
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+
+
+const router = useRouter()
+const store = useStore()
+
+function logout(){
+	store.dispatch('reset')
+	$cookies.remove('access_token')
+	router.push('/login')
 }
 </script>
 
 <style lang="scss" scoped>
 
-
-
 aside {
+
+	#logout{
+		background-color: var(--dark-alt);
+		border: none;
+	}
 
 	display: flex;
 	flex-direction: column;

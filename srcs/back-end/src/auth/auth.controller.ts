@@ -10,6 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './Guard/jwt-guard';
 import { FortyTwoAuthGuard } from './Guard/42-auth.guard';
+
 @Controller('auth')
 export class AuthController {
 	constructor(private authService: AuthService) {}
@@ -21,7 +22,7 @@ export class AuthController {
 	async login(@Req() req: any, @Res() res: any) {
 		const user = await this.authService.login(
 			req.user._json.id,
-			req.user._json.image.link,
+			req.user._json.image.versions.small,
 		);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie('access_token', jwt);
@@ -43,13 +44,21 @@ export class AuthController {
 	CheckJWT(@Req() req:any)
 	{
 		const decode = this.authService.decodedtok(req.cookies.access_token)
-		console.log(decode)
 		return decode;
+	}
+
+	@Get('Me')
+	@UseGuards(JwtAuthGuard) 
+	async GetUser(@Req() req:any){
+		const decode = this.authService.decodedtok(req.cookies.access_token)
+		const user = await this.authService.loginInfo(decode)
+		return user
 	}
 
 	@Post('Button2FA')
 	@UseGuards(JwtAuthGuard)
-	async Button2FA(@Body() nbr:any){
+	async Button2FA(@Body() nbr: any){
+		
 		const good = this.authService.changeotp(nbr.id);
 		return good;
 	}
@@ -58,6 +67,17 @@ export class AuthController {
 	@UseGuards(JwtAuthGuard)
 	async GenerateQR(@Req() req, @Body() nbr:any)
 	{
+		const qrcode = this.authService.generateCode(req.cookies.access_token)
+		return qrcode
+	}
 
+	@Post("Verify2FA")
+	@UseGuards(JwtAuthGuard)
+	async Verify(@Req() req, @Body() nbr:any)
+	{
+		const bool = await this.authService.verify(nbr.code,req.cookies.access_token)
+		if(bool === true)
+			this.authService.validate2FA(req.cookies.access_token)
+		return bool
 	}
 }

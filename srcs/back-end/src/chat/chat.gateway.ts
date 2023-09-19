@@ -78,7 +78,7 @@ export class ChatGateway {
 	@SubscribeMessage('password')
 	password(client: Socket, data: any) 
 	{
-		this.chatService.joinRoomWithPassword(client, data.pasword, data.userid, data.chanid)
+		//this.chatService.joinRoomWithPassword(client, data.pasword, data.userid, data.chanid)
 		client.emit('joinRoom')
 	}
 
@@ -90,9 +90,7 @@ export class ChatGateway {
 		if (chan)
 		{
 			if (admin)
-			{
-				this.server.to(chan.channelName).emit('admin', admin)
-			}
+			{ this.server.to(chan.channelName).emit('admin', admin) }
 		}
 		return admin
 	}
@@ -105,9 +103,7 @@ export class ChatGateway {
 		if (chan)
 		{
 			if (banned)
-			{
-				this.server.to(chan.channelName).emit('banned', banned)
-			}
+			{ this.server.to(chan.channelName).emit('banned', banned) }
 		}
 		return banned
 
@@ -121,9 +117,7 @@ export class ChatGateway {
 		if (chan)
 		{
 			if (muted)
-			{
-				this.server.to(chan.channelName).emit('muted', muted)
-			}
+			{ this.server.to(chan.channelName).emit('muted', muted) }
 		}
 		return muted
 		

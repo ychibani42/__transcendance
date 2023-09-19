@@ -15,12 +15,21 @@ datasource db {
   url      = env("DATABASE_URL") // on dit qu'on utilise prisma et que pour y acceder on utilise l'url du .env
 }
 
+enum State {
+  Disconected
+  Online
+  Afk
+  OnGame
+}
+
 model User {
   id          Int       @id @unique @default(autoincrement())
   avatar	  String?
 
   id42        Int       @unique
   name        String?   @unique
+
+  state       State     @default(Disconected)
   
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -28,7 +37,8 @@ model User {
   profilefinish Boolean @default(false)
   
   otpenable   Boolean   @default(false)
-  otpvalider  Boolean   @default(false)
+  otpvalider  Boolean   @default(true)
+  otpcode     String    @default("")
 
   friends     Friends[]
   channels    Channel[] @relation("chan/user")
