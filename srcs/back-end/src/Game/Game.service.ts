@@ -46,17 +46,10 @@ export class GameService {
         private schedulerRegistry: SchedulerRegistry,
         private prismaService: PrismaService,
     ) {}
-    Queue : Array<Socket> = [];
     Rooms : Array<Room> = [];
     Matchmacking: Array<player> = [];
     
     //ROOM GESTION
-
-
-    created(socket : Socket) {
-        this.Queue.push(socket)
-    }
-
     JoinQueue(client : Socket, id : number){
         let newplay : player
         newplay = {

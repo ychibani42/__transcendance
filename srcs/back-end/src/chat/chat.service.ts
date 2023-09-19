@@ -450,6 +450,7 @@ export class ChatService {
 		}
 	}
 
+
 	async leaveRoom(client: Socket, oldChatId: number) {
 		try {
 			const oldChan = await this.findOneChan(oldChatId)

@@ -142,8 +142,8 @@ export class ChatGateway {
 		if (chan)
 		{
 			if (admin)
-			{
-				this.server.to(chan.channelName).emit('admin', admin)
+			{ 
+				this.server.to(chan.channelName).emit('admin', admin) 
 			}
 		}
 		return admin
@@ -158,7 +158,7 @@ export class ChatGateway {
 		{
 			if (banned)
 			{
-				this.server.to(chan.channelName).emit('banned', data)
+				this.server.to(chan.channelName).emit('banned', banned)
 			}
 		}
 		return banned
@@ -173,9 +173,7 @@ export class ChatGateway {
 		if (chan)
 		{
 			if (muted)
-			{
-				this.server.to(chan.channelName).emit('muted', muted)
-			}
+			{ this.server.to(chan.channelName).emit('muted', muted) }
 		}
 		return muted
 		

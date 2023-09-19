@@ -10,10 +10,9 @@ const store = createStore(
                 profileCompleted: false,
                 blocked: [],
                 friend: [],
-                first : true,
-                Twofa : false
-            },
-           
+                Twofa : false,
+                Twofavalid : true
+            }, 
             chandisp :{
                 idch: 0,
                 channame: '',
@@ -24,9 +23,9 @@ const store = createStore(
             },
             gamesock:null,
             chatsock: null,
-                
             gamename:'',
-            gameplay:false 
+            gameplay:false,
+            state:null
         },
         getters:{
             getuser : state => state.user,
@@ -35,6 +34,7 @@ const store = createStore(
             getChansocket: state => state.chatsock,
             getGamename : state => state.gamename,
             getGameplay : state => state.gameplay,
+            getState : state => state,
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -55,12 +55,33 @@ const store = createStore(
 
             },
             setChanid(state, id: number){state.chandisp.idch = id},
-            setF(state , bool){ state.user.first = bool},
             setTwofa(state, bool){ state.user.Twofa = bool},
+            setTwofavalid(state, bool){ state.user.Twofavalid = bool},
             setGamename(state, name){ state.gamename = name},
             setGameplay(state, play){ state.gameplay = play},
+            setState(state, sock){ state.state = sock},
         },
-        actions :{}
+        actions :{
+            reset()
+            {
+                this.state.chandisp.channame = ""
+                this.state.chandisp.idch = 0                
+                this.state.chandisp.messages = []
+                this.state.chandisp.user = []
+                this.state.chatsock = null
+                this.state.user.Twofavalid = true
+                this.state.gamename = ""
+                this.state.gamesock = null
+                this.state.user.id = 0,
+                this.state.user.username = '',
+                this.state.user.profileCompleted =false,
+                this.state.user.blocked = [],
+                this.state.user.friend =[],
+                this.state.user.Twofa = false
+                if(this.state.state)
+                    this.state.state.disconnect()
+            }
+        }
     }
 )
 

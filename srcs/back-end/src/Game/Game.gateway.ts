@@ -15,6 +15,7 @@ interface pos {
 	},
 	namespace: 'game',
 })
+
 export class GameGateway {
 	constructor(private GameService: GameService) {}
 
@@ -22,22 +23,15 @@ export class GameGateway {
 	server: Server;
 
     @UseGuards(JwtAuthGuard)
-    handleConnection(client : Socket){
-        console.log("Connection");
-        this.GameService.created(client)
-        // Mettre User status en GAME
+    handleConnection(){
     }
 
     handleDisconnect(client :Socket){
-        console.log("Disconnection");
-        // Gerer Deco non voulu
-        // Fin de game
         this.GameService.remove(client);
     }
 
     @SubscribeMessage("JoinQueue")
     JoinQueue(client : Socket, id : number){
-        console.log(id)
         this.GameService.JoinQueue(client , id)
     }
 

@@ -1,11 +1,22 @@
 <script lang="ts" setup>
 import { useStore } from 'vuex';
-import { onMounted } from 'vue';
+import { io , Socket} from 'socket.io-client';
+import {Ref, ref, onMounted} from "vue";
 
 const store = useStore();
 const User  = store.getters.getuser;
+const socket: Ref<Socket | undefined> = ref()
 
 onMounted(() => {
+  if(store.state.state == null){
+    socket.value = io("http://localhost:3000/state",{
+    transportOptions : {
+    polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})
+    socket.value.connect()
+    store.commit('setState',socket.value)
+  }
+  else
+    store.state.state.emit('Change')
 })
 
 </script>
