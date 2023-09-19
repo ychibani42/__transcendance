@@ -60,11 +60,11 @@ export class ChatGateway {
 		return chats
 	}
 
-	@SubscribeMessage('findOneChat')
-	async findOneChat(@Body() data: any)
-	{
-		return await this.chatService.findOneChan(data.chanid)
-	}
+	// @SubscribeMessage('findOneChat')
+	// async findOneChat(@Body() data: any)
+	// {
+	// 	return await this.chatService.findOneChan(data.chanid)
+	// }
 
 	@SubscribeMessage('findAllMessages')
 	findAllMessages(@Body() chanid: number) {
@@ -88,7 +88,7 @@ export class ChatGateway {
 	@SubscribeMessage('leaveChannel')
 	async leaveChannel(client: Socket, data: any) 
 	{
-		const chan = await this.chatService.findOneChat(data.chanid)
+		const chan = await this.chatService.findOneChan(data.chanid)
 		if (chan)
 		{
 			client.leave(chan.channelName)
@@ -100,7 +100,7 @@ export class ChatGateway {
 	@SubscribeMessage('deleteChannel')
 	async deleteChannel(@Body() data: any) 
 	{
-		const chan = await this.chatService.findOneChat(data.chanid)
+		const chan = await this.chatService.findOneChan(data.chanid)
 		if (chan)
 		{
 			console.log(chan.id)
