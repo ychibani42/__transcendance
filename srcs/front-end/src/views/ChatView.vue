@@ -25,8 +25,6 @@ const chandisp = ref({
     locked: false
 })
 
-const allchan = ref([])
-
 const User = store.getters.getuser;
 
 const createChan = ref({
@@ -49,11 +47,12 @@ const newstatus = ref(false)
 const isFocused = ref(false)
 const password = ref('')
 const newpass = ref('')
-const togglePrivacy = ref(false)
 const isModalAdmin = ref(false)
 const isModalBan = ref(false)
 const isModalMute = ref(false)
 const isPassword = ref(false)
+
+
 
 
 onBeforeMount(() => {
@@ -66,17 +65,38 @@ onBeforeMount(() => {
         chandisp.value.messages.push(arg1);
     })
     socket.on('admin', (arg1:string) => {
+
         chandisp.value.adminId.push(arg1)
     })
-    socket.on('banned', (arg1:string) => {
-        chandisp.value.bannedId.push(arg1)
+    socket.on('banned', (arg1:any) => {
+        if (User.id == arg1.id)
+        {
+            chandisp.value.bannedId.push(arg1.id)
+            onChan.value = false
+        }
+            
+    })
+    socket.on('deleteChannel', (arg1: any) => {
+        if (arg1.id == chandisp.value.idch)
+        {
+            onChan.value = false
+        }
+        displayChats()
+    })
+    socket.on('leaveChannel', (arg1: any) => {
+        if (arg1 == User.id)
+        {
+            onChan.value = false
+            isAdmin()
+        }
+        console.log('leave', arg1)
     })
     socket.on('muted', (arg1:string) => {
         chandisp.value.mutedId.push(arg1)
     })
     socket.on('createRoom', (arg1: any) => {
         if (arg1) {
-             if (inAll.value == true)
+            if (inAll.value == true)
                 chan.value.push(arg1)
             if (inJoined.value == true)
                 chan.value.push(arg1)
@@ -98,13 +118,13 @@ onBeforeUnmount(() => {
 
 function enterchat(chan : any){
 
-       if (chan.is_private == true && !isUserChan(chan))
+    if (chan.is_private == true && !isUserChan(chan))
     {
-        console.log('ok')
+        console.log('chan is private, cannot enter')
         //send msg "this channel is private"
         return
     } 
-    
+
     if (chan.locked == true && !isUserChan(chan))
     {
         onChan.value = false
@@ -133,6 +153,7 @@ function enterchat(chan : any){
         chandisp.value.mutedId = response.mutedUsers
         chandisp.value.locked = chan.locked
         setting.value = false
+
         store.commit("setChandisp", chandisp.value)
     });
     
@@ -154,6 +175,7 @@ function displayChats () {
     if (inAll.value == true)
     {
         socket.emit('findAll', { userid }, (response) => {
+            console.log(response)
 		    chan.value = response
 	    });
     }
@@ -217,16 +239,13 @@ function isMuted() {
     
 }
 
-function isUserChan(chan: any) {
-
-        for (let i = 0; i < chan.user.length; i++)
-        {
-            if (chan.user[i].id == User.id)
-                return true
-        }
-   
+function isUserChan(newchan: any) {
+    for (let i = 0; i < newchan.user.length; i++) 
+    {
+        if (newchan.user[i].id == User.id)
+            return true
+    }
     return false
-    
 }
 
 function updateChan() {

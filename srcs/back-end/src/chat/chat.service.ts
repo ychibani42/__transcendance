@@ -206,6 +206,7 @@ export class ChatService {
 					id: userid
 				},
 				select: {
+					id: true,
 					channel: true
 				}
 			})
@@ -239,7 +240,7 @@ export class ChatService {
 				admin = await this.findAdmin(userid[i])
 				if (!admin)
 				{
-					await this.prismaService.admin.create({
+					admin = await this.prismaService.admin.create({
 						data: {
 							id: userid[i],
 							channelId: chanid,
@@ -291,7 +292,7 @@ export class ChatService {
 					banned = await this.findBanned(userid[i])
 					if (!banned)
 					{
-						await this.prismaService.banned.create({
+						banned = await this.prismaService.banned.create({
 							data: {
 								id: userid[i],
 								channelId: chanid,
@@ -342,6 +343,7 @@ export class ChatService {
 					
 				i++
 			}
+			console.log(banned)
 			return banned
 			
 		} catch (error) {
@@ -527,7 +529,7 @@ export class ChatService {
 	async deleteChannel(chanid: number) {
 		try {
 			console.log('chan', chanid)
-			await this.prismaService.channel.update({
+			let chan = await this.prismaService.channel.update({
 				where: {
 					id: chanid
 				},
@@ -546,12 +548,12 @@ export class ChatService {
 					},
 				}
 			})
-			await this.prismaService.channel.delete({
+			chan = await this.prismaService.channel.delete({
 				where: {
 					id: chanid
 				}
 			})
-			return 'oui'
+			return 'ok'
 		} catch (error) {
 			console.log(error)
 			return 'non'

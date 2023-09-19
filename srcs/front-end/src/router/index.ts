@@ -49,7 +49,7 @@ const router = createRouter({
 
 async function checkJwt() : Promise<boolean>
 {
-  if($cookies.get('access_token') !== null)
+  if($cookies.get('access_token') != null)
   {
     try {
         await Axios.get('auth/Me').then(res => {
@@ -58,6 +58,7 @@ async function checkJwt() : Promise<boolean>
               store.commit('setProfileC',res.data.profilefinish)
               store.commit('setTwofa',res.data.otpenable)
               store.commit('setTwofavalid', res.data.otpvalider)
+
               if(res.data.state == 'disconected')
                 store.commit('setOnline',false)
             }
