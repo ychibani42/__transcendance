@@ -16,7 +16,7 @@
   
 <script lang="ts" setup>
 
-import { ref, onBeforeMount } from 'vue'
+import { ref, onMounted , onUpdated} from 'vue'
 import Axios from '../services'
 import { useStore } from 'vuex';
 
@@ -29,10 +29,9 @@ const btn = ref(false)
 
 					/*Before Mount */
 
-onBeforeMount(() => {
+onMounted(() => {
+	btn.value = store.state.user.Twofa
 }),
-
-
 					/* function */
 function handleFile( event ) {
 	selectedFile.value = event.target.files[0];

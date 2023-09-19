@@ -114,7 +114,6 @@ export class AuthService {
 	async verify(code : string, token : string){
 		
 		const decode = this.jwtService.verify(token)
-		console.log(code)
 		try {
 			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
 			let verify : boolean
