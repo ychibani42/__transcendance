@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import SiteLayout from '../components/SiteLayout.vue'
 import Axios from '../services'
 import store from '../store'
+import { io } from 'socket.io-client'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -57,6 +58,7 @@ async function checkJwt() : Promise<boolean>
               store.commit('setProfileC',res.data.profilefinish)
               store.commit('setTwofa',res.data.otpenable)
               store.commit('setTwofavalid', res.data.otpvalider)
+              store.commit('setOnline',res.data.state)
             }
           });
           return true
@@ -90,6 +92,13 @@ router.beforeEach((to, from) => {
     if(store.state.user.Twofa === true && valid === true && store.state.user.Twofavalid == false)
     {
       router.push("/Twofa")
+    }
+    if(store.state.user.online == false == valid == true)
+    {
+      const sock = io("http://localhost:3000/state",{
+        transportOptions : {
+        polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})
+      store.commit('setState',sock)
     }
 })
 })

@@ -1,4 +1,5 @@
 import { createStore} from "vuex";
+import { Socket } from "socket.io-client";
 
 
 const store = createStore(
@@ -11,7 +12,8 @@ const store = createStore(
                 blocked: [],
                 friend: [],
                 Twofa : false,
-                Twofavalid : true
+                Twofavalid : true,
+                online : false
             }, 
             chandisp :{
                 idch: 0,
@@ -25,7 +27,7 @@ const store = createStore(
             chatsock: null,
             gamename:'',
             gameplay:false,
-            state:null
+            state: <Socket | undefined>null
         },
         getters:{
             getuser : state => state.user,
@@ -60,6 +62,7 @@ const store = createStore(
             setGamename(state, name){ state.gamename = name},
             setGameplay(state, play){ state.gameplay = play},
             setState(state, sock){ state.state = sock},
+            setOnline(state, bool){state.user.online = bool},
         },
         actions :{
             reset()
@@ -78,6 +81,7 @@ const store = createStore(
                 this.state.user.blocked = [],
                 this.state.user.friend =[],
                 this.state.user.Twofa = false
+                this.state.user.online = false
                 if(this.state.state)
                     this.state.state.disconnect()
             }

@@ -12,17 +12,16 @@ export class StateService {
 	) {}
 
     async connection(client : Socket , token : any){
+        let decode : any
+        if(token)
+            decode = this.jwtService.verify(token)
         try {
-            const decode = this.jwtService.verify(token)
-            try {
-                await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-                await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
-            } catch (error) {
-                throw BadRequestException
-            }
+            await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+            await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
         } catch (error) {
             throw BadRequestException
         }
+    
 
     }
 

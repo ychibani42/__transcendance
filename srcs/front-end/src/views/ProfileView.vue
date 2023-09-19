@@ -90,7 +90,6 @@ const uploadImage = async () => {
       background-color: lightblue;
       margin-left:2px;
   }
-
 .btn{
 	.false{
 		background-color: red;
