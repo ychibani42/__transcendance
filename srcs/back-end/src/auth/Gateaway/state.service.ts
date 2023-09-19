@@ -30,7 +30,7 @@ export class StateService {
         const decode = this.jwtService.verify(token)
         try {
             await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-            await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Disconected'}})
+            await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Disconected', otpvalider : false}})
         } catch (error) {
             throw new BadRequestException
         }

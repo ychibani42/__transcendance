@@ -38,7 +38,7 @@ model User {
   
   otpenable   Boolean   @default(false)
   otpvalider  Boolean   @default(true)
-  otpcode     String?
+  otpcode     String    @default("")
 
   friends     Friends[]
   channels    Channel[] @relation("chan/user")

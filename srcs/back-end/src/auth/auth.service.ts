@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import  * as QRCode  from 'qrcode'
 import { authenticator } from 'otplib';
+import { use } from 'passport';
 
 @Injectable({})
 export class AuthService {
@@ -12,7 +13,6 @@ export class AuthService {
 	) {}
 
 	async login(id: number, link: string) {
-		console.log(id, link);
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
 			return users;
@@ -101,9 +101,9 @@ export class AuthService {
 			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
 			if(user.name == null)
 				return false
-			const secret = authenticator.generateSecret()
-			await this.prismaService.user.update({where :{ id : decode.id}, data :{optcode : secret}})
-			const uri = authenticator.keyuri(user.name,"test",secret)
+			const secret : string = authenticator.generateSecret()
+			await this.prismaService.user.update({where :{ id : decode.id}, data :{otpcode : secret , otpvalider : false}})
+			const uri = authenticator.keyuri(user.name,"GROSSECRETS",secret)
 			const code = await QRCode.toDataURL(uri)
 			return code
 		} catch (error) {
@@ -111,12 +111,28 @@ export class AuthService {
 		}
 	}
 
-	async verify(code : number, token : string){
+	async verify(code : string, token : string){
 		
+		const decode = this.jwtService.verify(token)
+		console.log(code)
+		try {
+			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
+			let verify : boolean
+			if(user.otpcode){
+				verify = authenticator.check(code,user.otpcode)
+				return verify
+			}
+			return false
+		} catch (error) {
+			return false
+		}
+	}
+
+	async validate2FA(token : string){
 		const decode = this.jwtService.verify(token)
 		try {
 			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
-
+			await this.prismaService.user.update({where :{ id : decode.id}, data :{otpcode : "", otpvalider : true}})
 		} catch (error) {
 			return false
 		}

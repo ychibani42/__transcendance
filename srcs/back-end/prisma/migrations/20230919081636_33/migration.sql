@@ -13,7 +13,7 @@ CREATE TABLE "User" (
     "profilefinish" BOOLEAN NOT NULL DEFAULT false,
     "otpenable" BOOLEAN NOT NULL DEFAULT false,
     "otpvalider" BOOLEAN NOT NULL DEFAULT true,
-    "otpcode" TEXT,
+    "otpcode" TEXT NOT NULL DEFAULT '',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );

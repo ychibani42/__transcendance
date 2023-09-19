@@ -3,11 +3,12 @@ import Axios from '../services';
 import {onMounted, Ref, ref} from "vue";
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import router from '../router';
 
 const store = useStore()
 const User = store.getters.getuser;
 const name = ref('');
-const code = ref(0);
+const code = ref('');
 
 onMounted(()=>{
     generateQRCode()
@@ -26,6 +27,8 @@ function sendcode(){
     try {
         Axios.post("auth/Verify2FA",{code : code.value}).then(res => {
             console.log(res.data)
+            if(res.data == true)
+                router.push("/")
         } ); 
     } catch (error) {
         
@@ -41,7 +44,7 @@ function sendcode(){
         <button @click="generateQRCode" class="">Generate Code</button>
         <div>
             <form class="form" @submit.prevent="sendcode()">
-                <input type="number" v-model="code" placeholder="Enter Code" required>
+                <input type="text" v-model="code" placeholder="Enter Code" required>
                 <button type="submit" class="btn btn-primary">Valid Code</button>
             </form>
         </div>

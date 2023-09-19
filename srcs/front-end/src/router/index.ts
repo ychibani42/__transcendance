@@ -88,7 +88,7 @@ router.beforeEach((to, from) => {
     {
       router.push("/config")
     }
-    if(store.state.user.Twofa === true && valid === true)
+    if(store.state.user.Twofa === true && valid === true && store.state.user.Twofavalid == false)
     {
       router.push("/Twofa")
     }

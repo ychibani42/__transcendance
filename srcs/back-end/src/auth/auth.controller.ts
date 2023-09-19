@@ -75,7 +75,9 @@ export class AuthController {
 	@UseGuards(JwtAuthGuard)
 	async Verify(@Req() req, @Body() nbr:any)
 	{
-		const bool = this.authService.verify(nbr.code,req.cookies.access_token)
-		return true
+		const bool = await this.authService.verify(nbr.code,req.cookies.access_token)
+		if(bool === true)
+			this.authService.validate2FA(req.cookies.access_token)
+		return bool
 	}
 }
