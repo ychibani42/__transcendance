@@ -58,7 +58,8 @@ async function checkJwt() : Promise<boolean>
               store.commit('setProfileC',res.data.profilefinish)
               store.commit('setTwofa',res.data.otpenable)
               store.commit('setTwofavalid', res.data.otpvalider)
-              store.commit('setOnline',res.data.state)
+              if(res.data.state == 'disconected')
+                store.commit('setOnline',false)
             }
           });
           return true
@@ -95,10 +96,12 @@ router.beforeEach((to, from) => {
     }
     if(store.state.user.online == false == valid == true)
     {
+
       const sock = io("http://localhost:3000/state",{
         transportOptions : {
         polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})
       store.commit('setState',sock)
+      store.state.state?.connect()
     }
 })
 })
