@@ -58,7 +58,6 @@ export class ChatService {
 		return this.exclude(channel, ['password'])
 		} catch (error) {
 			console.log('error')
-			return error
 		}
 		
 	}
@@ -80,17 +79,41 @@ export class ChatService {
 		}
 	}
 
-	async findOneChat(chanId: number) {
+
+	// 	try {
+	// 		console.log('chanid', chanId)
+	// 		const chan = await this.prismaService.channel.findUniqueOrThrow({
+	// 			where: {
+	// 				id: chanId,
+	// 			},
+	// 		});
+	// 		return chan;
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		return null
+	// 	}
+	// }
+
+	async findOneChan(chanid: number) {
 		try {
-			console.log('chanid', chanId)
 			const chan = await this.prismaService.channel.findUniqueOrThrow({
 				where: {
-					id: chanId,
+					id: chanid,
 				},
+				include: { 
+					adminUsers:true,
+					bannedUsers:true,
+					mutedUsers :true,
+					messages: true,
+					user: true
+				},
+				
 			});
-			return chan;
+			return chan
 		} catch (error) {
-			console.log(error);
+			console.log(error)
+			return null
+			
 		}
 	}
 
@@ -160,28 +183,7 @@ export class ChatService {
 		}
 	}
 
-	async findOneChan(chanid: number) {
-		try {
-			const chan = await this.prismaService.channel.findUniqueOrThrow({
-				where: {
-					id: chanid,
-				},
-				include: { 
-					adminUsers:true,
-					bannedUsers:true,
-					mutedUsers :true,
-					messages: true,
-					user: true
-				},
-				
-			});
-			return chan
-		} catch (error) {
-			console.log(error)
-			return null
-			
-		}
-	}
+	
 
 	async findMuted(userid: number) {
 		try {
@@ -513,7 +515,8 @@ export class ChatService {
 						});
 						
 					}
-					return (userInChan)
+					if (userInChan)
+						return (userInChan)
 				}
 
 		} catch (error) {
@@ -634,7 +637,8 @@ export class ChatService {
 					});
 				}
 			}
-			return (this.exclude(updateChan, ['password']))
+			if (updateChan)
+				return (this.exclude(updateChan, ['password']))
 			} catch (error) {
 			console.log(error, 'updatePassword')
 		}

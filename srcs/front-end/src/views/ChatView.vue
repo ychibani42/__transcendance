@@ -75,10 +75,13 @@ onBeforeMount(() => {
         chandisp.value.mutedId.push(arg1)
     })
     socket.on('createRoom', (arg1: any) => {
-        if (inAll.value == true)
-            chan.value.push(arg1)
-        if (inJoined.value == true)
-            chan.value.push(arg1)
+        if (arg1) {
+             if (inAll.value == true)
+                chan.value.push(arg1)
+            if (inJoined.value == true)
+                chan.value.push(arg1)
+        }
+       
     })
     socket.on('error', (arg1: string) => {
         if (arg1 == 'banned')
@@ -340,8 +343,9 @@ function deleteChan() {
                     </button>
                     <Modal emit='muted'  header="Select to mute?" v-if="isModalMute === true" @close="isModalMute = false"/>
                     <button v-if="User.id != chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
-                    <button v-else class="leave" @click="deleteChan">Delete room</button>
-                </form>
+                   
+                </form> 
+                <button v-if="User.id === chandisp.ownerId" class="leave" @click="deleteChan">Delete room</button>
             </div>                  
             <div class="chat-header" >
                 <div class="title" v-if="onChan === true">
