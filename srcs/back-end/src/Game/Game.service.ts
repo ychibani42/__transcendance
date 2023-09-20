@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Socket } from "socket.io";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -297,5 +297,53 @@ export class GameService {
            
         }
             
+    }
+
+    async getallgame(){
+        try {
+            const games = await this.prismaService.game.findMany(
+                {
+                include: {
+                    user1:true,
+                    user2:true
+                }
+            })
+            return games
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async research(name : string){
+        try {
+            await this.prismaService.user.findFirstOrThrow({
+                where:{
+                    name : name
+                }
+            })
+        } catch (error) {
+            throw new BadRequestException("no match")
+        }
+        try {
+            const games = await this.prismaService.game.findMany(
+                {
+                where:{
+                    OR : [{
+                        user2:{
+                            name : name
+                        }},
+                        {user1:{
+                            name : name
+                        }}]
+                },
+                include: {
+                    user1:true,
+                    user2:true
+                }
+            })
+            return games
+        } catch (error) {
+            console.log(error)
+        }
     }
 }

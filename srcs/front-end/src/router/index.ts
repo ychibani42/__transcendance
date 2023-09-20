@@ -25,7 +25,9 @@ const routes: Array<RouteRecordRaw> = [
           { path: '/Config', name: 'Config',
               component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
           { path: '/Twofa', name: 'Twofa',
-              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')}
+              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')},
+          { path: '/History', name: 'History',
+              component: () => import(/* webpackChunkName: "about" */ '../views/GameHistory.vue')}
     ]
 
   },
@@ -53,7 +55,6 @@ async function checkJwt() : Promise<boolean>
   {
     try {
         await Axios.get('auth/Me').then(res => {
-          console.log(res.data)
             if(res !== undefined){
               store.commit('setUserId',res.data.id)
               store.commit('setProfileC',res.data.profilefinish)
