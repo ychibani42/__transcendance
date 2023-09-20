@@ -47,7 +47,6 @@ export class AuthService {
 	}
 
 	async loginInviter(id : number) {
-		console.log(id);
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
 			return users;

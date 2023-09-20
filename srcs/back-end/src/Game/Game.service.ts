@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Socket } from "socket.io";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -122,7 +122,16 @@ export class GameService {
         })
     }
 
+    async registerGame(room : Room){
 
+        await this.prismaService.game.create({
+            data : {
+                score : [room.play.score,room.play2.score],
+                player1 : room.play.id,
+                player2 : room.play2.id,
+            }
+        })
+    }
 
 
     //GAME CALCUL
@@ -141,6 +150,13 @@ export class GameService {
                     element.play2.socket.emit("OnRoom")
                     element.play.socket.emit("OnRoom")
                 }
+                if(element.state == state.finish)
+                {
+                    GameService.registerGame(element)
+                    let id = GameService.Rooms.indexOf(element)
+                    GameService.Rooms.splice(id,1)
+                }
+
             })
         } catch (error) {
             console.log(error);
@@ -250,13 +266,9 @@ export class GameService {
     }
 
     remove(socket : Socket){
-        let id : number;
         this.Rooms.forEach((element) => {
             if(element.play.socket == socket || element.play2.socket == socket)
             {
-                element.state = state.finish
-                id = this.Rooms.indexOf(element)
-                this.Rooms.splice(id,1)
                 this.stoploop()
             }
         })
@@ -277,7 +289,61 @@ export class GameService {
     }
 
     addInterval() {
-        const interval = setInterval(this.rungame,15,this);
-        this.schedulerRegistry.addInterval("game", interval);
+        
+        try {
+             const interval = setInterval(this.rungame,15,this);
+            this.schedulerRegistry.addInterval("game", interval);
+        } catch (error) {
+           
+        }
+            
+    }
+
+    async getallgame(){
+        try {
+            const games = await this.prismaService.game.findMany(
+                {
+                include: {
+                    user1:true,
+                    user2:true
+                }
+            })
+            return games
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async research(name : string){
+        try {
+            await this.prismaService.user.findFirstOrThrow({
+                where:{
+                    name : name
+                }
+            })
+        } catch (error) {
+            throw new BadRequestException("no match")
+        }
+        try {
+            const games = await this.prismaService.game.findMany(
+                {
+                where:{
+                    OR : [{
+                        user2:{
+                            name : name
+                        }},
+                        {user1:{
+                            name : name
+                        }}]
+                },
+                include: {
+                    user1:true,
+                    user2:true
+                }
+            })
+            return games
+        } catch (error) {
+            console.log(error)
+        }
     }
 }

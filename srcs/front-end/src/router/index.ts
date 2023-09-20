@@ -25,7 +25,9 @@ const routes: Array<RouteRecordRaw> = [
           { path: '/Config', name: 'Config',
               component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
           { path: '/Twofa', name: 'Twofa',
-              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')}
+              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')},
+          { path: '/History', name: 'History',
+              component: () => import(/* webpackChunkName: "about" */ '../views/GameHistory.vue')}
     ]
 
   },
@@ -61,6 +63,8 @@ async function checkJwt() : Promise<boolean>
               if(res.data.state == 'disconected')
                 store.commit('setOnline',false)
             }
+          }).catch((error) => {
+            console.log(error)
           });
           return true
     } catch (error) {
@@ -96,7 +100,6 @@ router.beforeEach((to, from) => {
     }
     if(store.state.user.online == false == valid == true)
     {
-
       const sock = io("http://localhost:3000/state",{
         transportOptions : {
         polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})

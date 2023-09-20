@@ -14,6 +14,9 @@
 			<router-link to="/matchmaking" class="button">
 				<span class="material-icons">sports_tennis</span>
 			</router-link>
+			<router-link to="/History" class="button">
+				<span class="material-icons">history</span>
+			</router-link>
 			<div class="button">
 				<button class="material-icons" id="logout" @click="logout">logout</button>
 			</div>
