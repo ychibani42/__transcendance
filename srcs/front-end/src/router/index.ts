@@ -53,6 +53,7 @@ async function checkJwt() : Promise<boolean>
   {
     try {
         await Axios.get('auth/Me').then(res => {
+          console.log(res.data)
             if(res !== undefined){
               store.commit('setUserId',res.data.id)
               store.commit('setProfileC',res.data.profilefinish)
@@ -98,7 +99,6 @@ router.beforeEach((to, from) => {
     }
     if(store.state.user.online == false == valid == true)
     {
-
       const sock = io("http://localhost:3000/state",{
         transportOptions : {
         polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})
