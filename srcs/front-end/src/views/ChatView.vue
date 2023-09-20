@@ -65,7 +65,6 @@ onBeforeMount(() => {
         chandisp.value.messages.push(arg1);
     })
     socket.on('admin', (arg1:string) => {
-
         chandisp.value.adminId.push(arg1)
     })
     socket.on('banned', (arg1:any) => {
@@ -73,32 +72,46 @@ onBeforeMount(() => {
         {
             chandisp.value.bannedId.push(arg1.id)
             onChan.value = false
+            setting.value = false
+            if (inAll.value == true)
+                displayChats()
+            if (inJoined.value == true)
+                displayJoined()
         }
-            
     })
     socket.on('deleteChannel', (arg1: any) => {
         if (arg1.id == chandisp.value.idch)
         {
             onChan.value = false
+            setting.value = false
+            displayJoined()
         }
-        displayChats()
+        else
+            displayChats()
     })
     socket.on('leaveChannel', (arg1: any) => {
-        if (arg1 == User.id)
+        chandisp.value.user.forEach(element => {
+        if(element.id == arg1.id){
+            chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
+            }
+        });
+        if (arg1.id == User.id)
         {
             onChan.value = false
             isAdmin()
         }
-        console.log('leave', arg1)
     })
     socket.on('muted', (arg1:string) => {
         chandisp.value.mutedId.push(arg1)
     })
+    socket.on('joinRoom', (arg1: any) => {
+        chandisp.value.user.push(arg1)
+    })
     socket.on('createRoom', (arg1: any) => {
         if (arg1) {
-            if (inAll.value == true)
+            if (inAll.value == true && arg1.is_private == false)
                 chan.value.push(arg1)
-            if (inJoined.value == true)
+            if (inJoined.value == true && isUserChan(arg1))
                 chan.value.push(arg1)
         }
        
@@ -107,6 +120,24 @@ onBeforeMount(() => {
         if (arg1 == 'banned')
             onChan.value = false
     })
+    socket.on('updateStatus', (arg1: any) => {
+       
+        chan.value.forEach((element : any) => {
+        if(element.id == arg1.id){
+                element.is_private = arg1.is_private
+            }
+        });
+        
+    })
+    socket.on('updatePassword', (arg1: any) => {
+        console.log(arg1)
+        chan.value.forEach((element : any) => {
+        if(element.id == arg1.id){
+                element.locked = arg1.locked
+            }
+        });
+    })
+    
     store.commit('setChatsocket', socket)
 
 });
@@ -117,7 +148,7 @@ onBeforeUnmount(() => {
 
 
 function enterchat(chan : any){
-
+    console.log(chan)
     if (chan.is_private == true && !isUserChan(chan))
     {
         console.log('chan is private, cannot enter')
@@ -153,7 +184,9 @@ function enterchat(chan : any){
         chandisp.value.mutedId = response.mutedUsers
         chandisp.value.locked = chan.locked
         setting.value = false
-
+        inAll.value = false
+        inJoined.value = true
+        displayJoined()
         store.commit("setChandisp", chandisp.value)
     });
     
@@ -175,7 +208,6 @@ function displayChats () {
     if (inAll.value == true)
     {
         socket.emit('findAll', { userid }, (response) => {
-            console.log(response)
 		    chan.value = response
 	    });
     }
@@ -252,30 +284,27 @@ function updateChan() {
     let pass: string = newpass.value
     let chanid: number = chandisp.value.idch
     socket.emit('updatePassword', { pass, chanid }, response => {
-        newpass.value = ""
+       
     })
-    if (newstatus.value != chandisp.value.isprivate)
-    {
         let status: boolean = newstatus.value
-        let chanid: number = chandisp.value.idch
         socket.emit('updateStatus', { status, chanid }, response => {
             chandisp.value.isprivate = newstatus.value
-        })
-    }
+        }) 
+        newpass.value = ""
 }
 
 function leaveChan() {
     let chanid: number = chandisp.value.idch
     let userid: number = User.id
     socket.emit('leaveChannel', { chanid, userid }, response => {
-        console.log(response)
+        displayJoined()
     })
 }
 
 function deleteChan() {
     let chanid: number = chandisp.value.idch
     socket.emit('deleteChannel', { chanid }, response => {
-        console.log(response)
+        displayJoined()
     })
 }
 
@@ -302,30 +331,42 @@ function deleteChan() {
             <div class="chats">
                 <button @click="displayChats">All</button>
                 <button @click="displayJoined">Joined chats</button>
-                <button  @click="displayDM">DM</button>
+                <button @click="displayDM">DM</button>
             </div>
-			<ol>
+			<ol v-if="inAll == true">
 				<li v-for="channel in chan">
-                    
-                    <div v-if="channel.locked === false" class="unlocked">
-                        
+                    <div v-if="channel.is_private == false" class="unlocked">
+                       
+                            <div v-if="channel.locked === false">
+                            <button @click="enterchat(channel)">
+                                <div class="channel-name">
+                                    {{ channel.channelName }}
+                                </div>
+                                <span class="material-icons">lock_open</span>
+                            </button>
+                        </div>
+                        <div v-else class="locked">
+                            <button @click="enterchat(channel)">
+                                <div class="channel-name">
+                                    {{ channel.channelName }} 
+                                </div>
+                                <span class="material-icons">lock</span>
+                            </button>
+                            </div>
+
+                    </div>
+                    <Password v-if="isPassword === true" @close="isPassword = false" @unlock="channel.locked = false" @enter="enterchat(channel)"/>
+				</li>
+			</ol>
+            <ol v-if="inJoined == true">
+				<li v-for="channel in chan">
+                    <div v-if="isUserChan(channel)">
                         <button @click="enterchat(channel)">
                             <div class="channel-name">
                                 {{ channel.channelName }}
                             </div>
-                            <span class="material-icons">lock_open</span>
                         </button>
                     </div>
-                    <div v-else class="locked">
-                        <button @click="enterchat(channel)">
-                            <div class="channel-name">
-                                {{ channel.channelName }} 
-                            </div>
-                            <span class="material-icons">lock</span>
-                        </button>
-                        
-                    </div>
-                    <Password v-if="isPassword === true" @close="isPassword = false" @unlock="channel.locked = false" @enter="enterchat(channel)"/>
 				</li>
 			</ol>
         </div>
@@ -338,7 +379,7 @@ function deleteChan() {
                 <form @submit.prevent="updateChan">
                     <div>
                         Status:
-				        <input type="checkbox" :value="newstatus" v-model="newstatus">  {{ newstatus ? 'private' : 'public' }}     
+				        <input type="checkbox"  v-model="newstatus">  {{ newstatus ? 'private' : 'public' }}     
                     </div>
                     
 				    <label for="password">
@@ -398,7 +439,7 @@ function deleteChan() {
 			    </ol>
             </div>
             <div class="typing-messages">
-                <form id='test' @submit.prevent="createMessage" v-if="onChan === true && !isMuted()">
+                <form id='test' @submit.prevent="createMessage" v-if="onChan === true">
                     <input class="text" type="text" placeholder="type your message" v-model="messageText" required>
                     <button><span class="material-icons">send</span></button>
                 </form>

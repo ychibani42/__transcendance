@@ -25,6 +25,11 @@ export class ChatService {
 				dm: createChatDto.dm,
 				password: hash,
 				locked: true,
+				user: {
+					connect: {
+						   id: createChatDto.ownerId
+					   },
+				   },
 			},
 			include: {
 				adminUsers: true,
@@ -44,8 +49,14 @@ export class ChatService {
 					ownerId: createChatDto.ownerId,
 					dm: createChatDto.dm,
 					password: '',
-					locked: false
+					locked: false,
+					user: {
+						 connect: {
+								id: createChatDto.ownerId
+							}
+						},
 				},
+				
 				include: {
 					adminUsers: true,
 					user: true,
@@ -62,9 +73,73 @@ export class ChatService {
 		
 	}
 
-	async findAll() {
+	async findUser1(userid: number, chanid: number) {
+		try {
+			const user = await this.prismaService.channel.findUniqueOrThrow({
+				where: {
+					id: chanid,
+				},
+				select: {
+					user: {
+						where: {
+							id: userid,
+						}
+					}
+				}
+			});
+			if (user.user[0])
+				return user.user[0]
+		}
+		
+		catch (error){
+			console.log(error)
+		}	
+	}
+
+	async findUser(userid: number, chanid: number) {
+		try {
+			let newuser: any;
+			const user = await this.prismaService.channel.findUniqueOrThrow({
+				where: {
+					id: chanid,
+				},
+				select: {
+					user: {
+						where: {
+							id: userid,
+						}
+					}
+				}
+			});
+			if (!user.user[0])
+			{
+				newuser = await this.prismaService.user.findUniqueOrThrow({
+					where: {
+						id: userid
+					}
+				})
+				return (newuser)
+			}
+		
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	async findAll(userid: number) {
 		try {
 			const chan = await this.prismaService.channel.findMany({
+				where : {
+					NOT : [{
+						user : {
+							some: {
+								id : userid
+							}
+						},
+					},
+					{is_private : true}
+					]
+				},
 				include: { 
 					adminUsers:true,
 					bannedUsers:true,
@@ -79,20 +154,6 @@ export class ChatService {
 		}
 	}
 
-
-	// 	try {
-	// 		console.log('chanid', chanId)
-	// 		const chan = await this.prismaService.channel.findUniqueOrThrow({
-	// 			where: {
-	// 				id: chanId,
-	// 			},
-	// 		});
-	// 		return chan;
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 		return null
-	// 	}
-	// }
 
 	async findOneChan(chanid: number) {
 		try {
@@ -127,6 +188,11 @@ export class ChatService {
 
 	async createMessage( createMessageDto: CreateMessageDto) {
 		try {
+			const muted = await this.findMuted(createMessageDto.user)
+			if (muted )
+			{
+				return null
+			}
 			const message = await this.prismaService.message.create({
 				data: {
 					userId: createMessageDto.user,
@@ -175,8 +241,16 @@ export class ChatService {
 							id: userid
 						}
 					}
-				}
+				},
+				include: { 
+					adminUsers:true,
+					bannedUsers:true,
+					mutedUsers :true,
+					messages: true,
+					user: true
+				},
 			});
+			console.log(channels)
 			return channels;
 		} catch (error) {
 			console.log(error)
@@ -445,6 +519,7 @@ export class ChatService {
 					},
 
 				});
+
 				client.join(chan.channelName)
 				return (this.exclude(userInChan, ['password']))
 			}
@@ -648,7 +723,7 @@ export class ChatService {
 
 	async updateStatus(status: boolean, chanid: number) {
 		try {
-			console.log('update status', chanid)
+			console.log('update status', status)
 			const chan = await this.findOneChan(chanid)
 			let updateChan: any
 			if (chan)
@@ -660,11 +735,13 @@ export class ChatService {
 					data: {
 						is_private: status,
 					},
-				});
+				})
 			}
 			return updateChan
 		} catch (error) {
 			console.log(error, 'updateStatus')
 		}
 	}
+
+	
 }

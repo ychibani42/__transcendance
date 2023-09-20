@@ -21,7 +21,8 @@ const store = createStore(
                 messages: [],
                 user: [],
                 oldChatId: 0,
-                ownerId: 0
+                ownerId: 0,
+                is_private: false
             },
             gamesock:null,
             chatsock: null,
@@ -53,7 +54,8 @@ const store = createStore(
                 state.chandisp.messages = chandisp.messages,
                 state.chandisp.user = chandisp.user,
                 state.chandisp.oldChatId = chandisp.oldChatId,
-                state.chandisp.ownerId = chandisp.ownerId
+                state.chandisp.ownerId = chandisp.ownerId,
+                state.chandisp.is_private = chandisp.is_private
 
             },
             setChanid(state, id: number){state.chandisp.idch = id},

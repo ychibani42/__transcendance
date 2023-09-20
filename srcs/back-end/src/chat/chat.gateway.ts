@@ -55,8 +55,8 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('findAll')
-	async findAll() {
-		const chats = await this.chatService.findAll();
+	async findAll(@Body() data: any) {
+		const chats = await this.chatService.findAll(data.userid);
 		return chats
 	}
 
@@ -76,7 +76,12 @@ export class ChatGateway {
 	{
 		if (data.oldChatId != 0)
 			await this.chatService.leaveRoom(client, data.oldChatId)
-		return await this.chatService.joinRoom(client, data.userid, data.chanid)
+		let user: any = await this.chatService.findUser(data.userid, data.chanid)
+		let chan: any = await this.chatService.findOneChan(data.chanid)
+		if (user)
+			this.server.to(chan.channelName).emit('joinRoom', user)
+		chan = await this.chatService.joinRoom(client, data.userid, data.chanid)
+		return chan
 	}
 
 	@SubscribeMessage('leaveRoom')
@@ -91,9 +96,11 @@ export class ChatGateway {
 		const chan = await this.chatService.findOneChan(data.chanid)
 		if (chan)
 		{
-			const user = await this.chatService.leaveChannel(chan, data.userid)
+			let user: any = await this.chatService.findUser1(data.userid, data.chanid)
+			this.server.to(chan.channelName).emit('leaveChannel', user)
+			user = await this.chatService.leaveChannel(chan, data.userid)
 			client.leave(chan.channelName)
-			this.server.emit('leaveChannel', data.userid)
+			
 			return user
 		}
 			
@@ -128,14 +135,21 @@ export class ChatGateway {
 
 	@SubscribeMessage('updatePassword')
 	async updatePassword(@Body() data: any){
-		
-		return await this.chatService.updatePassword(data.pass, data.chanid)
+		await this.chatService.updatePassword(data.pass, data.chanid)
+		const chan = await this.chatService.findOneChan(data.chanid)
+		if (chan)
+		{
+			this.server.emit('updatePassword', chan) 
+		}
 	}
 
 	@SubscribeMessage('updateStatus')
 	async updateStatus(@Body() data: any){
-		
-		return await this.chatService.updateStatus(data.status, data.chanid)
+		const chan = await this.chatService.findOneChan(data.chanid)
+		const status = await this.chatService.updateStatus(data.status, data.chanid)
+		if (chan)
+			this.server.emit('updateStatus', status) 
+		return status
 	}
 
 	@SubscribeMessage('admin')
