@@ -18,8 +18,11 @@ export class StateService {
             if(token)
                 decode = this.jwtService.verify(token)
             try {
-                await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+                const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
                 await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
+                console.log(user.createdAt.getMilliseconds())
+                console.log(Date.now())
+
             } catch (error) {
                 console.log(error)
             } 

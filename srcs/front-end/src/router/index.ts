@@ -60,7 +60,7 @@ async function checkJwt() : Promise<boolean>
               store.commit('setProfileC',res.data.profilefinish)
               store.commit('setTwofa',res.data.otpenable)
               store.commit('setTwofavalid', res.data.otpvalider)
-              if(res.data.state == 'disconected')
+              if(res.data.state == 'Disconected')
                 store.commit('setOnline',false)
             }
           }).catch((error) => {
@@ -100,6 +100,7 @@ router.beforeEach((to, from) => {
     }
     if(store.state.user.online == false == valid == true)
     {
+      console.log("awdwad")
       const sock = io("http://localhost:3000/state",{
         transportOptions : {
         polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})
