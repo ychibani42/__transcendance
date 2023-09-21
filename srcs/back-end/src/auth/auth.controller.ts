@@ -1,15 +1,8 @@
-import {
-	Body,
-	Controller,
-	Post,
-	Req,
-	UseGuards,
-	Get,
-	Res,
-} from '@nestjs/common';
+import {Body,Controller,Post,Req,UseGuards,Get,Res,} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './Guard/jwt-guard';
 import { FortyTwoAuthGuard } from './Guard/42-auth.guard';
+import { Button2FADto, Code2faDto, InvitedUserDto } from './auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -31,8 +24,9 @@ export class AuthController {
 	}
 
 	@Post('Inviter')
-	async loginInviter(@Body() nbr: any, @Res() res: any) {
-		const user = await this.authService.loginInviter(nbr.id42._value);
+	async loginInviter(@Body() nbr: InvitedUserDto, @Res() res: any) {
+		console.log(nbr)
+		const user = await this.authService.loginInviter(nbr.id);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie("access_token",jwt);
 		res.json({redirect : '/'})
@@ -57,15 +51,15 @@ export class AuthController {
 
 	@Post('Button2FA')
 	@UseGuards(JwtAuthGuard)
-	async Button2FA(@Body() nbr: any){
-		
+	async Button2FA(@Body() nbr: Button2FADto){
+		console.log(nbr)
 		const good = this.authService.changeotp(nbr.id);
 		return good;
 	}
 
 	@Post("Generate2FA")
 	@UseGuards(JwtAuthGuard)
-	async GenerateQR(@Req() req, @Body() nbr:any)
+	async GenerateQR(@Req() req : any)
 	{
 		const qrcode = this.authService.generateCode(req.cookies.access_token)
 		return qrcode
@@ -73,7 +67,7 @@ export class AuthController {
 
 	@Post("Verify2FA")
 	@UseGuards(JwtAuthGuard)
-	async Verify(@Req() req, @Body() nbr:any)
+	async Verify(@Req() req, @Body() nbr:Code2faDto)
 	{
 		const bool = await this.authService.verify(nbr.code,req.cookies.access_token)
 		if(bool === true)

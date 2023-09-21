@@ -1,6 +1,5 @@
 import axios from 'axios'
 import store from '../store';
-import router from '../router';
 
 const Axios = axios.create({
     withCredentials :true,
@@ -16,6 +15,7 @@ Axios.interceptors.response.use(response =>{
         store.dispatch("reset")
         $cookies.remove('access_token')
     }
-    return error
+    console.log("Error",error.response)
+    return 
 });
 export default Axios

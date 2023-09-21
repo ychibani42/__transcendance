@@ -16,7 +16,7 @@ export class StateService {
         try {
             let decode : any
             if(token)
-                decode = this.jwtService.verify(token)
+                decode = this.jwtService.decode(token)
             try {
                 const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
                 await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
@@ -28,12 +28,12 @@ export class StateService {
         }
     }
 
-    async disconnect(client : Socket, token: any){
+    async disconnect(client : Socket, token : any){
         
         try {
             let decode : any
             if(token)
-                decode = this.jwtService.verify(token)
+                decode = this.jwtService.decode(token)
             try {
                 await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
                 await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Disconected', otpvalider : false}})
@@ -45,11 +45,11 @@ export class StateService {
         }
     }
 
-    async Game(client : Socket, token: any){
+    async Game(client : Socket, token : any){
         try {
             let decode : any
             if(token)
-                decode = this.jwtService.verify(token)
+                decode = this.jwtService.decode(token)
             try {
                 const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
                 await this.prismaService.user.update({where : {id : decode.id},data : {state : 'OnGame'}})
@@ -61,12 +61,12 @@ export class StateService {
         }
     }
 
-    async Change(client : Socket, token: any){
+    async Change(client : Socket, token : any){
         
         try {
                 let decode : any
                 if(token)
-                    decode = this.jwtService.verify(token)
+                    decode = this.jwtService.decode(token)
                 try {
                     const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
                     await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})

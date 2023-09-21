@@ -294,11 +294,9 @@ export class GameService {
     }
 
     remove(socket : Socket){
-        console.log("1",socket.id);
         this.Rooms.forEach((element) => {
             if(element.play.socket == socket || element.play2.socket == socket)
             {
-                console.log("2");
                 this.stoploop()
             }
         })

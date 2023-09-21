@@ -1,5 +1,7 @@
 import { createStore} from "vuex";
 import { Socket } from "socket.io-client";
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 
 const store = createStore(
@@ -86,6 +88,20 @@ const store = createStore(
                 this.state.user.online = false
                 if(this.state.state)
                     this.state.state.disconnect()
+            },
+            jwtExpired()
+            {
+                toast("JWT INVALID", {
+                    autoClose: false,
+                    closeOnClick: false,
+                })
+            },
+            Notification(text , text2)
+            {
+                toast(text, {
+                    autoClose: false,
+                    closeOnClick: false,
+                })
             }
         }
     }
