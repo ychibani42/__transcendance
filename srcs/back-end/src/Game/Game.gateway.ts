@@ -23,7 +23,8 @@ export class GameGateway {
 	server: Server;
 
     @UseGuards(JwtAuthGuard)
-    handleConnection(){
+    handleConnection(client : Socket){
+        console.log(client.id)
     }
 
     handleDisconnect(client :Socket){
@@ -43,5 +44,10 @@ export class GameGateway {
     @SubscribeMessage('ready')
     ready(client : Socket , name : string){
         this.GameService.ReadyGame(client,name)
+    }
+
+    @SubscribeMessage('Config')
+    config(client : Socket , arg: any){
+        this.GameService.ConfigGame(client,arg[0],arg[1])
     }
 }

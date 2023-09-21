@@ -53,6 +53,10 @@ const net = ref({
 onUnmounted(() => {
     if(socket.value)
         socket.value.disconnect();
+    if(state.state.state != null)
+    {
+        state.state.state.emit("Change")
+    }
 }),
 
 onBeforeMount(() => {
@@ -76,6 +80,7 @@ onBeforeMount(() => {
         console.log("finish")
         socket.value?.off("pos")
         socket.value?.off("score")
+        finished.value = true
         renderfinish(arg1)
     })
     roomname.value = state.state.gamename
@@ -105,9 +110,8 @@ function renderfinish(text : string){
         return;
     }
     clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
-    drownet()
-    context.value.fillStyle = "yellow"
-    context.value.fillText(text, 150, 75);
+    context.value.fillStyle = "white"
+    context.value.fillText(text, 100, 75);
 }
 
 function render() {
@@ -157,7 +161,7 @@ function drawText(text : number,x : number ,y : number){
         return;
     }
     context.value.fillStyle = "#FFF";
-    context.value.font = "30px serif";
+    context.value.font = "30px modern";
     context.value.fillText(text, x, y);
 }
 
@@ -221,6 +225,5 @@ canvas {
     max-width: 80vw;
     max-height: 80vw;
     justify-content: center;
-    border: solid greenyellow;
 }
 </style>

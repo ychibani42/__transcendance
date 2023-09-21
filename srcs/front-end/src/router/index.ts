@@ -60,8 +60,14 @@ async function checkJwt() : Promise<boolean>
               store.commit('setProfileC',res.data.profilefinish)
               store.commit('setTwofa',res.data.otpenable)
               store.commit('setTwofavalid', res.data.otpvalider)
+              console.log(res.data.state)
               if(res.data.state == 'Disconected')
-                store.commit('setOnline',false)
+              {
+                 store.commit('setOnline',false)
+                 console.log("dis")
+              }
+              else
+              { store.commit('setOnline',true) }
             }
           }).catch((error) => {
             console.log(error)

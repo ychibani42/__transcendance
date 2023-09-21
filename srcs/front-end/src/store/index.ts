@@ -27,6 +27,7 @@ const store = createStore(
             chatsock: null,
             gamename:'',
             gameplay:false,
+            gameTheme : false,
             state: <Socket | undefined>null
         },
         getters:{
@@ -63,6 +64,7 @@ const store = createStore(
             setGameplay(state, play){ state.gameplay = play},
             setState(state, sock){ state.state = sock},
             setOnline(state, bool){state.user.online = bool},
+            setTheme(state , bool){ state.gameTheme = bool},
         },
         actions :{
             reset()
