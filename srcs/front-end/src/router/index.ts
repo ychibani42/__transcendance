@@ -55,7 +55,7 @@ async function checkJwt() : Promise<boolean>
   {
     await Axios.get('auth/Me').then(res => 
     {
-      if(res !== undefined)
+      if(res.status == 200)
       {
         store.commit('setUserId',res.data.id)
         store.commit('setProfileC',res.data.profilefinish)

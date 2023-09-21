@@ -19,11 +19,13 @@ async function GetGames() {
 }
 
 async function research() {
-    await Axios.get('game/' + name.value).then(res => {
-        console.log("RES",res.data)
-        gamesre.value = res.data
-        reseach.value = true
-    }).catch((error) => {console.log(error)})
+    await Axios.post('game/Findbyname', {name : name.value}).then(res => {
+        if(res.status == 201)
+        {
+            gamesre.value = res.data
+            reseach.value = true
+        }
+    })
 }
 
 </script>

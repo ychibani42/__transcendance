@@ -15,7 +15,6 @@ Axios.interceptors.response.use(response =>{
         store.dispatch("reset")
         $cookies.remove('access_token')
     }
-    console.log("Error",error.response)
-    return 
+    return error
 });
 export default Axios

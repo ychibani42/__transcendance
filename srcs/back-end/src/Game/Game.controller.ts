@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, ParseArrayPipe, Post, UseGuards } from '@nestjs/common';
 import { GameService } from './Game.service';
+import { NameDto } from './GameDto';
 
 @Controller('game')
 export class GameController {
@@ -11,11 +12,9 @@ export class GameController {
         return games
     }
 
-    @Get(':name')
-    ResearchHistory(@Param('name',ParseArrayPipe) name : string){
-        console.log(name[0])
-        console.log(name)
-        const games = this.GameService.research(name[0])
+    @Post('Findbyname')
+    ResearchHistory(@Body() name: NameDto){
+        const games = this.GameService.research(name.name)
         return games
     }
 }

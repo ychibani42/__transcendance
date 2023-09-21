@@ -34,7 +34,6 @@ export class UserController {
 	@Post("Change")
 	@UseGuards(JwtAuthGuard)
 	changename(@Body() body: name){
-		
 		console.log("ID :",body.id)
 		return this.userService.changename(body.id,body.sendname)
 	}
