@@ -18,9 +18,9 @@ const chandisp = ref({
     isprivate: false,
     user: [],
     ownerId: 0,
-    adminId: [],
-    bannedId: [],
-    mutedId: [],
+    admin: [],
+    banned: [],
+    muted: [],
     oldChatId: 0,
     locked: false
 })
@@ -49,7 +49,11 @@ const password = ref('')
 const newpass = ref('')
 const isModalAdmin = ref(false)
 const isModalBan = ref(false)
+const isModalKick = ref(false)
 const isModalMute = ref(false)
+const isModalunAdmin = ref(false)
+const isModalunBan = ref(false)
+const isModalunMute = ref(false)
 const isPassword = ref(false)
 
 
@@ -57,27 +61,57 @@ const isPassword = ref(false)
 
 onBeforeMount(() => {
     displayChats()
-	Axios.get('auth/Checkjwt')
-	.then(function(response)  {
-        store.commit('setUserId', response.data.id)
-	})
     socket.on('message',(arg1 : string) => {
         chandisp.value.messages.push(arg1);
     })
-    socket.on('admin', (arg1:string) => {
-        chandisp.value.adminId.push(arg1)
+    socket.on('unadmin', (arg1:any) => {
+        chandisp.value.admin.forEach(element => {
+                if(element.id == arg1.id){
+                    chandisp.value.admin.splice(chandisp.value.admin.indexOf(element), 1)
+                }
+        })
+
+         
     })
-    socket.on('banned', (arg1:any) => {
-        if (User.id == arg1.id)
+    socket.on('unbanned', (arg1:any) => {
+        chandisp.value.banned.forEach(element => {
+            if(element.id == arg1.id){
+                chandisp.value.banned.splice(chandisp.value.banned.indexOf(element), 1)
+            }
+        })
+    })
+    socket.on('unmuted', (arg1:any) => {
+        chandisp.value.muted.forEach(element => {
+            if(element.id == arg1.id){
+                chandisp.value.muted.splice(chandisp.value.muted.indexOf(element), 1)
+            }
+        })
+    })
+    socket.on('admin', (arg1:any) => {
+        for (let i = 0; i < arg1.length; i++)
+            chandisp.value.admin.push(arg1[i])
+
+    })
+    socket.on('banned', (arg1: any) => {
+        for (let i = 0; i < arg1.length; i++)
         {
-            chandisp.value.bannedId.push(arg1.id)
-            onChan.value = false
-            setting.value = false
-            if (inAll.value == true)
-                displayChats()
-            if (inJoined.value == true)
-                displayJoined()
+            chandisp.value.banned.push(arg1[i])
+            if (User.id == arg1[i].id)
+            {
+                onChan.value = false
+                setting.value = false
+                if (inAll.value == true)
+                    displayChats()
+                if (inJoined.value == true)
+                    displayJoined()
+            }
+            chandisp.value.user.forEach(element => {
+                if(element.id == arg1[i].id){
+                    chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
+                }
+            })
         }
+        
     })
     socket.on('deleteChannel', (arg1: any) => {
         if (arg1.id == chandisp.value.idch)
@@ -98,14 +132,38 @@ onBeforeMount(() => {
         if (arg1.id == User.id)
         {
             onChan.value = false
+            setting.value = false
             isAdmin()
+            if (inAll.value == true)
+                displayChats()
+            if (inJoined.value == true)
+                displayJoined()
         }
     })
-    socket.on('muted', (arg1:string) => {
-        chandisp.value.mutedId.push(arg1)
+    socket.on('kicked', (arg1: any) => {
+        chandisp.value.user.forEach(element => {
+            if(element.id == arg1.id){
+                chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
+            }
+        })
+        if (arg1.id == User.id)
+        { 
+            onChan.value = false
+            setting.value = false
+            isAdmin()
+            if (inAll.value == true)
+                displayChats()
+            if (inJoined.value == true)
+                displayJoined()
+        }
+    })
+    socket.on('muted', (arg1:any) => {
+        for (let i = 0; i < arg1.length; i++)
+            chandisp.value.muted.push(arg1[i])
     })
     socket.on('joinRoom', (arg1: any) => {
         chandisp.value.user.push(arg1)
+        
     })
     socket.on('createRoom', (arg1: any) => {
         if (arg1) {
@@ -139,6 +197,7 @@ onBeforeMount(() => {
     })
     
     store.commit('setChatsocket', socket)
+  
 
 });
 
@@ -148,13 +207,13 @@ onBeforeUnmount(() => {
 
 
 function enterchat(chan : any){
-    console.log(chan)
-    if (chan.is_private == true && !isUserChan(chan))
-    {
-        console.log('chan is private, cannot enter')
-        //send msg "this channel is private"
-        return
-    } 
+
+    // if (chan.is_private == true && !isUserChan(chan))
+    // {
+    //     console.log('chan is private, cannot enter')
+    //     //send msg "this channel is private"
+    //     return
+    // } 
 
     if (chan.locked == true && !isUserChan(chan))
     {
@@ -179,9 +238,10 @@ function enterchat(chan : any){
         chandisp.value.channame = response.channelName
         chandisp.value.ownerId = response.ownerId
         chandisp.value.user = response.user
-        chandisp.value.adminId = response.adminUsers
-        chandisp.value.bannedId = response.bannedUsers
-        chandisp.value.mutedId = response.mutedUsers
+        chandisp.value.admin = response.adminUsers
+        console.log(response.adminUsers)
+        chandisp.value.banned = response.bannedUsers
+        chandisp.value.muted = response.mutedUsers
         chandisp.value.locked = chan.locked
         setting.value = false
         inAll.value = false
@@ -250,9 +310,9 @@ function settings () {
 }
 
 function isAdmin() {
-    for (let i = 0; i < chandisp.value.adminId.length; i++)
+    for (let i = 0; i < chandisp.value.admin.length; i++)
     {
-        if (chandisp.value.adminId[i].id == User.id)
+        if (chandisp.value.admin[i].id == User.id)
             return true
     }
     if (User.id == chandisp.value.ownerId)
@@ -262,9 +322,9 @@ function isAdmin() {
 }
 
 function isMuted() {
-    for (let i = 0; i < chandisp.value.mutedId.length; i++)
+    for (let i = 0; i < chandisp.value.muted.length; i++)
     {
-        if (chandisp.value.mutedId[i].id == User.id)
+        if (chandisp.value.muted[i].id == User.id)
             return true
     }
     return false
@@ -387,24 +447,50 @@ function deleteChan() {
                         <input type="password" id="newpass" v-model="newpass" @focus="isFocused = true" @blur="isFocused = false">  
                     </label>
                     <button type="submit">Submit modification</button>
+                     <div class="buttons">
+                        <button type="button" class="btn" @click="isModalKick = true">
+                            Kick
+                        </button>
+                        <Modal emit='kicked' header="Kick" v-if="isModalKick === true" @close="isModalKick = false"/>
+                    </div>
+                    <div class="buttons" v-if="chandisp.ownerId == User.id">
+                        <button type="button" class="btn" @click="isModalAdmin = true">
+                            Admin
+                        </button>
+                        <Modal emit='admin' header="Admin" v-if="isModalAdmin === true" @close="isModalAdmin = false"/>
+                        <button type="button" class="btn" @click="isModalunAdmin = true">
+                            unAdmin
+                        </button>
+                        <Modal emit='unadmin' header="unAdmin" v-if="isModalunAdmin === true" @close="isModalunAdmin = false"/>
 
-                    <button type="button" class="btn" @click="isModalAdmin = true">
-                        Select admin
-                    </button>
-                    <Modal emit='admin' header="Admin" v-if="isModalAdmin === true" @close="isModalAdmin = false"/>
+                    </div>
+                   
+                    <div class="buttons">
+                        <button type="button" class="btn" @click="isModalBan = true">
+                            Ban
+                        </button>
+                        <Modal emit='banned' header="Ban" v-if="isModalBan === true" @close="isModalBan = false"/>
+                        <button type="button" class="btn" @click="isModalunBan = true">
+                            unBan
+                        </button>
+                        <Modal emit='unbanned' header="unBan" v-if="isModalunBan === true" @close="isModalunBan = false"/>
 
-                    <button type="button" class="btn" @click="isModalBan = true">
-                        Select user to ban
-                    </button>
-                    <Modal emit='banned' header="Select to ban?" v-if="isModalBan === true" @close="isModalBan = false"/>
-
-                    <button type="button" class="btn" @click="isModalMute = true">
-                        Select user to mute
-                    </button>
-                    <Modal emit='muted'  header="Select to mute?" v-if="isModalMute === true" @close="isModalMute = false"/>
+                    </div>
+                   <div class="buttons">
+                        <button type="button" class="btn" @click="isModalMute = true">
+                            Mute
+                        </button>
+                        <Modal emit='muted' header="Mute" v-if="isModalMute === true" @close="isModalMute = false"/>
+                        <button type="button" class="btn" @click="isModalunMute = true">
+                            unMute
+                        </button>
+                        <Modal emit='unmuted' header="unMute" v-if="isModalunMute === true" @close="isModalunMute = false"/>
+                   </div>
+                   
                     <button v-if="User.id != chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
                    
                 </form> 
+                <button v-if="User.id === chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
                 <button v-if="User.id === chandisp.ownerId" class="leave" @click="deleteChan">Delete room</button>
             </div>                  
             <div class="chat-header" >
@@ -516,6 +602,10 @@ function deleteChan() {
         label input {
             width: 70%;
         }
+        .buttons {
+            display: flex;
+        }
+       
     }
 }
 .btn {

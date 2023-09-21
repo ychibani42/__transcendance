@@ -6,16 +6,42 @@
         </h2>
         <div class="modal-body">
             <form @submit.prevent="status" class="content">
-                <div class="list-user" v-for="users in chandisp.user"  > 
-                  <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId">
-                    <input type="checkbox" :value="users.id" v-model="checked"> 
-                    {{ users.name }}
-                  </div>
-                 
-                     
+                  <div class="list-user" v-for="users in chandisp.user" > 
+                    <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId && ((stat === 'admin' && !isAdmin(users.id)) || (stat === 'banned' && !isBanned(users.id)) || (stat === 'muted' && !isMuted(users.id)) || (stat === 'kicked')) ">
+                      <input type="checkbox" :value="users.id" v-model="checked"> 
+                      {{ users.name }}
+                      
+                    </div>
                 </div>
-                    
-                    <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true">
+
+                <div v-if="stat == 'unadmin'" > 
+                  <div class="list-user" v-for="users in chandisp.admin" > 
+                    <div class="checkbox" v-if="User.id != users.userId && users.id != chandisp.ownerId ">
+                      <input type="checkbox" :value="users.id" v-model="checked"> 
+                      {{ users.user.name }}
+                      
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="stat == 'unbanned'" >
+                  <div class="list-user" v-for="users in chandisp.banned" > 
+                    <div class="checkbox" v-if="User.id != users.id">
+                      <input type="checkbox" :value="users.id" v-model="checked"> 
+                      {{ users.user.name }}
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="stat == 'unmuted'" >
+                  <div class="list-user" v-for="users in chandisp.muted" > 
+                    <div class="checkbox" v-if="User.id != users.id">
+                      <input type="checkbox" :value="users.id" v-model="checked"> 
+                      {{ users.user.name }}
+                    </div>
+                  </div>
+                </div>
+                    <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true" @kick="kicked === true">
                         Submit
                     </button>
 
@@ -31,7 +57,7 @@
 
 <script lang="ts" setup>
 import { useStore, mapState } from 'vuex'
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 
 const props = defineProps({'emit': String, 'header': String})
 
@@ -44,15 +70,59 @@ const banned = ref(false)
 const muted = ref(false)
 const admin = ref(false)
 const User = store.getters.getuser;
+const stat = ref(props.emit)
+
+  onBeforeMount(() => {
+    console.log(chandisp.admin)
+  })
 
 function status() {
       let userid: number = checked.value
       let chanid: number = chandisp.idch
+      console.log('ici', chandisp.admin)
       socket.emit(props.emit, { userid, chanid }, response => {
         emit('close')
       })
+
 }
 
+function isAdmin(userid: number) {
+    for (let i = 0; i < chandisp.admin.length; i++)
+    {
+        if (chandisp.admin[i].id == userid)
+        {
+          return true
+        }
+            
+    }
+    return false
+    
+}
+
+function isBanned(userid: number) {
+    for (let i = 0; i < chandisp.banned.length; i++)
+    {
+        if (chandisp.banned[i].id == userid)
+        {
+          return true
+        }
+            
+    }
+    return false
+    
+}
+function isMuted(userid: number) {
+    for (let i = 0; i < chandisp.muted.length; i++)
+    {
+        if (chandisp.muted[i].id == userid)
+        {
+          return true
+        }
+            
+    }
+    return false
+    
+}
 
 </script>
 

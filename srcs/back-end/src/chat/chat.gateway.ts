@@ -78,8 +78,9 @@ export class ChatGateway {
 			await this.chatService.leaveRoom(client, data.oldChatId)
 		let user: any = await this.chatService.findUser(data.userid, data.chanid)
 		let chan: any = await this.chatService.findOneChan(data.chanid)
+		console.log('user', user)
 		if (user)
-			this.server.to(chan.channelName).emit('joinRoom', user)
+			this.server.emit('joinRoom', user)
 		chan = await this.chatService.joinRoom(client, data.userid, data.chanid)
 		return chan
 	}
@@ -106,16 +107,78 @@ export class ChatGateway {
 			
 	}
 
+	@SubscribeMessage('kicked')
+	async kicked(client: Socket, data: any) 
+	{
+		const chan = await this.chatService.findOneChan(data.chanid)
+		if (chan)
+		{
+			let user: any = await this.chatService.kickChan(data.userid, data.chanid)
+			this.server.to(chan.channelName).emit('kicked', user)
+			
+			client.leave(chan.channelName)
+			return user
+		}
+			
+	}
+
+	@SubscribeMessage('unadmin')
+	async unadmin(@Body() data: any) 
+	{
+		const chan = await this.chatService.findOneChan(data.chanid)
+		if (chan)
+		{
+			let i:number = 0
+			while (i < data.userid.length)
+			{
+				let user: any = await this.chatService.unadmin(data.userid[i], data.chanid)
+				console.log(user)
+				this.server.to(chan.channelName).emit('unadmin', user)
+				i++;
+			}
+		}
+	}
+
+	@SubscribeMessage('unbanned')
+	async unbanned(@Body() data: any) 
+	{
+		const chan = await this.chatService.findOneChan(data.chanid)
+		if (chan)
+		{
+			let i:number = 0
+			while (i < data.userid.length)
+			{
+				let user: any = await this.chatService.unban(data.userid[i], data.chanid)
+				this.server.to(chan.channelName).emit('unbanned', user)
+				i++;
+			}
+		}
+	}
+
+	@SubscribeMessage('unmuted')
+	async unmuted(@Body() data: any) 
+	{
+		const chan = await this.chatService.findOneChan(data.chanid)
+		if (chan)
+		{
+			let i:number = 0
+			while (i < data.userid.length)
+			{
+				let user: any = await this.chatService.unmute(data.userid[i], data.chanid)
+				this.server.to(chan.channelName).emit('unmuted', user)
+				i++;
+			}
+		}
+	}
+
 	@SubscribeMessage('deleteChannel')
 	async deleteChannel(@Body() data: any) 
 	{
 		const chan = await this.chatService.findOneChan(data.chanid)
 		if (chan)
 		{
-			console.log(chan.id)
 			await this.chatService.deleteChannel(data.chanid)
 			this.server.emit('deleteChannel', chan)
-			
 		}
 			
 	}

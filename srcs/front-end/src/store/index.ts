@@ -22,7 +22,10 @@ const store = createStore(
                 user: [],
                 oldChatId: 0,
                 ownerId: 0,
-                is_private: false
+                is_private: false,
+                banned: [],
+                admin: [],
+                muted: [],
             },
             gamesock:null,
             chatsock: null,
@@ -56,6 +59,9 @@ const store = createStore(
                 state.chandisp.oldChatId = chandisp.oldChatId,
                 state.chandisp.ownerId = chandisp.ownerId,
                 state.chandisp.is_private = chandisp.is_private
+                state.chandisp.banned = chandisp.banned
+                state.chandisp.muted = chandisp.muted
+                state.chandisp.admin = chandisp.admin
 
             },
             setChanid(state, id: number){state.chandisp.idch = id},
