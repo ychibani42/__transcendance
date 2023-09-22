@@ -69,12 +69,12 @@ model Channel {
   password        String
   locked      Boolean @default(false)    
   channelName     String @unique     
-  adminUsers    Admin[] @relation("chan/admin")
+  adminUsers    Admin[] 
   ownerId    Int
   user       User[]    @relation("chan/user")
   messages   Message[] // Define the relation with Message
-  bannedUsers Banned[] @relation("chan/banned")
-  mutedUsers  Muted[] @relation("chan/muted")
+  bannedUsers Banned[]
+  mutedUsers  Muted[] 
   dm			Boolean
 }
 
@@ -110,27 +110,26 @@ model Muted {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   duration  Int
-  user    User  @relation(fields: [userId], references: [id])
   userId  Int
-  channel    Channel[]  @relation("chan/muted")
+  channel    Channel  @relation(fields: [channelId], references: [id])
+  user    User  @relation(fields: [userId], references: [id])
   channelId Int
 }
 
 model Admin {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
-  user    User  @relation(fields: [userId], references: [id])
   userId  Int
-  channel    Channel[]  @relation("chan/admin")
+  channel    Channel  @relation(fields: [channelId], references: [id])
+  user    User  @relation(fields: [userId], references: [id])
   channelId Int
 }
 
 model Banned {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
-  channel    Channel[]  @relation("chan/banned")
+  channel    Channel  @relation(fields: [channelId], references: [id])
   user    User  @relation(fields: [userId], references: [id])
-  name    String
   userId  Int
   channelId Int
 }

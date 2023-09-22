@@ -16,7 +16,7 @@
 
                 <div v-if="stat == 'unadmin'" > 
                   <div class="list-user" v-for="users in chandisp.admin" > 
-                    <div class="checkbox" v-if="User.id != users.userId && users.id != chandisp.ownerId ">
+                    <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId ">
                       <input type="checkbox" :value="users.id" v-model="checked"> 
                       {{ users.user.name }}
                       
@@ -41,7 +41,7 @@
                     </div>
                   </div>
                 </div>
-                    <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true" @kick="kicked === true">
+                    <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true" @kick="kicked === true" @unadmin="unadmin === true">
                         Submit
                     </button>
 
@@ -73,13 +73,12 @@ const User = store.getters.getuser;
 const stat = ref(props.emit)
 
   onBeforeMount(() => {
-    console.log(chandisp.admin)
+
   })
 
 function status() {
       let userid: number = checked.value
       let chanid: number = chandisp.idch
-      console.log('ici', chandisp.admin)
       socket.emit(props.emit, { userid, chanid }, response => {
         emit('close')
       })
@@ -89,7 +88,7 @@ function status() {
 function isAdmin(userid: number) {
     for (let i = 0; i < chandisp.admin.length; i++)
     {
-        if (chandisp.admin[i].id == userid)
+        if (chandisp.admin[i].user.id == userid)
         {
           return true
         }
@@ -102,7 +101,7 @@ function isAdmin(userid: number) {
 function isBanned(userid: number) {
     for (let i = 0; i < chandisp.banned.length; i++)
     {
-        if (chandisp.banned[i].id == userid)
+        if (chandisp.banned[i].user.id == userid)
         {
           return true
         }
@@ -114,7 +113,7 @@ function isBanned(userid: number) {
 function isMuted(userid: number) {
     for (let i = 0; i < chandisp.muted.length; i++)
     {
-        if (chandisp.muted[i].id == userid)
+        if (chandisp.muted[i].user.id == userid)
         {
           return true
         }
@@ -123,6 +122,7 @@ function isMuted(userid: number) {
     return false
     
 }
+
 
 </script>
 

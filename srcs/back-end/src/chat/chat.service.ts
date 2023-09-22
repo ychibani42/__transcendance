@@ -188,11 +188,11 @@ export class ChatService {
 
 	async createMessage( createMessageDto: CreateMessageDto) {
 		try {
-			const muted = await this.findMuted(createMessageDto.user)
-			if (muted )
-			{
-				return null
-			}
+			// const muted = await this.findMuted(createMessageDto.user)
+			// if (muted )
+			// {
+			// 	return null
+			// }
 			const message = await this.prismaService.message.create({
 				data: {
 					userId: createMessageDto.user,
@@ -250,7 +250,6 @@ export class ChatService {
 					user: true
 				},
 			});
-			console.log(channels)
 			return channels;
 		} catch (error) {
 			console.log(error)
@@ -259,30 +258,13 @@ export class ChatService {
 
 	
 
-	async findMuted(userid: number) {
+	async findMuted(userid: number, chanid: number) {
 		try {
-			const user = await this.prismaService.muted.findUniqueOrThrow({
+			const user = await this.prismaService.muted.findFirst({
 				where: {
-					id: userid
-				}
-			})
-			return user
-		} catch (error) {
-			console.log(error)
-		}
-			
-	}
-
-	async findBanned(userid: number) {
-		try {
-			const user = await this.prismaService.banned.findUniqueOrThrow({
-				where: {
-					id: userid
+					userId: userid,
+					channelId: chanid
 				},
-				select: {
-					id: true,
-					channel: true
-				}
 			})
 			return user
 		} catch (error) {
@@ -291,77 +273,47 @@ export class ChatService {
 			
 	}
 
-	async findAdmin(userid: number) {
+	async findBanned(userid: number, chanid: number) {
 		try {
-			const user = await this.prismaService.admin.findUniqueOrThrow({
+			const user = await this.prismaService.banned.findFirst({
 				where: {
-					id: userid
+					userId: userid,
+					channelId: chanid
+				},
+			})
+			return user
+		} catch (error) {
+			console.log(error)
+		}
+			
+	}
+
+	async findAdmin(userid: number, chanid: number) {
+		try {
+			const user = await this.prismaService.admin.findFirst({
+				where: {
+					userId: userid,
+					channelId: chanid
+				},
+			})
+			return user
+		} catch (error) {
+			console.log(error)
+		}
+			
+	}
+
+	async pushAdminChan(userid: number, chanid: number) {
+		try {
+			let admin: any = await this.prismaService.admin.create({
+				data: {
+					channelId: chanid,
+					userId: userid,
 				},
 				include: {
 					user: true,
-					channel: true,
 				}
-			})
-			return user
-		} catch (error) {
-			console.log(error)
-		}
-			
-	}
-
-	async pushAdminChan(userid: Array<number>, chanid: number) {
-		try {
-			let i:number = 0
-			let admin: any;
-			while (i < userid.length)
-			{
-				admin = await this.findAdmin(userid[i])
-				if (!admin)
-				{
-					admin = await this.prismaService.admin.create({
-						data: {
-							channelId: chanid,
-							userId: userid[i],
-						},
-						select: {
-							id: true,
-							userId: true,
-							user: true,
-							channelId: true,
-							channel: true,
-						}
-					});
-				}
-				else {
-					await this.prismaService.channel.update({
-						where: {
-							id: chanid,
-						},
-						data: {
-							adminUsers: {
-								connect: {
-									id: userid[i]
-								},
-							},
-						},
-						
-					});
-				}
-				
-			i++
-			}
-			admin = await this.prismaService.admin.findMany({
-				where: {
-					channel: {
-						some:{
-							id: chanid
-						}
-					}
-				},
-				include: {
-					user: true
-				}
-			})
+			});
 			return admin
 		} catch (error) {
 			console.log(error)
@@ -369,137 +321,48 @@ export class ChatService {
 		}
 	}
 
-	async pushBannedChan(userid: Array<number>, chanid: number) {
+	async pushBannedChan(userid: number, chanid: number) {
 		try {
-			let i:number = 0
-			let banned: any;
-			let chan: any
-				while (i < userid.length)
-				{
-					banned = await this.findBanned(userid[i])
-					if (!banned)
-					{
-						banned = await this.prismaService.banned.create({
-							data: {
-								channelId: chanid,
-								userId: userid[i],
-							},
-							select: {
-								id: true,
-								user: true,
-								channelId: true,
-								channel: true,
-							}
-						});
-					}
-					else {
-						chan = await this.prismaService.channel.update({
-							where: {
-								id: chanid,
-							},
-							data: {
-								bannedUsers: {
-									connect: {
-										id: userid[i]
-									},
-								},
-								user: {
-									disconnect: {
-										id: userid[i]
-									},
-								},
-								adminUsers: {
-									disconnect: {
-										id: userid[i]
-									},
-								},
-								mutedUsers: {
-									disconnect: {
-										id: userid[i]
-									}
-								}
-							},
-							
-						});
-					}
-					
-				i++
-			}
-			banned = await this.prismaService.banned.findMany({
-				where: {
-					channel: {
-						some:{
-							id: chanid
-						}
-					}
+
+		let banned: any = await this.prismaService.banned.create({
+			data: {
+					channelId: chanid,
+					userId: userid,
 				},
-				include: {
-					user: true
-				}
-			})
+			include: {
+				user: true,
+			}
+		});
+
+		await this.prismaService.channel.update({
+			where: {
+				id: chanid,
+			},
+			data: {
+				user: { disconnect: { id: userid }, },
+			},
+		});
+		this.unadmin(userid, chanid)
+		this.unmute(userid, chanid)
 		
-			return banned
-			
+		return banned
 		} catch (error) {
 			console.log(error)
 		}
 	}
 
-	async pushMutedChan(userid: Array<number>, chanid: number) {
+	async pushMutedChan(userid: number, chanid: number) {
 		try {
-			let i:number = 0
-			let muted: any
-			while (i < userid.length)
-			{
-				muted = await this.findMuted(userid[i])
-				if (!muted)
-				{
-					await this.prismaService.muted.create({
-						data: {
-							duration: 8,
-							channelId: chanid,
-							userId: userid[i],
-						},
-						select: {
-							id: true,
-							duration: true,
-							user: true,
-							channelId: true,
-							channel: true,
-						}
-					});
+			let muted: any = await this.prismaService.muted.create({
+				data: {
+						channelId: chanid,
+						userId: userid,
+						duration: 8,
+					},
+				include: {
+					user: true,
 				}
-				else {
-					await this.prismaService.channel.update({
-						where: {
-							id: chanid,
-						},
-					
-						data: {
-							mutedUsers: {
-								connect: {
-									id: userid[i]
-								},
-							},
-						},
-					
-					});
-				}
-				
-			i++
-		}
-		muted = await this.prismaService.muted.findMany({
-			where: {
-				channel: {
-					some:{
-						id: chanid
-					}
-				}
-			},
-			include: {
-				user: true
-			}
-		})
+			});
 		return muted;
 		} catch (error) {
 			console.log(error)
@@ -511,24 +374,14 @@ export class ChatService {
 			let user: any
 			let chan: any
 			
-				user = await this.findAdmin(userid)
+				user = await this.findAdmin(userid, chanid)
 				if (user)
 				{
-					chan = await this.prismaService.channel.update({
+					chan = await this.prismaService.admin.delete({
 						where: {
-							id: chanid,
+							id: user.id,
 						},
-					
-						data: {
-							adminUsers: {
-								disconnect: {
-									id: userid
-								}
-							}
-						},
-						
 					});
-	
 		}
 
 		return user;
@@ -542,22 +395,11 @@ export class ChatService {
 			let user: any
 			let chan: any
 			
-				user = await this.findBanned(userid)
+				user = await this.findBanned(userid, chanid)
 				if (user)
 				{
-					chan = await this.prismaService.channel.update({
-						where: {
-							id: chanid,
-						},
-					
-						data: {
-							bannedUsers: {
-								disconnect: {
-									id: userid
-								}
-							}
-						},
-						
+					chan = await this.prismaService.banned.delete({
+						where: { id: user.id, },
 					});
 				
 		}
@@ -573,20 +415,12 @@ export class ChatService {
 			let user: any
 			let chan: any
 			
-				user = await this.findMuted(userid)
+				user = await this.findMuted(userid, chanid)
 				if (user)
 				{
-					chan = await this.prismaService.channel.update({
+					chan = await this.prismaService.muted.delete({
 						where: {
-							id: chanid,
-						},
-					
-						data: {
-							mutedUsers: {
-								disconnect: {
-									id: userid
-								}
-							}
+							id: user.id,
 						},
 						
 					});
@@ -598,38 +432,27 @@ export class ChatService {
 			console.log(error)
 		}
 	}
-	async kickChan(userid: Array<number>, chanid: number) {
+	async kickChan(userid: number, chanid: number) {
 		try {
-			let i:number = 0
+	
 			let user: any
-			let chan: any
-			while (i < userid.length)
-			{
-				user = await this.findUser1(userid[i], chanid)
+	
+
+				user = await this.findUser1(userid, chanid)
 				if (user)
 				{
-					chan = await this.prismaService.channel.update({
+					await this.prismaService.channel.update({
 						where: {
 							id: chanid,
 						},
 					
 						data: {
-							user: {
-								disconnect: {
-									id: userid[i]
-								},
-							},
-							adminUsers: {
-								disconnect: {
-									id: userid[i]
-								}
-							}
-						},
-						
+							user: { disconnect: { id: userid},},
+						}
 					});
-				}
+				this.unadmin(userid, chanid)
+				this.unmute(userid, chanid)
 				
-			i++
 		}
 		return user;
 		} catch (error) {
@@ -641,18 +464,11 @@ export class ChatService {
 	{
 		try {
 			const chan = await this.findOneChan(chanid)
-			const banned = await this.findBanned(userid)
+			const banned = await this.findBanned(userid, chanid)
 			if (banned)
 			{
-				for (let i = 0; i < banned.channel.length; i++)
-				{
-					if (banned.channel[i].id == chanid)
-					{
-						client.emit('error', 'banned')
-						return null
-					}
-					
-				}
+				client.emit('error', 'banned')
+				return null
 			}
 			if (chan)
 			{
@@ -704,18 +520,13 @@ export class ChatService {
 		try {
 			
 				let userInChan: any
-				
-					const admin = await this.findAdmin(userid)
 					userInChan = await this.prismaService.channel.update({
 						where: {
 							id: chan.id,
 						},
 						data: {
 							user: {
-								disconnect: {
-									id: userid
-								},
-							},
+								disconnect: { id: userid }, },
 						},
 						include: { 
 							adminUsers:true,
@@ -725,33 +536,11 @@ export class ChatService {
 							user: true
 						},
 					});
-					if (admin)
-					{
-						userInChan = await this.prismaService.channel.update({
-							where: {
-								id: chan.id,
-							},
-							data: {
-								adminUsers: {
-									disconnect: {
-										id: userid
-									}
-								}
-							},
-							include: { 
-								adminUsers:true,
-								bannedUsers:true,
-								mutedUsers :true,
-								messages: true,
-								user: true
-							},
-	
-						});
-						
-					}
+					
+					this.unadmin(userid, chan.id)
+					this.unmute(userid, chan.id)
 					if (userInChan)
 						return (userInChan)
-				
 
 		} catch (error) {
 			console.log(error)
@@ -760,7 +549,6 @@ export class ChatService {
 
 	async deleteChannel(chanid: number) {
 		try {
-			console.log('chan', chanid)
 			let chan = await this.prismaService.channel.update({
 				where: {
 					id: chanid
@@ -880,7 +668,6 @@ export class ChatService {
 
 	async updateStatus(status: boolean, chanid: number) {
 		try {
-			console.log('update status', status)
 			const chan = await this.findOneChan(chanid)
 			let updateChan: any
 			if (chan)

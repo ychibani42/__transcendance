@@ -78,10 +78,9 @@ export class ChatGateway {
 			await this.chatService.leaveRoom(client, data.oldChatId)
 		let user: any = await this.chatService.findUser(data.userid, data.chanid)
 		let chan: any = await this.chatService.findOneChan(data.chanid)
-		console.log('user', user)
-		if (user)
-			this.server.emit('joinRoom', user)
 		chan = await this.chatService.joinRoom(client, data.userid, data.chanid)
+		if (user && chan)
+			this.server.emit('joinRoom', user)
 		return chan
 	}
 
@@ -97,11 +96,14 @@ export class ChatGateway {
 		const chan = await this.chatService.findOneChan(data.chanid)
 		if (chan)
 		{
-			let user: any = await this.chatService.findUser1(data.userid, data.chanid)
+			let user: any = await this.chatService.unadmin(data.userid, data.chanid)
+			this.server.to(chan.channelName).emit('unadmin', user)
+			user = await this.chatService.unmute(data.userid, data.chanid)
+			this.server.to(chan.channelName).emit('unmuted', user)
+			user = await this.chatService.findUser1(data.userid, data.chanid)
 			this.server.to(chan.channelName).emit('leaveChannel', user)
 			user = await this.chatService.leaveChannel(chan, data.userid)
 			client.leave(chan.channelName)
-			
 			return user
 		}
 			
@@ -110,14 +112,20 @@ export class ChatGateway {
 	@SubscribeMessage('kicked')
 	async kicked(client: Socket, data: any) 
 	{
+		this.unadmin(data)
+		this.unmuted(data)
 		const chan = await this.chatService.findOneChan(data.chanid)
 		if (chan)
 		{
-			let user: any = await this.chatService.kickChan(data.userid, data.chanid)
-			this.server.to(chan.channelName).emit('kicked', user)
-			
-			client.leave(chan.channelName)
-			return user
+			let i:number = 0
+			while (i < data.userid.length)
+			{			
+				
+				let user: any = await this.chatService.kickChan(data.userid[i], data.chanid)
+				this.server.to(chan.channelName).emit('kicked', user)
+				client.leave(chan.channelName)
+				i++;
+			}
 		}
 			
 	}
@@ -131,8 +139,7 @@ export class ChatGateway {
 			let i:number = 0
 			while (i < data.userid.length)
 			{
-				let user: any = await this.chatService.unadmin(data.userid[i], data.chanid)
-				console.log(user)
+				let user: any = await this.chatService.unadmin(data.userid[i].userId, data.chanid)
 				this.server.to(chan.channelName).emit('unadmin', user)
 				i++;
 			}
@@ -148,7 +155,7 @@ export class ChatGateway {
 			let i:number = 0
 			while (i < data.userid.length)
 			{
-				let user: any = await this.chatService.unban(data.userid[i], data.chanid)
+				let user: any = await this.chatService.unban(data.userid[i].userId, data.chanid)
 				this.server.to(chan.channelName).emit('unbanned', user)
 				i++;
 			}
@@ -164,7 +171,7 @@ export class ChatGateway {
 			let i:number = 0
 			while (i < data.userid.length)
 			{
-				let user: any = await this.chatService.unmute(data.userid[i], data.chanid)
+				let user: any = await this.chatService.unmute(data.userid[i].userId, data.chanid)
 				this.server.to(chan.channelName).emit('unmuted', user)
 				i++;
 			}
@@ -215,34 +222,44 @@ export class ChatGateway {
 		return status
 	}
 
+
+
 	@SubscribeMessage('admin')
 	async admin(@Body() data: any) 
 	{
 		const chan = await this.chatService.findOneChan(data.chanid)
-		const admin = await this.chatService.pushAdminChan(data.userid, data.chanid)
+		let user: any
 		if (chan)
 		{
-			if (admin)
-			{ 
-				this.server.to(chan.channelName).emit('admin', admin) 
+			let i:number = 0
+			while (i < data.userid.length)
+			{
+				user = await this.chatService.pushAdminChan(data.userid[i], data.chanid)
+				this.server.to(chan.channelName).emit('admin', user)
+				i++;
 			}
 		}
-		return admin
+		return user
 	}
 
 	@SubscribeMessage('banned')
 	async banned(@Body() data: any) 
 	{
+		this.unadmin(data)
+		this.unmuted(data)
 		const chan = await this.chatService.findOneChan(data.chanid)
-		const banned = await this.chatService.pushBannedChan(data.userid, data.chanid)
+		let user: any
 		if (chan)
 		{
-			if (banned)
+			let i:number = 0
+			while (i < data.userid.length)
 			{
-				this.server.to(chan.channelName).emit('banned', banned)
+				user = await this.chatService.pushBannedChan(data.userid[i], data.chanid)
+				this.server.to(chan.channelName).emit('banned', user)
+				i++;
 			}
 		}
-		return banned
+		return user
 
 	}
 
@@ -250,13 +267,22 @@ export class ChatGateway {
 	async muted(@Body() data: any) 
 	{
 		const chan = await this.chatService.findOneChan(data.chanid)
-		const muted = await this.chatService.pushMutedChan(data.userid, data.chanid)
+		let user: any
 		if (chan)
 		{
-			if (muted)
-			{ this.server.to(chan.channelName).emit('muted', muted) }
+			let i:number = 0
+			while (i < data.userid.length)
+			{
+				user = await this.chatService.pushMutedChan(data.userid[i], data.chanid)
+				this.server.to(chan.channelName).emit('muted', user)
+				i++;
+				let now: Date = new Date(Date.now())
+				let created: Date = new Date(user.createdAt)
+				console.log(now.getMinutes())
+				console.log(created.getMinutes())
+			}
 		}
-		return muted
+		return user
 		
 	}
 }
