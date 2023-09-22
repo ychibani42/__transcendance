@@ -1,31 +1,33 @@
 <script setup lang="ts">
 import { useStore } from 'vuex';
-import { ref , onMounted ,onBeforeMount,onUpdated ,onBeforeUpdate} from 'vue';
+import { ref , onMounted,onBeforeMount } from 'vue';
 import Axios from '../services';
 
-const store = useStore()
-const ID  = ref();
-const User = ref([])
+const ID = ref()
+const Bloqued = ref([])
 
-async function GetUser() {
+async function getBloqued(){
   await Axios.get('auth/Me').then(res => {
       if(res.status == 200)
         ID.value = res.data.id
   })
-  Axios.post('users',{id : ID.value}).then((res) => {
-        User.value = res.data
+  Axios.post('Bloqued',{id : ID.value}).then((res) => {
+        Bloqued.value = res.data
   })
 }
+
 onMounted(() => {
-  GetUser()
+  getBloqued()
 });
+
+
 
 </script>
 
 <template>
-    <div class="User">
-      <ul v-for="Users in User">
-        <li v-if="Users.id != ID.value">{{ Users.name }}</li>
+    <div class="Bloqued">
+      <ul v-for="Bloqueds in Bloqued">
+        <li>{{ Bloqueds.user.name }}</li>
       </ul>
     </div>
 </template>

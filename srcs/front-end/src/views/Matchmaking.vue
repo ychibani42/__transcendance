@@ -15,7 +15,8 @@ const theme = ref(false)
 const speed = ref('')
 
 onMounted(() =>{
-    store.commit('setGamesocket',io('http://localhost:3000/game'))
+    if(store.state.gamesock == null)
+        store.commit('setGamesocket',io('http://localhost:3000/game'))
     socket.value = store.state.gamesock
     if(!socket.value)
         return

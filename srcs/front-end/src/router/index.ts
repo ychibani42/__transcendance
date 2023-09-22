@@ -78,8 +78,6 @@ async function checkJwt() : Promise<boolean>
 
 router.beforeEach((to, from) => {
   checkJwt().then((valid : boolean) => {
-    console.log(store.state.user)
-    console.log(valid)
     if(store.state.user.id === 0)
     {
       $cookies.remove('access_token')

@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore, mapState } from 'vuex'
+import { useStore } from 'vuex'
 import { ref } from 'vue';
 
 const props = defineProps({'emit': String, 'header': String})
