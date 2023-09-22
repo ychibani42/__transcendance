@@ -1,6 +1,5 @@
 import axios from 'axios'
 import store from '../store';
-import router from '../router';
 
 const Axios = axios.create({
     withCredentials :true,

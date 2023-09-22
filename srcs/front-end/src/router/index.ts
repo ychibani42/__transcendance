@@ -53,39 +53,38 @@ async function checkJwt() : Promise<boolean>
 {
   if($cookies.get('access_token') !== null)
   {
-    try {
-        await Axios.get('auth/Me').then(res => {
-            if(res !== undefined){
-              store.commit('setUserId',res.data.id)
-              store.commit('setProfileC',res.data.profilefinish)
-              store.commit('setTwofa',res.data.otpenable)
-              store.commit('setTwofavalid', res.data.otpvalider)
-              if(res.data.state == 'disconected')
-                store.commit('setOnline',false)
-            }
-          }).catch((error) => {
-            console.log(error)
-          });
-          return true
-    } catch (error) {
-      if($cookies.get('access_token'))
-        $cookies.remove('access_token')
+    await Axios.get('auth/Me').then(res => 
+    {
+      if(res.status == 200)
+      {
+        store.commit('setUserId',res.data.id)
+        store.commit('setProfileC',res.data.profilefinish)
+        store.commit('setTwofa',res.data.otpenable)
+        store.commit('setTwofavalid', res.data.otpvalider)
+        if(res.data.state == 'Disconected')
+          { store.commit('setOnline',false) }
+        else
+          { store.commit('setOnline',true) } 
+      }
+    })
+    if(store.state.user.id != 0)
+      return true
+    else
       return false
-    }
   }
   else
-  {
     return false
-  }
 }
 
 router.beforeEach((to, from) => {
   checkJwt().then((valid : boolean) => {
+    console.log(store.state.user)
+    console.log(valid)
     if(store.state.user.id === 0)
     {
       $cookies.remove('access_token')
     }
-    if (valid === false && to.path !== '/login' && $cookies.get('access_token') === null)
+    if (valid === false && to.path !== '/login')
     {
       store.dispatch("reset")
       router.push("/login")
