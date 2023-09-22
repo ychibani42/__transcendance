@@ -25,7 +25,8 @@ onMounted(() => {
       <Users/>
       <Bloqued/>
     </div>
-    <p>
+    <div class="botton">
+      <p>
      To play, please click on the button just below.
     </p>
   
@@ -33,13 +34,18 @@ onMounted(() => {
       <button class="play"> Let's play </button>
     </router-link>
     <p>Your ID is {{ User.id }}</p>
+    </div>
   </div>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-button {
-  margin: 100px 0 0;
+h1 {
+  padding: 1rem;
+}
+.botton{
+
+  button {
   font-size: 30px;
   background-color: #4395c5;
   color: #1a4258;
@@ -56,14 +62,14 @@ button {
 p {
   list-style-type: none;
   padding: 0.5rem;
+  margin: 0;
 }
-h1 {
-  padding: 1rem;
+
 }
 .table{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  height: 15rem;
+  height: 20rem;
   /*flex-wrap: nowrap;
   align-items: flex-start;
   flex-direction: row;
