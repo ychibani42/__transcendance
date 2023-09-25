@@ -276,10 +276,11 @@ export class ChatGateway {
 				user = await this.chatService.pushMutedChan(data.userid[i], data.chanid)
 				this.server.to(chan.channelName).emit('muted', user)
 				i++;
-				let now: Date = new Date(Date.now())
-				let created: Date = new Date(user.createdAt)
-				console.log(now.getMinutes())
-				console.log(created.getMinutes())
+
+				setTimeout(() => {
+					console.log('unmute')
+					this.unmuted(data)
+				}, data.duration * 60000)
 			}
 		}
 		return user

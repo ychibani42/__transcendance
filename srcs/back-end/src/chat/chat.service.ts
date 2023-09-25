@@ -188,11 +188,9 @@ export class ChatService {
 
 	async createMessage( createMessageDto: CreateMessageDto) {
 		try {
-			// const muted = await this.findMuted(createMessageDto.user)
-			// if (muted )
-			// {
-			// 	return null
-			// }
+			const muted = await this.findMuted(createMessageDto.user, createMessageDto.id)
+			if (muted)
+				return null
 			const message = await this.prismaService.message.create({
 				data: {
 					userId: createMessageDto.user,
@@ -357,7 +355,7 @@ export class ChatService {
 				data: {
 						channelId: chanid,
 						userId: userid,
-						duration: 8,
+						duration: 0
 					},
 				include: {
 					user: true,
