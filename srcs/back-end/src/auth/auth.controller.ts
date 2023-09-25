@@ -1,4 +1,12 @@
-import {Body,Controller,Post,Req,UseGuards,Get,Res,} from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Post,
+	Req,
+	UseGuards,
+	Get,
+	Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './Guard/jwt-guard';
 import { FortyTwoAuthGuard } from './Guard/42-auth.guard';
@@ -15,7 +23,7 @@ export class AuthController {
 	async login(@Req() req: any, @Res() res: any) {
 		const user = await this.authService.login(
 			req.user._json.id,
-			req.user._json.image.versions.small,
+			req.user._json.image.versions.medium,
 		);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie('access_token', jwt);
@@ -25,52 +33,50 @@ export class AuthController {
 
 	@Post('Inviter')
 	async loginInviter(@Body() nbr: InvitedUserDto, @Res() res: any) {
-	
 		const user = await this.authService.loginInviter(nbr.id);
 		const jwt = await this.authService.tokenreturn(user);
-		res.cookie("access_token",jwt);
-		res.json({redirect : '/'})
-		return (res);
+		res.cookie('access_token', jwt);
+		res.json({ redirect: '/' });
+		return res;
 	}
 
 	@Get('Checkjwt')
-	@UseGuards(JwtAuthGuard) 
-	CheckJWT(@Req() req:any)
-	{
-		const decode = this.authService.decodedtok(req.cookies.access_token)
+	@UseGuards(JwtAuthGuard)
+	CheckJWT(@Req() req: any) {
+		const decode = this.authService.decodedtok(req.cookies.access_token);
 		return decode;
 	}
 
 	@Get('Me')
-	@UseGuards(JwtAuthGuard) 
-	async GetUser(@Req() req:any){
-		const decode = this.authService.decodedtok(req.cookies.access_token)
-		const user = await this.authService.loginInfo(decode)
-		return user
+	@UseGuards(JwtAuthGuard)
+	async GetUser(@Req() req: any) {
+		const decode = this.authService.decodedtok(req.cookies.access_token);
+		const user = await this.authService.loginInfo(decode);
+		return user;
 	}
 
 	@Post('Button2FA')
 	@UseGuards(JwtAuthGuard)
-	async Button2FA(@Body() nbr: Button2FADto){
+	async Button2FA(@Body() nbr: Button2FADto) {
 		const good = this.authService.changeotp(nbr.id);
 		return good;
 	}
 
-	@Post("Generate2FA")
+	@Post('Generate2FA')
 	@UseGuards(JwtAuthGuard)
-	async GenerateQR(@Req() req : any)
-	{
-		const qrcode = this.authService.generateCode(req.cookies.access_token)
-		return qrcode
+	async GenerateQR(@Req() req: any) {
+		const qrcode = this.authService.generateCode(req.cookies.access_token);
+		return qrcode;
 	}
 
-	@Post("Verify2FA")
+	@Post('Verify2FA')
 	@UseGuards(JwtAuthGuard)
-	async Verify(@Req() req, @Body() nbr:Code2faDto)
-	{
-		const bool = await this.authService.verify(nbr.code,req.cookies.access_token)
-		if(bool === true)
-			this.authService.validate2FA(req.cookies.access_token)
-		return bool
+	async Verify(@Req() req, @Body() nbr: Code2faDto) {
+		const bool = await this.authService.verify(
+			nbr.code,
+			req.cookies.access_token,
+		);
+		if (bool === true) this.authService.validate2FA(req.cookies.access_token);
+		return bool;
 	}
 }
