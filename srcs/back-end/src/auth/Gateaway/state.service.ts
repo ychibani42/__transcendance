@@ -4,12 +4,21 @@ import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 
+interface Com
+{
+    socket : Socket
+    id : Number
+}
+
+
 @Injectable()
 export class StateService {
 	constructor(
 		private prismaService: PrismaService,
         private jwtService : JwtService
 	) {}
+
+    User : Array<Com> = []
 
     async connection(client : Socket , token : any){
         
@@ -20,6 +29,11 @@ export class StateService {
             try {
                 const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
                 await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
+                let user2 : Com = {
+                    socket : client,
+                    id : decode.id
+                }
+                this.User.push(user2)
             } catch (error) {
                 console.log(error)
             } 
@@ -37,6 +51,14 @@ export class StateService {
             try {
                 await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
                 await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Disconected', otpvalider : false}})
+                this.User.forEach((element) => {
+                    if(element.socket == client)
+                    {
+                        let id = this.User.indexOf(element)
+                        this.User.splice(id,1)
+                    }
+    
+                })
             } catch (error) {
                 console.log(error)
             }
@@ -76,5 +98,38 @@ export class StateService {
             } catch (error) {
             console.log(error)
         }
+    }
+
+    async invite(client : Socket,token : any,id : number)
+    {
+        this.User.forEach((element) => {
+            if(element.id == id)
+            {
+                element.socket.emit("invited",id)
+                client.emit("wait")
+                return
+            }
+        })
+    }
+
+
+    async accept(client : Socket,token : any,id : number)
+    {
+        this.User.forEach((element) => {
+            if(element.id == id)
+            {
+                element.socket.emit("accepted",id)
+            }
+        })
+    }
+
+    async refused(client : Socket,token : any,id : number)
+    {
+        this.User.forEach((element) => {
+            if(element.id == id)
+            {
+                element.socket.emit("refused",id)
+            }
+        })
     }
 }

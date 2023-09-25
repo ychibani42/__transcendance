@@ -14,7 +14,10 @@ const option = ref(false)
 const theme = ref(false)
 const speed = ref('')
 
-onMounted(() =>{
+socket.value = store.state.gamesock
+debut()
+
+function debut(){
     if(store.state.gamesock == null)
         store.commit('setGamesocket',io('http://localhost:3000/game'))
     socket.value = store.state.gamesock
@@ -42,7 +45,7 @@ onMounted(() =>{
     {
         option.value = true
     })
-})
+}
 
 function joinQueue(){
     socket.value?.emit("JoinQueue",store.state.user.id)

@@ -50,4 +50,6 @@ export class GameGateway {
     config(client : Socket , arg: any){
         this.GameService.ConfigGame(client,arg[0],arg[1])
     }
+
+    
 }
