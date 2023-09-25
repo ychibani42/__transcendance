@@ -2,12 +2,12 @@
 import { useStore } from 'vuex';
 import { io , Socket} from 'socket.io-client';
 import {Ref, ref, onMounted} from "vue";
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import Friend from '../components/Friend.vue';
+import Users from '../components/User.vue';
+import Bloqued from '../components/Bloqued.vue';
 
 const store = useStore();
 const User  = store.getters.getuser;
-const socket: Ref<Socket | undefined> = ref()
 
 onMounted(() => {
 })
@@ -17,24 +17,35 @@ onMounted(() => {
 <template>
   <div class="hello">
     <h1>Welcome to our Pong</h1>
-    <p>
+    <div class="table">
+      <h3>Friend</h3>
+      <h3>User</h3>
+      <h3>Bloqued</h3>
+      <Friend/>
+      <Users/>
+      <Bloqued/>
+    </div>
+    <div class="botton">
+      <p>
      To play, please click on the button just below.
     </p>
-    <p>You will be redirected in a matchmaking room.</p>
+  
     <router-link to="/matchmaking" class="button">
-      <button class="play">
-         Let's play
-      </button>
+      <button class="play"> Let's play </button>
     </router-link>
     <p>Your ID is {{ User.id }}</p>
-
+    </div>
   </div>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-button {
-  margin: 100px 0 0;
+h1 {
+  padding: 1rem;
+}
+.botton{
+
+  button {
   font-size: 30px;
   background-color: #4395c5;
   color: #1a4258;
@@ -51,9 +62,23 @@ button {
 p {
   list-style-type: none;
   padding: 0.5rem;
-}
-h1 {
-  padding: 2rem 0rem 5rem;
+  margin: 0;
 }
 
+}
+.table{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: 20rem;
+  /*flex-wrap: nowrap;
+  align-items: flex-start;
+  flex-direction: row;
+  justify-content: center;*/
+  div{
+    padding-left: 5rem;
+    padding-right: 5rem;
+    border: black;
+    border-radius: 15px;
+  }
+}
 </style>

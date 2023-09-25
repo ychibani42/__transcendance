@@ -45,8 +45,6 @@ model User {
   game1       Game[] @relation("User1")
   game2       Game[] @relation("User2")
   blockedUsers BlockedU[]
-
-  
 }
 
 
@@ -92,15 +90,15 @@ model Message {
 model BlockedU {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
-  duration  Int
+  userBloqued  Int
   user    User  @relation(fields: [userId], references: [id])
   userId Int
 }
 
 model Friends {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  duration  Int
+  id          Int      @id @unique @default(autoincrement())
+  createdAt   DateTime @default(now())
+  userFriend  Int
   user    User  @relation(fields: [userId], references: [id])
   userId Int
 }

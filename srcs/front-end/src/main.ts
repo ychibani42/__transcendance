@@ -9,8 +9,8 @@ import VueCookies from 'vue-cookies'
 
 
 createApp(App)
-.use(VueAxios,Axios)
-.use(VueCookies)
 .use(router)
 .use(store)
+.use(VueAxios,Axios)
+.use(VueCookies)
 .mount("#app")

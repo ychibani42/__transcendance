@@ -25,7 +25,7 @@ export class AuthController {
 
 	@Post('Inviter')
 	async loginInviter(@Body() nbr: InvitedUserDto, @Res() res: any) {
-		console.log(nbr)
+	
 		const user = await this.authService.loginInviter(nbr.id);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie("access_token",jwt);
@@ -52,7 +52,6 @@ export class AuthController {
 	@Post('Button2FA')
 	@UseGuards(JwtAuthGuard)
 	async Button2FA(@Body() nbr: Button2FADto){
-		console.log(nbr)
 		const good = this.authService.changeotp(nbr.id);
 		return good;
 	}

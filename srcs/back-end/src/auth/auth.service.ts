@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import  * as QRCode  from 'qrcode'
 import { authenticator } from 'otplib';
-import { use } from 'passport';
 
 @Injectable({})
 export class AuthService {
