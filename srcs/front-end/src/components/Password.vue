@@ -61,9 +61,12 @@ function status() {
 .modal {
     background: #FFFFFF;
     box-shadow: 2px 2px 20px 1px;
-    overflow-x: auto;
     display: flex;
     flex-direction: column;
     border-radius: 8px;
+    h2 {
+      display: flex;
+      justify-content: center;
+    }
   }
 </style>

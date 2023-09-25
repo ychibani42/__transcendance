@@ -51,7 +51,7 @@ const router = createRouter({
 
 async function checkJwt() : Promise<boolean>
 {
-  if($cookies.get('access_token') !== null)
+  if($cookies.get('access_token') != null)
   {
     await Axios.get('auth/Me').then(res => 
     {
