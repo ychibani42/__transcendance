@@ -63,6 +63,7 @@ onBeforeMount(() => {
    
     displayChats()
     socket.on('message',(arg1 : string) => {
+        
         chandisp.value.messages.push(arg1);
     })
     socket.on('unadmin', (arg1:any) => {
@@ -89,6 +90,15 @@ onBeforeMount(() => {
         })
     })
     socket.on('admin', (arg1:any) => {
+        console.log('et la', chandisp.value.muted)
+            chandisp.value.muted.forEach(element => {
+                if (element.userId == arg1.userId) 
+                {
+                    let now: Date = new Date(Date.now())
+                    let created: Date = new Date(element.createdAt)
+                    console.log('time', now.getSeconds() - created.getSeconds())
+                }
+            })
         chandisp.value.user.forEach(element => {
             
             if(element.id == arg1.user.id){
@@ -99,6 +109,7 @@ onBeforeMount(() => {
     socket.on('muted', (arg1:any) => {
 
         chandisp.value.user.forEach(element => {
+            console.log(element.id, arg1.user.id)
             if(element.id == arg1.user.id){
                 chandisp.value.muted.push(arg1)
 
@@ -140,6 +151,7 @@ onBeforeMount(() => {
             displayChats()
     })
     socket.on('leaveChannel', (arg1: any) => {
+        
         chandisp.value.user.forEach(element => {
         if(element.id == arg1.id){
             chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
@@ -177,6 +189,9 @@ onBeforeMount(() => {
     })
     
     socket.on('joinRoom', (arg1: any) => {
+       
+            
+
         chandisp.value.user.push(arg1)
         
     })
