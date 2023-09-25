@@ -1,24 +1,28 @@
 <script setup lang="ts">
 import { useStore } from 'vuex';
-import { ref , onMounted ,onBeforeMount,onUpdated ,onBeforeUpdate} from 'vue';
+import { ref ,watch, onMounted ,onBeforeMount,onUpdated ,onBeforeUpdate} from 'vue';
 import Axios from '../services';
 
-const store = useStore()
 const ID  = ref();
-const User = ref([])
+const User = ref(GetUser())
 const clicking = ref(false)
 const click = ref(0)
-const option = ref()
+const emit = defineEmits(['refresh'])
+const props = defineProps({'counter': Number})
 
 async function GetUser() {
   await Axios.get('auth/Me').then(res => {
       if(res.status == 200)
         ID.value = res.data.id
   })
-  Axios.post('users',{id : ID.value}).then((res) => {
-        User.value = res.data
+  await Axios.post('users',{id : ID.value}).then((res) => {
+      User.value = res.data
   })
 }
+
+watch(() => props.counter,() => {
+  console.log(props.counter)
+})
 
 function clicked(nbr : number){
     
@@ -36,17 +40,22 @@ function clicked(nbr : number){
 }
 
 function cancel(){
-
-  console.log("HERE",option.value)
   clicking.value = false
   click.value = 0
-  option.value = ""
+  emit('refresh')
 }
 
+async function addfriend(id : Number){
+  await Axios.post('Friend/add',{id : ID.value ,addid : id }).then((res) => {
+      console.log(res.status)   
+  })
+  clicking.value = false
+  click.value = 0
+}
 
-onMounted(() => {
-  GetUser()
-});
+function GotoProfile(){
+  console.log("EASy")
+}
 
 </script>
 
@@ -55,14 +64,12 @@ onMounted(() => {
       <ul v-for="Users in User">
         <li>
           <div class="Userdisp">
-            <button @click="clicked(Users.id)"> {{ Users.name }}</button>
-              
+            <button @click="clicked(Users.id)"> {{ Users.name }}</button>  
           </div>
         </li>
         <div class="modal" v-if="clicking == true && Users.id == click">
-            <button v-on:click="say('hi')" >Profile</button>
-            <button v-on:click="say('what')">Add friend</button>
-            <button v-on:click="say('what')">Bloque</button>
+            <button v-on:click="GotoProfile" >Profile</button>
+            <button v-on:click="addfriend(Users.id)">Add friend</button>
             <button v-on:click="cancel">Cancel</button>
         </div>
       </ul>
@@ -107,5 +114,7 @@ onMounted(() => {
 
 ul{
   list-style: none;
+  padding: 0;
+  margin: 0.5rem;
 }
 </style>

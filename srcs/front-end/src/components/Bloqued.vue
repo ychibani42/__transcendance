@@ -4,7 +4,7 @@ import { ref , onMounted,onBeforeMount } from 'vue';
 import Axios from '../services';
 
 const ID = ref()
-const Bloqued = ref([])
+const Bloqued = ref()
 
 async function getBloqued(){
   await Axios.get('auth/Me').then(res => {
