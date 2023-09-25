@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import  * as QRCode  from 'qrcode'
 import { authenticator } from 'otplib';
-import { use } from 'passport';
 
 @Injectable({})
 export class AuthService {
@@ -47,7 +46,6 @@ export class AuthService {
 	}
 
 	async loginInviter(id : number) {
-		console.log(id);
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
 			return users;

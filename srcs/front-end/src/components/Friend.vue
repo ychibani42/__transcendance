@@ -1,28 +1,40 @@
 <script setup lang="ts">
 import { useStore } from 'vuex';
-import { ref ,watch, onMounted ,onBeforeMount,onUpdated ,onBeforeUpdate} from 'vue';
+import { ref , onMounted,onBeforeMount } from 'vue';
 import Axios from '../services';
 
-const ID  = ref();
-const User = ref(GetUser())
+const ID = ref()
+const friend = ref([])
 const clicking = ref(false)
 const click = ref(0)
-const emit = defineEmits(['refresh'])
-const props = defineProps({'counter': Number})
 
-async function GetUser() {
+async function getFriend(){
   await Axios.get('auth/Me').then(res => {
       if(res.status == 200)
         ID.value = res.data.id
+      
   })
-  await Axios.post('users',{id : ID.value}).then((res) => {
-      User.value = res.data
+  Axios.post('friend',{id : ID.value}).then((res) => {
+        friend.value = res.data
   })
 }
 
-watch(() => props.counter,() => {
-  console.log(props.counter)
-})
+onMounted(() => {
+  getFriend()
+});
+
+function GotoProfile(){
+  console.log("EASy")
+}
+
+function cancel(){
+  clicking.value = false
+  click.value = 0
+}
+
+function GAME(id : Number){
+  console.log(id)
+}
 
 function clicked(nbr : number){
     
@@ -36,40 +48,21 @@ function clicked(nbr : number){
       clicking.value = true
       click.value = nbr
     }
-    
-}
-
-function cancel(){
-  clicking.value = false
-  click.value = 0
-  emit('refresh')
-}
-
-async function addfriend(id : Number){
-  await Axios.post('Friend/add',{id : ID.value ,addid : id }).then((res) => {
-      console.log(res.status)   
-  })
-  clicking.value = false
-  click.value = 0
-}
-
-function GotoProfile(){
-  console.log("EASy")
 }
 
 </script>
 
 <template>
-    <div class="User">
-      <ul v-for="Users in User">
-        <li>
+    <div class="friend">
+      <ul v-for="friends in friend">
+        <li> 
           <div class="Userdisp">
-            <button @click="clicked(Users.id)"> {{ Users.name }}</button>  
+            <button @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
           </div>
         </li>
-        <div class="modal" v-if="clicking == true && Users.id == click">
+        <div class="modal" v-if="clicking == true && friends.user.id == click">
             <button v-on:click="GotoProfile" >Profile</button>
-            <button v-on:click="addfriend(Users.id)">Add friend</button>
+            <button v-on:click="GAME(friends.user.id)">Invite Game</button>
             <button v-on:click="cancel">Cancel</button>
         </div>
       </ul>
@@ -77,6 +70,12 @@ function GotoProfile(){
 </template>
 
 <style scoped>
+
+ul{
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem;
+}
 
 .modal {
     position: fixed;
@@ -97,7 +96,7 @@ function GotoProfile(){
     border-radius: 8px;
   }
 
-.User {
+.friend {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -110,11 +109,5 @@ function GotoProfile(){
   flex-direction: row;
   align-items: center;
   overflow-y: auto;
-}
-
-ul{
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem;
 }
 </style>

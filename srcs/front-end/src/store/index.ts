@@ -1,5 +1,7 @@
 import { createStore} from "vuex";
 import { Socket } from "socket.io-client";
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 
 const store = createStore(
@@ -31,6 +33,7 @@ const store = createStore(
             chatsock: null,
             gamename:'',
             gameplay:false,
+            gameTheme : false,
             state: <Socket | undefined>null
         },
         getters:{
@@ -71,6 +74,7 @@ const store = createStore(
             setGameplay(state, play){ state.gameplay = play},
             setState(state, sock){ state.state = sock},
             setOnline(state, bool){state.user.online = bool},
+            setTheme(state , bool){ state.gameTheme = bool},
         },
         actions :{
             reset()
@@ -92,6 +96,20 @@ const store = createStore(
                 this.state.user.online = false
                 if(this.state.state)
                     this.state.state.disconnect()
+            },
+            jwtExpired()
+            {
+                toast("JWT INVALID", {
+                    autoClose: false,
+                    closeOnClick: false,
+                })
+            },
+            Notification(text , text2)
+            {
+                toast(text, {
+                    autoClose: false,
+                    closeOnClick: false,
+                })
             }
         }
     }

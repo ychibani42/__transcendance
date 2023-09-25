@@ -34,8 +34,12 @@ export class UserController {
 	@Post("Change")
 	@UseGuards(JwtAuthGuard)
 	changename(@Body() body: name){
-		
-		console.log("ID :",body.id)
 		return this.userService.changename(body.id,body.sendname)
+	}
+
+	@Post("")
+	@UseGuards(JwtAuthGuard)
+	AllUser(@Body() body : any){
+		return this.userService.findAll(body.id)
 	}
 }

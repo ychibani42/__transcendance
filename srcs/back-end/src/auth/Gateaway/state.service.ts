@@ -12,51 +12,68 @@ export class StateService {
 	) {}
 
     async connection(client : Socket , token : any){
-        let decode : any
-        if(token)
-            decode = this.jwtService.verify(token)
+        
         try {
-            await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-            await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
-        } catch (error) {
-            console.log(error)
-        }
-    
-
-    }
-
-    async disconnect(client : Socket, token: any){
-        let decode : any
-        if(token)
-            decode = this.jwtService.verify(token)
-        try {
-            await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-            await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Disconected', otpvalider : false}})
+            let decode : any
+            if(token)
+                decode = this.jwtService.decode(token)
+            try {
+                const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+                await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
+            } catch (error) {
+                console.log(error)
+            } 
         } catch (error) {
             console.log(error)
         }
     }
 
-    async Game(client : Socket, token: any){
-        let decode : any
-        if(token)
-            decode = this.jwtService.verify(token)
+    async disconnect(client : Socket, token : any){
+        
         try {
-            const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-            await this.prismaService.user.update({where : {id : decode.id},data : {state : 'OnGame'}})
+            let decode : any
+            if(token)
+                decode = this.jwtService.decode(token)
+            try {
+                await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+                await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Disconected', otpvalider : false}})
+            } catch (error) {
+                console.log(error)
+            }
         } catch (error) {
             console.log(error)
         }
     }
 
-    async Change(client : Socket, token: any){
-        let decode : any
-        if(token)
-            decode = this.jwtService.verify(token)
+    async Game(client : Socket, token : any){
         try {
-            const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-            await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
+            let decode : any
+            if(token)
+                decode = this.jwtService.decode(token)
+            try {
+                const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+                await this.prismaService.user.update({where : {id : decode.id},data : {state : 'OnGame'}})
+            } catch (error) {
+                console.log(error)
+            }
         } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async Change(client : Socket, token : any){
+        
+        try {
+                let decode : any
+                if(token)
+                    decode = this.jwtService.decode(token)
+                try {
+                    const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+                    await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
+                } catch (error) {
+                    console.log(error)
+                }
+            } catch (error) {
             console.log(error)
         }
     }

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Socket } from "socket.io";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -6,6 +6,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 
 enum state{
     onroom,
+    config,
     ready,
     play,
     finish
@@ -27,11 +28,13 @@ interface player{
     h : number,
     score : number,
     socket : Socket,
-    id : number
+    id : number,
+    config : boolean,
 }
 
 interface Room{
     state : state,
+    speed: boolean,
     name : string,
     ball : ball,
     play : player,
@@ -59,7 +62,8 @@ export class GameService {
             h : 37,
             score : 0,
             socket : client,
-            id : id
+            id : id,
+            config : false
         }
         for (let index = 0; index < this.Matchmacking.length; index++) {
             if(newplay.id === this.Matchmacking[index].id)
@@ -67,30 +71,28 @@ export class GameService {
         }
         this.Matchmacking.push(newplay)
         client.emit("onQueue")
-        console.log(this.Matchmacking.length)
         while(this.Matchmacking.length >= 2){
             this.createroom(this.Matchmacking.shift(),this.Matchmacking.shift())
         }
     }
 
     async createroom(play : player|undefined , play2 : player|undefined){
-        play?.socket.emit("onQueue")
-        play2?.socket.emit("onQueue")
         let id = play?.id
         if(play){
             const user = await this.prismaService.user.findUniqueOrThrow({where : {id : id}})
             if(user.name && play && play2){
                 const room : Room = {
-                    state : state.onroom,
+                    state : state.config,
                     name : user.name,
                     ball : {
                         x : 150,
-                        y : 5,
+                        y : 75,
                         r : 5,
                         speed :2,
-                        velX : 2,
-                        velY : 2,
+                        velX : 1.5,
+                        velY : 0,
                     },
+                    speed : false,
                     play : play,
                     play2 : play2,
                     ready : false,
@@ -102,6 +104,8 @@ export class GameService {
                 room.play2.x = 300 - 15 - 8
                 room.play2.socket.emit("playerdef",1,room.name)
                 room.play.socket.emit("playerdef",0,room.name)
+                room.play2.socket.emit("config")
+                room.play.socket.emit("config")
                 this.Rooms.push(room)
             }
         }
@@ -122,7 +126,36 @@ export class GameService {
         })
     }
 
+    ConfigGame(client : Socket , speed : boolean , name : string){
+        this.Rooms.forEach(element => {
+            if(element.name == name){
+                if (element.play.socket == client)
+                {
+                    element.play.config = true
+                    element.speed = speed
+                }    
+                if (element.play2.socket == client)
+                {
+                    element.play2.config = true
+                }
+                if(element.play.config == true && element.play2.config == true)
+                {
+                    element.state = state.onroom
+                }
+            }
+        })
+    }
 
+    async registerGame(room : Room){
+
+        await this.prismaService.game.create({
+            data : {
+                score : [room.play.score,room.play2.score],
+                player1 : room.play.id,
+                player2 : room.play2.id,
+            }
+        })
+    }
 
 
     //GAME CALCUL
@@ -141,6 +174,13 @@ export class GameService {
                     element.play2.socket.emit("OnRoom")
                     element.play.socket.emit("OnRoom")
                 }
+                if(element.state == state.finish)
+                {
+                    GameService.registerGame(element)
+                    let id = GameService.Rooms.indexOf(element)
+                    GameService.Rooms.splice(id,1)
+                }
+
             })
         } catch (error) {
             console.log(error);
@@ -211,8 +251,11 @@ export class GameService {
             let dir = (ball.x < 300/2) ? 1 : -1;
             ball.velX = dir * ball.speed * Math.cos(anglered);
             ball.velY = ball.speed * Math.sin(anglered);
-            if(ball.speed < 7)
+            if(ball.speed < 5 && room.speed == true)
+            {
                 ball.speed += 0.2;
+            }
+                
         }
         if(ball.x + ball.r > 300){
             room.play.score++
@@ -246,38 +289,85 @@ export class GameService {
         room.ball.x = 150
         room.ball.y = 75
         room.ball.speed = 2
-        room.ball.velX = 2 * ((room.ball.velX > 0) ? 1 : -1)
+        room.ball.velX = 1.5 * ((room.ball.velX > 0) ? 1 : -1)
+        room.ball.velY = 0
     }
 
     remove(socket : Socket){
-        let id : number;
-        this.Rooms.forEach((element) => {
-            if(element.play.socket == socket || element.play2.socket == socket)
-            {
-                element.state = state.finish
-                id = this.Rooms.indexOf(element)
-                this.Rooms.splice(id,1)
-                this.stoploop()
-            }
-        })
+        this.stoploop()
     }
 
     //INTERVAL GESTION 
 
     stoploop(){
-        console.log("STOP INTERVAL",this.Rooms.length)
         if(this.Rooms.length != 0)
             return
-        console.log("END INTERVAL");
-        try {
-            this.schedulerRegistry.deleteInterval("game")
+        try { 
+            if(this.schedulerRegistry.doesExist('interval',"game"))
+            {
+                this.schedulerRegistry.deleteInterval("game")
+            }
         } catch (error) {
             console.log("ERROR WITH SCH REG",error)
         }
     }
 
     addInterval() {
-        const interval = setInterval(this.rungame,15,this);
-        this.schedulerRegistry.addInterval("game", interval);
+        try {
+            console.log("add")
+             const interval = setInterval(this.rungame,15,this);
+            this.schedulerRegistry.addInterval("game", interval);
+        } catch (error) {
+            console.log("ERROR WITH SCH REG",error)
+        }
+            
+    }
+
+    async getallgame(){
+        try {
+            const games = await this.prismaService.game.findMany(
+                {
+                include: {
+                    user1:true,
+                    user2:true
+                }
+            })
+            return games
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async research(name : string){
+        try {
+            await this.prismaService.user.findFirstOrThrow({
+                where:{
+                    name : name
+                }
+            })
+        } catch (error) {
+            throw new BadRequestException("no match")
+        }
+        try {
+            const games = await this.prismaService.game.findMany(
+                {
+                where:{
+                    OR : [{
+                        user2:{
+                            name : name
+                        }},
+                        {user1:{
+                            name : name
+                        }}]
+                },
+                include: {
+                    user1:true,
+                    user2:true
+                }
+            })
+            return games
+        } catch (error) {
+            console.log(error)
+        }
     }
 }

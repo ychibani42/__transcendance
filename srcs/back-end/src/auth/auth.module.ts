@@ -16,7 +16,7 @@ import { StateGateway } from './Gateaway/State.gateaway';
 		JwtModule.register({
 			global: true,
 			secret: process.env.SECRET_ACCESS_TOKEN,
-			signOptions: { expiresIn: '1h' },
+			signOptions: { expiresIn: '3h' },
 		}),
 	],
 	controllers: [AuthController],

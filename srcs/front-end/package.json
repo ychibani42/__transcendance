@@ -19,6 +19,7 @@
     "vue-cookies": "^1.8.3",
     "vue-router": "^4.2.4",
     "vue-socket.io": "^3.0.10",
+    "vue3-toastify": "^0.1.13",
     "vuex": "^4.1.0",
     "vuex-composition-helpers": "^2.0.3"
   },

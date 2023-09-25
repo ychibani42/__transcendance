@@ -17,22 +17,22 @@ export class StateGateway {
 	server: Server;
 
 
-    async handleConnection(client :Socket){
-        await this.stateservice.connection(client,client.handshake.headers.cookies)
+    handleConnection(client :Socket){
+        this.stateservice.connection(client,client.handshake.headers.cookies)
     }
     
-    async handleDisconnect(client :Socket){
-        await this.stateservice.disconnect(client,client.handshake.headers.cookies)
+    handleDisconnect(client :Socket){
+        this.stateservice.disconnect(client,client.handshake.headers.cookies)
     }
 
     @SubscribeMessage('game')
-    async Gameconnection(client :Socket){
-        await this.stateservice.Game(client,client.handshake.headers.cookies)
+    Gameconnection(client :Socket){
+        this.stateservice.Game(client,client.handshake.headers.cookies)
     }
 
     @SubscribeMessage('Change')
-    async Change(client :Socket){
-        await this.stateservice.Change(client,client.handshake.headers.cookies)
+    Change(client :Socket){
+        this.stateservice.Change(client,client.handshake.headers.cookies)
     }
 
 }

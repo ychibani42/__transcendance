@@ -25,7 +25,9 @@ const routes: Array<RouteRecordRaw> = [
           { path: '/Config', name: 'Config',
               component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
           { path: '/Twofa', name: 'Twofa',
-              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')}
+              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')},
+          { path: '/History', name: 'History',
+              component: () => import(/* webpackChunkName: "about" */ '../views/GameHistory.vue')}
     ]
 
   },
@@ -51,29 +53,27 @@ async function checkJwt() : Promise<boolean>
 {
   if($cookies.get('access_token') != null)
   {
-    try {
-        await Axios.get('auth/Me').then(res => {
-            if(res !== undefined){
-              store.commit('setUserId',res.data.id)
-              store.commit('setProfileC',res.data.profilefinish)
-              store.commit('setTwofa',res.data.otpenable)
-              store.commit('setTwofavalid', res.data.otpvalider)
-
-              if(res.data.state == 'disconected')
-                store.commit('setOnline',false)
-            }
-          });
-          return true
-    } catch (error) {
-      if($cookies.get('access_token'))
-        $cookies.remove('access_token')
+    await Axios.get('auth/Me').then(res => 
+    {
+      if(res.status == 200)
+      {
+        store.commit('setUserId',res.data.id)
+        store.commit('setProfileC',res.data.profilefinish)
+        store.commit('setTwofa',res.data.otpenable)
+        store.commit('setTwofavalid', res.data.otpvalider)
+        if(res.data.state == 'Disconected')
+          { store.commit('setOnline',false) }
+        else
+          { store.commit('setOnline',true) } 
+      }
+    })
+    if(store.state.user.id != 0)
+      return true
+    else
       return false
-    }
   }
   else
-  {
     return false
-  }
 }
 
 router.beforeEach((to, from) => {
@@ -82,7 +82,7 @@ router.beforeEach((to, from) => {
     {
       $cookies.remove('access_token')
     }
-    if (valid === false && to.path !== '/login' && $cookies.get('access_token') === null)
+    if (valid === false && to.path !== '/login')
     {
       store.dispatch("reset")
       router.push("/login")
@@ -97,7 +97,6 @@ router.beforeEach((to, from) => {
     }
     if(store.state.user.online == false == valid == true)
     {
-
       const sock = io("http://localhost:3000/state",{
         transportOptions : {
         polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})

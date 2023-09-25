@@ -44,7 +44,7 @@ function sendcode(){
         <button @click="generateQRCode" class="">Generate Code</button>
         <div>
             <form class="form" @submit.prevent="sendcode()">
-                <input type="text" v-model="code" placeholder="Enter Code" required>
+                <input type="text" v-model="code" placeholder="Enter Code" >
                 <button type="submit" class="btn btn-primary">Valid Code</button>
             </form>
         </div>

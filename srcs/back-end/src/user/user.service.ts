@@ -35,4 +35,27 @@ export class UserService {
 		}
 	}
 	/*	real Update User	*/
+
+	async findAll(ids : number){
+		try {
+			const users = await this.prismaService.user.findMany(
+				{ where : { NOT : { OR : [ {id : ids } , 
+					{friends : {
+						some : {
+							userFriend : ids
+						}},
+				},
+				{
+					blockedUsers : {
+					some : {
+						userBloqued : ids
+					}},
+				}]
+				} } }
+			)
+			return users
+		} catch (error) {
+			return null
+		}
+	}
 }

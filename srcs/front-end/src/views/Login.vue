@@ -7,9 +7,8 @@ const id42 = ref(0);
 
 
 function login(){
-    console.log("Here");
     try {
-        Axios.post("auth/Inviter",{id42}).then(res => {
+        Axios.post("auth/Inviter",{id: id42.value}).then(res => {
             router.push(res.data.redirect);
         } );
     } catch (error) {

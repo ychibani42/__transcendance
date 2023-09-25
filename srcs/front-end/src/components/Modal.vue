@@ -56,8 +56,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore, mapState } from 'vuex'
-import { ref, onBeforeMount } from 'vue';
+import { useStore } from 'vuex'
+import { ref } from 'vue';
 
 const props = defineProps({'emit': String, 'header': String})
 
@@ -71,10 +71,6 @@ const muted = ref(false)
 const admin = ref(false)
 const User = store.getters.getuser;
 const stat = ref(props.emit)
-
-  onBeforeMount(() => {
-
-  })
 
 function status() {
       let userid: number = checked.value
