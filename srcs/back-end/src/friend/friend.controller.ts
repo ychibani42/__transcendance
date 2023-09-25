@@ -10,7 +10,6 @@ export class FriendController {
     @Post('')
     @UseGuards(JwtAuthGuard) 
     GetfriendsList(@Body() id : FriendDto){
-        console.log(id)
         const friend = this.FriendService.friendlist(id.id)
         return friend 
     }

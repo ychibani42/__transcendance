@@ -4,13 +4,16 @@ import { io , Socket} from 'socket.io-client';
 import {Ref, ref, onMounted} from "vue";
 import Friend from '../components/Friend.vue';
 import Users from '../components/User.vue';
-import Bloqued from '../components/Bloqued.vue';
+import BloquedComp from '../components/Bloqued.vue';
+import Axios from '../services';
 
 const store = useStore();
 const User  = store.getters.getuser;
+const refr = ref(0)
 
-onMounted(() => {
-})
+function test(){
+  refr.value++
+}
 
 </script>
 
@@ -22,8 +25,8 @@ onMounted(() => {
       <h3>User</h3>
       <h3>Bloqued</h3>
       <Friend/>
-      <Users/>
-      <Bloqued/>
+      <Users @refresh="test" :counter="refr" />
+      <BloquedComp/>
     </div>
     <div class="botton">
       <p>

@@ -90,7 +90,7 @@ export class GameService {
                         r : 5,
                         speed :2,
                         velX : 1.5,
-                        velY : 1.5,
+                        velY : 0,
                     },
                     speed : false,
                     play : play,
@@ -290,27 +290,23 @@ export class GameService {
         room.ball.y = 75
         room.ball.speed = 2
         room.ball.velX = 1.5 * ((room.ball.velX > 0) ? 1 : -1)
-        room.ball.velY = 1.5 * ((room.ball.velX > 0) ? 1 : -1)
+        room.ball.velY = 0
     }
 
     remove(socket : Socket){
-        this.Rooms.forEach((element) => {
-            if(element.play.socket == socket || element.play2.socket == socket)
-            {
-                this.stoploop()
-            }
-        })
+        this.stoploop()
     }
 
     //INTERVAL GESTION 
 
     stoploop(){
-        console.log("STOP INTERVAL",this.Rooms.length)
         if(this.Rooms.length != 0)
             return
         try { 
-            console.log("END INTERVAL 3");
-            this.schedulerRegistry.deleteInterval("game")
+            if(this.schedulerRegistry.doesExist('interval',"game"))
+            {
+                this.schedulerRegistry.deleteInterval("game")
+            }
         } catch (error) {
             console.log("ERROR WITH SCH REG",error)
         }
@@ -322,7 +318,7 @@ export class GameService {
              const interval = setInterval(this.rungame,15,this);
             this.schedulerRegistry.addInterval("game", interval);
         } catch (error) {
-           
+            console.log("ERROR WITH SCH REG",error)
         }
             
     }
