@@ -16,15 +16,10 @@ import { Button2FADto, Code2faDto, InvitedUserDto } from './auth.dto';
 export class AuthController {
 	constructor(private authService: AuthService) {}
 
-	/* Connexion */
-
 	@Get('42/callback')
 	@UseGuards(FortyTwoAuthGuard)
 	async login(@Req() req: any, @Res() res: any) {
-		const user = await this.authService.login(
-			req.user._json.id,
-			req.user._json.image.versions.medium,
-		);
+		const user = await this.authService.login(req.user._json.id);
 		const jwt = await this.authService.tokenreturn(user);
 		res.cookie('access_token', jwt);
 		res.redirect('http://localhost:5173/');

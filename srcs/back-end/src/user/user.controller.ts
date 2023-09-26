@@ -28,7 +28,7 @@ export class UserController {
 
 	@Post('Change')
 	@UseGuards(JwtAuthGuard)
-	changename(@Body() body: name) {
+	changename(@Body() body: name): Promise<string | undefined> {
 		return this.userService.changename(body.id, body.sendname);
 	}
 
@@ -45,7 +45,6 @@ export class UserController {
 		@Param('id', ParseIntPipe) id: number,
 	) {
 		await this.userService.updatePP(id, file);
-		return "ok";
 	}
 
 	@Get('picture/:id')

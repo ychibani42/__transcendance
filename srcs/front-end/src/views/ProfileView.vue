@@ -1,8 +1,7 @@
 <template>
 	<div class="profile">
-		<div class="picture">
 		<Picture/>	
-		</div>
+		{{ name }}
 		<p>Edit Name: <input type="text" class="edit_name_class" @change="editName"></p>
 		<div class="btn"> 2FA
 			<button class="false" @click="Button2fa" v-if="btn == false">FALSE</button>
@@ -21,19 +20,29 @@ import Picture from '../components/Picture.vue';
 					/* Variables */
 const store = useStore()
 const User = ref()
-const selectedFile = ref('')
-const name = ref('Name')
+const name = ref()
 const btn = ref(false)
-const picture = ref()
 					/*Before Mount */
-const con = ref(0)
 
 
 
 onMounted(() => {
 	btn.value = store.state.user.Twofa
+	name.value = store.state.user.username
+	console.log(store.state.user)
 })
 					/* function */
+
+
+async function editName(event){
+	User.value = store.getters.getuser
+	await Axios.post("users/Change",{id : User.value.id, name: event.target.value}).then(response => {
+		if (response){
+			console.log(response.data)
+			name.value = response.data
+		}
+	})
+}
 
 async function Button2fa(){
 	User.value = store.getters.getuser
@@ -48,8 +57,6 @@ async function Button2fa(){
 	})
 	btn.value = !btn.value
 }
-
-
 
 </script>
 
@@ -72,7 +79,12 @@ async function Button2fa(){
       background-color: lightblue;
       margin-left:2px;
   }
-.btn{
+
+.edit_name_class{
+	display: flex;
+}
+
+.btn {
 	.false{
 		background-color: red;
 		color: gold;

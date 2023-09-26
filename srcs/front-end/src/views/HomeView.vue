@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import { useStore } from 'vuex';
-import { io , Socket} from 'socket.io-client';
-import {Ref, ref, onMounted} from "vue";
+import { io, Socket } from 'socket.io-client';
+import { Ref, ref, onMounted } from "vue";
 import Friend from '../components/Friend.vue';
 import Users from '../components/User.vue';
 import BloquedComp from '../components/Bloqued.vue';
 import Axios from '../services';
 
 const store = useStore();
-const User  = store.getters.getuser;
+const User = store.getters.getuser;
 const refr = ref(0)
 
-function test(){
+function test() {
   refr.value++
 }
 
@@ -24,19 +24,19 @@ function test(){
       <h3>Friend</h3>
       <h3>User</h3>
       <h3>Bloqued</h3>
-      <Friend/>
+      <Friend />
       <Users @refresh="test" :counter="refr" />
-      <BloquedComp/>
+      <BloquedComp />
     </div>
     <div class="botton">
       <p>
-     To play, please click on the button just below.
-    </p>
-  
-    <router-link to="/matchmaking" class="button">
-      <button class="play"> Let's play </button>
-    </router-link>
-    <p>Your ID is {{ User.id }}</p>
+        To play, please click on the button just below.
+      </p>
+
+      <router-link to="/matchmaking" class="button">
+        <button class="play"> Let's play </button>
+      </router-link>
+      <p>Your ID is {{ User.id }}</p>
     </div>
   </div>
 </template>
@@ -46,38 +46,39 @@ function test(){
 h1 {
   padding: 1rem;
 }
-.botton{
+
+.botton {
 
   button {
-  font-size: 30px;
-  background-color: #4395c5;
-  color: #1a4258;
-	border: 1px solid #1a4258;
-	border-radius: 8px;
-  text-align: center;
-  padding: 15px 32px;
-  transition: 0.1s ease-in-out;
-  &:hover{
-    border: 3px solid #2d4b5c;
-    background-color: #5b9abe;
+    font-size: 30px;
+    background-color: #4395c5;
+    color: #1a4258;
+    border: 1px solid #1a4258;
+    border-radius: 8px;
+    text-align: center;
+    padding: 15px 32px;
+    transition: 0.1s ease-in-out;
+
+    &:hover {
+      border: 3px solid #2d4b5c;
+      background-color: #5b9abe;
+    }
   }
-}
-p {
-  list-style-type: none;
-  padding: 0.5rem;
-  margin: 0;
-}
+
+  p {
+    list-style-type: none;
+    padding: 0.5rem;
+    margin: 0;
+  }
 
 }
-.table{
+
+.table {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   height: 20rem;
-  /*flex-wrap: nowrap;
-  align-items: flex-start;
-  flex-direction: row;
-  justify-content: center;*/
-  div{
+
+  div {
     padding-left: 5rem;
     padding-right: 5rem;
     border: black;

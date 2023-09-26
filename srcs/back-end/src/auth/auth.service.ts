@@ -1,8 +1,4 @@
-import {
-	BadRequestException,
-	Injectable,
-	UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as QRCode from 'qrcode';
@@ -15,7 +11,7 @@ export class AuthService {
 		private prismaService: PrismaService,
 	) {}
 
-	async login(id: number, link: string) {
+	async login(id: number) {
 		try {
 			const users = await this.prismaService.user.findUniqueOrThrow({
 				where: { id42: id },
@@ -25,8 +21,7 @@ export class AuthService {
 			const user = await this.prismaService.user.create({
 				data: {
 					id42: id,
-					name: link,
-					avatar: './storage/uploads/default.jpg',
+					avatar: './storage/uploads/hamoud.gif',
 				},
 			});
 			return user;
@@ -98,6 +93,7 @@ export class AuthService {
 					otpenable: true,
 					otpvalider: true,
 					state: true,
+					name: true,
 				},
 			});
 			return user;

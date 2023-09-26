@@ -13,7 +13,7 @@
 
 import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex';
-import  Axios  from '../services';
+import Axios from '../services';
 
                     /* Variables */
 
@@ -21,6 +21,8 @@ import  Axios  from '../services';
 const User = useStore().getters.getuser
 const selectedFile = ref('')
 const picture = ref()
+
+
 					/*Before Mount */
 const con = ref(0)
 
