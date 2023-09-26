@@ -45,6 +45,7 @@ export class UserController {
 		@Param('id', ParseIntPipe) id: number,
 	) {
 		await this.userService.updatePP(id, file);
+		return "ok";
 	}
 
 	@Get('picture/:id')
