@@ -37,7 +37,8 @@ export class ChatGateway {
 		);
 		if (message == null)
 			return null
-		this.server.to(message.channel.channelName).emit('message', message);
+		if (message.channel)
+			this.server.to(message.channel.channelName).emit('message', message);
 		return message;
 	}
 

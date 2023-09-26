@@ -5,9 +5,9 @@ import {
 	WebSocketServer,
 	ConnectedSocket,
 } from '@nestjs/websockets';
-import { DMService } from './DM.service';
-import { CreateDMDto } from './dto/create-DM.dto';
-import { CreateMessageDto } from './dto/create-message.dto';
+import { DMservice } from './DM.service';
+// import { CreateDMDto } from './dto/create-DM.dto';
+import { CreateMessageDto } from '../chat/dto/create-message.dto';
 import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { Param } from '@nestjs/common';
@@ -23,18 +23,37 @@ export class DMGateway {
     @WebSocketServer()
 	server: Server;
 
-	private logger: Logger = new Logger('DMGateway');
+	constructor(private readonly dmService: DMservice) {}
 
-	constructor(private readonly dmService: DMService) {}
+	@SubscribeMessage('test')
+	test() {
+		console.log('test')
+	}
+
     @SubscribeMessage('createMessageDM')
-	async create(
-		@MessageBody() createMessageDto: CreateMessageDto,data : number,@ConnectedSocket() client: Socket) {
+	async create( @MessageBody() createMessageDto: CreateMessageDto ) {
+		console.log('ici')
 		const message = await this.dmService.createMessage(
 			createMessageDto,
 		);
 		if (message == null)
 			return null
-		this.server.to(message.channel.channelName).emit('message', message);
+		console.log('ici')
+		if (message.dm && message.dm.user1.name)
+		{
+			this.server.to(message.dm.user1.name).emit('message', message);
+			console.log('name of receiver', message.dm.user1.name)
+			console.log('message', message)
+		}
+			
 		return message;
+	}
+	@SubscribeMessage('createDM')
+	async createDM(@Body() body :any){
+		console.log(body)
+		const chan = await this.dmService.createChat(body);
+		console.log(chan)
+		this.server.emit('createDM', chan)
+		return chan
 	}
 }

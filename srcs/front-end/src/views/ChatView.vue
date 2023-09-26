@@ -62,6 +62,7 @@ const isPassword = ref(false)
 onBeforeMount(() => {
    
     displayChats()
+    console.log(inAll.value)
     socket.on('message',(arg1 : string) => {
         chandisp.value.messages.push(arg1);
     })
@@ -257,19 +258,12 @@ function enterchat(chan : any){
 }
 
 const createMessage = () => {
-    if (inDM.value == true)
-    {
-        socket.emit('createMessageDM',{ id: DM.value.id, name: User.username, text: messageText.value , user: User.id, to: 1},
-        response => {
-            messageText.value = ""
-        });
-    }
-    else {
-        socket.emit('createMessage',{ id: chandisp.value.idch, name: User.username, text: messageText.value , user: User.id, to: 1},
-        response => {
-            messageText.value = ""
-        });
-    }
+
+    socket.emit('createMessage',{ id: chandisp.value.idch, name: User.username, text: messageText.value , user: User.id, to: 1},
+    response => {
+        messageText.value = ""
+    });
+
 	
 }
 
@@ -392,7 +386,11 @@ function deleteChan() {
 </script>
 
 <template>
-    <div class="chat-page">
+    <div class="dm" v-if="inDM == true">
+        <DM @all="(inDM = false) && (inAll = true)" />
+    </div>
+    <div v-else class="chat-page">
+        
         
         <div class="add-chat">
           <form v-if="addNewRoom" @submit.prevent.clear="createChat">
@@ -412,12 +410,9 @@ function deleteChan() {
             <div class="chats">
                 <button @click="displayChats">All</button>
                 <button @click="displayJoined">Joined chats</button>
-                <button @click="displayDM">
-                    DM  
-                </button>
+                <button @click="displayDM">DM</button>
                
             </div> 
-            <DM v-if="inDM == true" @open="onChan = true"/>
 			<ol v-if="inAll == true">
 				<li v-for="channel in chan">
                     <div v-if="channel.is_private == false" class="unlocked">
@@ -509,30 +504,30 @@ function deleteChan() {
                     <button v-if="User.id != chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
                    
                 </form> 
-                <button v-if="User.id === chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
-                <button v-if="User.id === chandisp.ownerId" class="leave" @click="deleteChan">Delete room</button>
+                <button v-if="User.id === chandisp.ownerId && inDM == false" class="leave" @click="leaveChan">Leave channel</button>
+                <button v-if="User.id === chandisp.ownerId  && inDM == false" class="leave" @click="deleteChan">Delete room</button>
             </div>                  
             <div class="chat-header" >
-                <div class="title" v-if="onChan === true">
-                    {{ chandisp.channame }}
-                </div>
+              
+                <div class="chat-header">
+                     <div class="title" v-if="onChan === true">
+                        {{ chandisp.channame }}
+                    </div>
             
 
-                <div class="settings" v-if="onChan === true && isAdmin()">
-                    <button @click="settings()">
-                        <span class="material-icons">settings</span>
-                    </button>
-
-                </div>
-                <div v-else-if="!isAdmin() && onChan === true">
-                    <button class="leave" @click="leaveChan">Leave channel</button>
+                    <div class="settings" v-if="onChan === true && isAdmin()">
+                        <button @click="settings()">
+                            <span class="material-icons">settings</span>
+                        </button>
+                    </div>
+                
+                    <div v-else-if="!isAdmin() && onChan === true  && inDM == false">
+                        <button class="leave" @click="leaveChan">Leave channel</button>
+                    </div>
                 </div>
             </div>
             <div class="chat-messages" >
-                <div class="dm" v-if="inDM == true">
-                    <DM v-if="inDM == true" emit="messages"/>
-                </div>
-                <div v-else>
+            
                     <ol v-for="name in chandisp.messages" v-if="onChan === true">
                         <div class="message" v-if="name.userId === User.id" >
                             <p>
@@ -545,26 +540,27 @@ function deleteChan() {
                             </p>
                         </div>
 			        </ol>
-                </div>     
-            </div>
-            <div class="typing-messages">
-                <div class="dm" v-if="inDM == true">
-                    <DM v-if="inDM == true" emit="type-messages"/>
-                </div>
-                <div v-else>
-                    <form id='test' @submit.prevent="createMessage" v-if="onChan === true">
-                        <input class="text" type="text" placeholder="type your message" v-model="messageText" required>
-                        <button><span class="material-icons">send</span></button>
-                    </form>
-                </div>
-                
                
             </div>
+            <div class="typing-messages">
+                <form id='test' @submit.prevent="createMessage" v-if="onChan === true">
+                    <input class="text" type="text" placeholder="type your message" v-model="messageText" required>
+                    <button><span class="material-icons">send</span></button>
+                </form>
+            </div>
         </div>
+        
     </div>
+    
 </template>
 
 <style lang="scss" scoped>
+.dm{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    background-color: aliceblue;
+}
 .chat-page {
     height: 100%;
     width: 100%;
@@ -716,9 +712,6 @@ function deleteChan() {
     height: 5%;
     border-bottom-right-radius: 4px;
     background-color: rgb(250, 228, 217);
-    .dm {
-        width: 100%;
-    }
     form {
         display: flex;
         width: 100%;

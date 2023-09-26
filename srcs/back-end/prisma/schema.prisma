@@ -94,10 +94,10 @@ model Message {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   text      String
-  channelId Int
-  channel   Channel  @relation(fields: [channelId], references: [id])
-  dm        DM       @relation(fields: [dmId], references: [id])
-  dmId      Int
+  channelId Int?
+  channel   Channel?  @relation(fields: [channelId], references: [id])
+  dm        DM?       @relation(fields: [dmId], references: [id])
+  dmId      Int?
   userId    Int  
   name      String
 }
