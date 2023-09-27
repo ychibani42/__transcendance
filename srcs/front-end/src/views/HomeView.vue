@@ -5,6 +5,7 @@ import { Ref, ref, onMounted } from "vue";
 import Friend from '../components/Friend.vue';
 import Users from '../components/User.vue';
 import BloquedComp from '../components/Bloqued.vue';
+import Picture, { picture, getPicture } from '../components/Picture.vue';
 import Axios from '../services';
 
 const store = useStore();
@@ -26,6 +27,7 @@ function test() {
       <h3>Bloqued</h3>
       <Friend />
       <Users @refresh="test" :counter="refr" />
+      <img :src="picture" alt="pong" />
       <BloquedComp />
     </div>
     <div class="botton">

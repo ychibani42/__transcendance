@@ -38,7 +38,7 @@ async function getPictureBeforeMount() {
        getPictureBeforeMount()
    })
 
-async function getPicture() {
+export async function getPicture() {
     await Axios.get('users/picture/' + con.value, {
        responseType: 'blob'
     }).then(res => {
@@ -67,6 +67,8 @@ async function getPicture() {
           console.log(error);
       }
   }
+
+export { picture }
 
 </script>
 
