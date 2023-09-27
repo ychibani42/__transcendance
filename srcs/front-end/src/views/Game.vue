@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { onMounted,onBeforeMount, Ref, ref , onUnmounted} from "vue";
 import { Socket} from 'socket.io-client'
-import { useRouter } from "vue-router";
+import { useRouter , onBeforeRouteLeave} from "vue-router";
 import { useStore } from "vuex";
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import store from "../store";
 
 const router = useRouter()
 const state = useStore()
@@ -52,6 +51,12 @@ const net = ref({
         color : 'white',
 });
 
+onBeforeRouteLeave((to,from) => {
+    console.log(to,from)
+    if(finished.value == false)
+        return null
+})
+
 onUnmounted(() => {
     if(socket.value)
         socket.value.disconnect();
@@ -59,6 +64,8 @@ onUnmounted(() => {
     {
         state.state.state.emit("Change")
     }
+    store.commit("setGamename","")
+    store.commit("setGameID",0)
 }),
 
 onBeforeMount(() => {
@@ -114,11 +121,6 @@ function renderfinish(text : string){
     clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
     context.value.fillStyle = "white"
     context.value.fillText(text, 100, 75);
-    toast("Finised "+ text, {
-        autoClose: false,
-        containerId: 'pong',
-        closeOnClick: false,
-      })
 }
 
 function render() {

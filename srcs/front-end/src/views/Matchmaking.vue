@@ -14,7 +14,36 @@ const option = ref(false)
 const theme = ref(false)
 const speed = ref('')
 
-onMounted(() =>{
+socket.value = store.state.gamesock
+
+
+inviteorNormal()
+
+function inviteorNormal()
+{
+    if(store.state.gamename == "")
+        debut()
+    else
+        invitedgame()
+}
+
+function invitedgame(){
+    console.log("invited")
+    option.value = true
+    socket.value = store.state.gamesock
+    if(!socket.value)
+        return
+    socket.value.connect();
+    socket.value.on('OnRoom', () =>
+    {
+        router.push("/game")
+        socket2.value = store.state.state
+        socket2.value?.emit('game')
+    })
+}
+
+function debut(){
+    console.log("Debut")
     if(store.state.gamesock == null)
         store.commit('setGamesocket',io('http://localhost:3000/game'))
     socket.value = store.state.gamesock
@@ -42,7 +71,7 @@ onMounted(() =>{
     {
         option.value = true
     })
-})
+}
 
 function joinQueue(){
     socket.value?.emit("JoinQueue",store.state.user.id)

@@ -2,6 +2,7 @@
 import { useStore } from 'vuex';
 import { ref , onMounted,onBeforeMount } from 'vue';
 import Axios from '../services';
+import store from '../store';
 
 const ID = ref()
 const friend = ref([])
@@ -33,7 +34,14 @@ function cancel(){
 }
 
 function GAME(id : Number){
-  console.log(id)
+  console.log("Invite",id)
+  store.state.state?.emit("Invite",id)
+  store.dispatch("Inviteoff")
+  store.dispatch("SocketGame")
+  store.commit('setGameplay',true)
+  store.commit("setGamename",store.state.user.username)
+  clicking.value = !clicking.value
+  click.value = 0
 }
 
 function clicked(nbr : number){
@@ -50,20 +58,28 @@ function clicked(nbr : number){
     }
 }
 
+function connected(user : any){
+  if(user.user.state == 'Online' || user.user.state == 'OnGame')
+  {
+    return true
+  }
+  return false
+}
+
 </script>
 
 <template>
     <div class="friend">
       <ul v-for="friends in friend">
-        <li> 
+        <li class="lis" v-if="connected(friends)"> 
           <div class="Userdisp">
-            <button @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
+            <button class="Ubtn" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
           </div>
         </li>
         <div class="modal" v-if="clicking == true && friends.user.id == click">
-            <button v-on:click="GotoProfile" >Profile</button>
-            <button v-on:click="GAME(friends.user.id)">Invite Game</button>
-            <button v-on:click="cancel">Cancel</button>
+            <button class="modal-btn" v-on:click="GotoProfile" >Profile</button>
+            <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
+            <button class="modal-btn" v-on:click="cancel">Cancel</button>
         </div>
       </ul>
     </div>
@@ -72,9 +88,18 @@ function clicked(nbr : number){
 <style scoped>
 
 ul{
+  display: flex;
+  justify-content: center;
   list-style: none;
   padding: 0;
-  margin: 0.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  .lis{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .modal {
@@ -94,7 +119,13 @@ ul{
     display: flex;
     flex-direction: column;
     border-radius: 8px;
+  .modal-btn {
+    width: 15rem;
+    height: 3rem;
+    margin: 0.2rem;
   }
+}
+
 
 .friend {
   display: flex;
@@ -105,9 +136,15 @@ ul{
 }
 
 .Userdisp{
+  
   display: flex;
   flex-direction: row;
   align-items: center;
   overflow-y: auto;
+  width: 80%;
+  justify-content: center;
+  .Ubtn{
+    width: 100%;
+  }
 }
 </style>

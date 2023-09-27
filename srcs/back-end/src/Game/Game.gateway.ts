@@ -50,4 +50,19 @@ export class GameGateway {
     config(client : Socket , arg: any){
         this.GameService.ConfigGame(client,arg[0],arg[1])
     }
+
+    @SubscribeMessage('Invite')
+    Createroom(client : Socket , arg: any){
+        this.GameService.invited(client,arg)
+    }
+
+    @SubscribeMessage('Join')
+    Joinroom(client : Socket , arg: any){
+        this.GameService.acceptINV(client,arg)
+    }
+
+    @SubscribeMessage('Delete')
+    Deleteroom(client : Socket , arg: any){
+        return this.GameService.deleteroom(client,arg)
+    }
 }

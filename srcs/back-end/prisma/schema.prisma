@@ -23,31 +23,33 @@ enum State {
 }
 
 model User {
-  id          Int       @id @unique @default(autoincrement())
-  avatar	  String?
+  id            Int       @id @unique @default(autoincrement())
+  avatar	      String?
 
-  id42        Int       @unique
-  name        String?   @unique
+  id42          Int       @unique
+  name          String?   @unique
 
-  state       State     @default(Disconected)
+  state         State     @default(Disconected)
   
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  profilefinish Boolean @default(false)
+  profilefinish Boolean   @default(false)
   
-  otpenable   Boolean   @default(false)
-  otpvalider  Boolean   @default(true)
-  otpcode     String    @default("")
+  otpenable     Boolean   @default(false)
+  otpvalider    Boolean   @default(true)
+  otpcode       String    @default("")
 
-  friends     Friends[]
-  channels    Channel[] @relation("chan/user")
-  game1       Game[] @relation("User1")
-  game2       Game[] @relation("User2")
-  blockedUsers BlockedU[]
-  banned      Banned[]
-  muted      Muted[]
-  admin      Admin[]
+  friends       Friends[]
+  channels      Channel[] @relation("chan/user")
+  game1         Game[]    @relation("User1")
+  game2         Game[]    @relation("User2")
+  dm1           DM[]      @relation("msg1")
+  dm2           DM[]      @relation("msg2")
+  blockedUsers  BlockedU[]
+  banned        Banned[]
+  muted         Muted[]
+  admin         Admin[]
 }
 
 
@@ -55,81 +57,92 @@ model Game {
   id          Int       @id @unique @default(autoincrement())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  score Int[]
-  player1 Int
-  player2 Int
-  user1    User  @relation("User1", fields: [player1], references: [id])
-  user2    User  @relation("User2", fields: [player2], references: [id])
+  score       Int[]
+  player1     Int
+  player2     Int
+  user1       User      @relation("User1", fields: [player1], references: [id])
+  user2       User      @relation("User2", fields: [player2], references: [id])
   
 }
 
 model Channel {
-  id         Int       @id @unique @default(autoincrement())
-  is_private Boolean
-  password        String
-  locked      Boolean @default(false)    
-  channelName     String @unique     
-  adminUsers    Admin[] 
-  ownerId    Int
-  user       User[]    @relation("chan/user")
-  messages   Message[] // Define the relation with Message
+  id          Int       @id @unique @default(autoincrement())
+  is_private  Boolean
+  password    String
+  locked      Boolean   @default(false)    
+  channelName String    @unique     
+  adminUsers  Admin[] 
+  ownerId     Int
+  user        User[]    @relation("chan/user")
+  messages    Message[] // Define the relation with Message
   bannedUsers Banned[]
   mutedUsers  Muted[] 
-  dm			Boolean
+  dm		  	  Boolean
 }
 
+model DM {
+  id        Int         @id @unique @default(autoincrement())
+  blocked   Boolean
+  dm1       Int
+  dm2       Int
+  name      String
+  user1     User        @relation("msg1", fields: [dm1], references: [id])
+  user2     User        @relation("msg2", fields: [dm2], references: [id])
+  messages  Message[]
+}
 
 model Message {
   id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   text      String
-  channelId Int
-  channel    Channel  @relation(fields: [channelId], references: [id])
+  channelId Int?
+  channel   Channel?  @relation(fields: [channelId], references: [id])
+  dm        DM?       @relation(fields: [dmId], references: [id])
+  dmId      Int?
   userId    Int  
   name      String
 }
 
-
 model BlockedU {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  userBloqued  Int
-  user    User  @relation(fields: [userId], references: [id])
-  userId Int
+  id            Int       @id @unique @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  userBloqued   Int
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
 }
 
 model Friends {
-  id          Int      @id @unique @default(autoincrement())
-  createdAt   DateTime @default(now())
+  id          Int       @id @unique @default(autoincrement())
+  createdAt   DateTime  @default(now())
   userFriend  Int
-  user    User  @relation(fields: [userId], references: [id])
-  userId Int
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
 }
 
 model Muted {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
   duration  Int
-  userId  Int
-  channel    Channel  @relation(fields: [channelId], references: [id])
-  user    User  @relation(fields: [userId], references: [id])
+  userId    Int
+  channel   Channel   @relation(fields: [channelId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
   channelId Int
 }
 
 model Admin {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  userId  Int
-  channel    Channel  @relation(fields: [channelId], references: [id])
-  user    User  @relation(fields: [userId], references: [id])
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  userId    Int
+  channel   Channel   @relation(fields: [channelId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
   channelId Int
 }
 
 model Banned {
-  id        Int      @id @unique @default(autoincrement())
-  createdAt DateTime @default(now())
-  channel    Channel  @relation(fields: [channelId], references: [id])
-  user    User  @relation(fields: [userId], references: [id])
-  userId  Int
+  id        Int       @id @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  channel   Channel   @relation(fields: [channelId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
   channelId Int
 }

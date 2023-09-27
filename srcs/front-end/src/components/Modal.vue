@@ -12,6 +12,7 @@
                       {{ users.name }}
                       
                     </div>
+                   
                 </div>
 
                 <div v-if="stat == 'unadmin'" > 
@@ -21,6 +22,7 @@
                       {{ users.user.name }}
                       
                     </div>
+                     
                   </div>
                 </div>
 
@@ -40,10 +42,20 @@
                       {{ users.user.name }}
                     </div>
                   </div>
-                </div>
+                </div> 
+                 <div v-if="stat == 'muted'"> 
+                    Time:
+                      <select name="time" id="time">
+                        <option value="1">1</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="30">30</option>
+                      </select>
+                   </div>
                     <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true" @kick="kicked === true" @unadmin="unadmin === true">
                         Submit
                     </button>
+                   
 
                     <button type="button" class="cancel" @click="emit('close')">
                         Cancel
@@ -71,11 +83,13 @@ const muted = ref(false)
 const admin = ref(false)
 const User = store.getters.getuser;
 const stat = ref(props.emit)
+const time = ref(0)
 
 function status() {
       let userid: number = checked.value
       let chanid: number = chandisp.idch
-      socket.emit(props.emit, { userid, chanid }, response => {
+      let duration: number = document.querySelector('#time').value
+      socket.emit(props.emit, { userid, chanid, duration }, response => {
         emit('close')
       })
 

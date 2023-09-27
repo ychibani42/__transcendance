@@ -70,7 +70,12 @@ h1 {
     padding: 0.5rem;
     margin: 0;
   }
-
+}
+p {
+  list-style-type: none;
+  padding: 0.5rem;
+  margin: 0;
+}
 }
 
 .table {
@@ -79,8 +84,8 @@ h1 {
   height: 20rem;
 
   div {
-    padding-left: 5rem;
-    padding-right: 5rem;
+    padding-left: 0rem;
+    padding-right: 0rem;
     border: black;
     border-radius: 15px;
   }

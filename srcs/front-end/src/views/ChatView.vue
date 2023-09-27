@@ -5,6 +5,7 @@ import Axios from '../services';
 import { useStore, mapState } from 'vuex'
 import Modal from '../components/Modal.vue';
 import Password from '../components/Password.vue';
+import DM from '../components/DM.vue';
 // import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 const store = useStore()
@@ -53,17 +54,14 @@ const isModalKick = ref(false)
 const isModalMute = ref(false)
 const isModalunAdmin = ref(false)
 const isModalunBan = ref(false)
-const isModalunMute = ref(false)
 const isPassword = ref(false)
 
 
 
 
 onBeforeMount(() => {
-   
     displayChats()
     socket.on('message',(arg1 : string) => {
-        
         chandisp.value.messages.push(arg1);
     })
     socket.on('unadmin', (arg1:any) => {
@@ -71,9 +69,7 @@ onBeforeMount(() => {
                 if(element.id == arg1.id){
                     chandisp.value.admin.splice(chandisp.value.admin.indexOf(element), 1)
                 }
-        })
-
-         
+        })   
     })
     socket.on('unbanned', (arg1:any) => {
         chandisp.value.banned.forEach(element => {
@@ -90,26 +86,14 @@ onBeforeMount(() => {
         })
     })
     socket.on('admin', (arg1:any) => {
-        console.log('et la', chandisp.value.muted)
-            chandisp.value.muted.forEach(element => {
-                if (element.userId == arg1.userId) 
-                {
-                    let now: Date = new Date(Date.now())
-                    let created: Date = new Date(element.createdAt)
-                    console.log('time', now.getSeconds() - created.getSeconds())
-                }
-            })
         chandisp.value.user.forEach(element => {
-            
             if(element.id == arg1.user.id){
                 chandisp.value.admin.push(arg1)
             }
         })
     })
     socket.on('muted', (arg1:any) => {
-
         chandisp.value.user.forEach(element => {
-            console.log(element.id, arg1.user.id)
             if(element.id == arg1.user.id){
                 chandisp.value.muted.push(arg1)
 
@@ -151,7 +135,6 @@ onBeforeMount(() => {
             displayChats()
     })
     socket.on('leaveChannel', (arg1: any) => {
-        
         chandisp.value.user.forEach(element => {
         if(element.id == arg1.id){
             chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
@@ -169,7 +152,6 @@ onBeforeMount(() => {
         }
     })
     socket.on('kicked', (arg1: any) => {
-        
         chandisp.value.user.forEach(element => {
             if(element.id == arg1.id){
                 chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
@@ -189,9 +171,6 @@ onBeforeMount(() => {
     })
     
     socket.on('joinRoom', (arg1: any) => {
-       
-            
-
         chandisp.value.user.push(arg1)
         
     })
@@ -275,10 +254,13 @@ function enterchat(chan : any){
 }
 
 const createMessage = () => {
-	socket.emit('createMessage',{ id: chandisp.value.idch, name: User.username, text: messageText.value , user: User.id, to: 1},
+
+    socket.emit('createMessage',{ id: chandisp.value.idch, name: User.username, text: messageText.value , user: User.id, to: 1},
     response => {
         messageText.value = ""
     });
+
+	
 }
 
 function displayChats () {
@@ -309,6 +291,12 @@ function displayJoined() {
     
 }
 
+function displayDM() {
+    inDM.value = true
+    inJoined.value = false
+    inAll.value = false
+}
+
 function createChat () {
 	socket.emit('createRoom', {
 		channelName: createChan.value.channelName,
@@ -319,6 +307,8 @@ function createChat () {
     }, response => {
         password.value = ""
         createChan.value.channelName = ""
+        addNewRoom.value = false
+        enterchat(response)
     })
     
 }
@@ -392,7 +382,11 @@ function deleteChan() {
 </script>
 
 <template>
-    <div class="chat-page">
+    <div class="dm" v-if="inDM == true">
+        <DM @all="(inDM = false) && (inAll = true)" />
+    </div>
+    <div v-else class="chat-page">
+        
         
         <div class="add-chat">
           <form v-if="addNewRoom" @submit.prevent.clear="createChat">
@@ -413,7 +407,8 @@ function deleteChan() {
                 <button @click="displayChats">All</button>
                 <button @click="displayJoined">Joined chats</button>
                 <button @click="displayDM">DM</button>
-            </div>
+               
+            </div> 
 			<ol v-if="inAll == true">
 				<li v-for="channel in chan">
                     <div v-if="channel.is_private == false" class="unlocked">
@@ -505,52 +500,63 @@ function deleteChan() {
                     <button v-if="User.id != chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
                    
                 </form> 
-                <button v-if="User.id === chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
-                <button v-if="User.id === chandisp.ownerId" class="leave" @click="deleteChan">Delete room</button>
+                <button v-if="User.id === chandisp.ownerId && inDM == false" class="leave" @click="leaveChan">Leave channel</button>
+                <button v-if="User.id === chandisp.ownerId  && inDM == false" class="leave" @click="deleteChan">Delete room</button>
             </div>                  
             <div class="chat-header" >
-                <div class="title" v-if="onChan === true">
-                    {{ chandisp.channame }}
-                </div>
+              
+                <div class="chat-header">
+                     <div class="title" v-if="onChan === true">
+                        {{ chandisp.channame }}
+                    </div>
             
 
-                <div class="settings" v-if="onChan === true && isAdmin()">
-                    <button @click="settings()">
-                        <span class="material-icons">settings</span>
-                    </button>
-
-                </div>
-                <div v-else-if="!isAdmin() && onChan === true">
-                    <button class="leave" @click="leaveChan">Leave channel</button>
+                    <div class="settings" v-if="onChan === true && isAdmin()">
+                        <button @click="settings()">
+                            <span class="material-icons">settings</span>
+                        </button>
+                    </div>
+                
+                    <div v-else-if="!isAdmin() && onChan === true  && inDM == false">
+                        <button class="leave" @click="leaveChan">Leave channel</button>
+                    </div>
                 </div>
             </div>
             <div class="chat-messages" >
-                <ol v-for="name in chandisp.messages" v-if="onChan === true">
-                    <div class="message" v-if="name.userId === User.id" >
-                          <p>
-                            {{ name.text }} {{name.userId }}
-                          </p>  
-                    </div>
-                    <div class="Autre" v-else>
-                        <p>
-                            {{ name.text }} {{ name.userId }}
-                        </p>
-                           
-                    </div>
-			    </ol>
+            
+                    <ol v-for="name in chandisp.messages" v-if="onChan === true">
+                        <div class="message" v-if="name.userId === User.id" >
+                            <p>
+                                {{ name.text }} {{name.userId }}
+                            </p>  
+                        </div>
+                        <div class="Autre" v-else>
+                            <p>
+                                {{ name.text }} {{ name.userId }}
+                            </p>
+                        </div>
+			        </ol>
+               
             </div>
             <div class="typing-messages">
                 <form id='test' @submit.prevent="createMessage" v-if="onChan === true">
                     <input class="text" type="text" placeholder="type your message" v-model="messageText" required>
                     <button><span class="material-icons">send</span></button>
                 </form>
-               
             </div>
         </div>
+        
     </div>
+    
 </template>
 
 <style lang="scss" scoped>
+.dm{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    background-color: aliceblue;
+}
 .chat-page {
     height: 100%;
     width: 100%;
@@ -580,14 +586,6 @@ function deleteChan() {
        
         li {
             width: 100%;
-            // .locked button{
-            //      background-color: rgb(235, 81, 81);
-            
-            // }
-            // .unlocked button{
-            //      background-color: rgb(188, 226, 126);
-            
-            // }
             
             button {
                 display: flex;
