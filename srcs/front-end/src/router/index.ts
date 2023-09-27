@@ -16,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
           { path: '/',name: 'home',component: HomeView},
           { path: '/chat', name: 'chat',
             component: () => import(/* webpackChunkName: "about" */ '../views/ChatView.vue') },
-          { path: '/profile', name: 'profile',
+          { path: '/profile/:userId', name: 'profile', props: true,
               component: () => import(/* webpackChunkName: "about" */ '../views/ProfileView.vue') },
           { path: '/matchmaking', name: 'matchmaking',
               component: () => import(/* webpackChunkName: "about" */ '../views/Matchmaking.vue') },
@@ -27,6 +27,11 @@ const routes: Array<RouteRecordRaw> = [
     ]
 
   },
+
+  // ... Your existing routes ...
+
+  // Add a route for the user's profile page
+ 
   { path: '/Config', name: 'Config',
               component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
   { path: '/Twofa', name: 'Twofa',
@@ -38,6 +43,9 @@ const routes: Array<RouteRecordRaw> = [
     path: '/:pathMatch(.*)*', redirect : '/'
   }
 ]
+
+
+
 
 const router = createRouter({
   history: createWebHistory(),

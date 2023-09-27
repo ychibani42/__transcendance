@@ -24,7 +24,7 @@ onMounted(() => {
 					/* function */
 
 
-async function editName(event){
+async function editName(event) {
 	User.value = store.getters.getuser
 	console.log(event.target.value)
 	await Axios.post("users/Change", {id : User.value.id, name: event.target.value}).then(response => {
@@ -36,7 +36,10 @@ async function editName(event){
 }
 
 
-async function Button2fa(){
+// SI L'ID EST CELUI EST LE  MIEN JE PEUX APPELER CETTE FONCTION
+
+async function Button2fa() {
+
 	User.value = store.getters.getuser
 	await Axios.post("auth/Button2FA", {id : User.value.id}).then(response => {
 		if(response){
