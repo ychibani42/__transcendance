@@ -8,13 +8,20 @@ const store = useStore()
 const User = store.getters.getuser;
 const name = ref('');
 const err = ref(false);
+const errname = ref("");
 
 async function setupname() {
     const sendname = name.value
     const id = User.id
-    await Axios.post('users/Change',{id , sendname}).then(res => {
+    await Axios.post('users/Change',{id : id , name : name.value}).then(res => {
+        if(res.status == 201)    
             router.push("/")
+        else
+        {
+            errname.value = res.data.message
             err.value = true
+        }  
+        console.log(res)
     })
 }
 </script>
@@ -25,7 +32,7 @@ async function setupname() {
         <form class="Formname" @submit.prevent="setupname()">
             <input type="text" v-model="name" required>
             <button>Setup Name</button>
-            <span v-if="err === true"> Username already use or invalid</span>
+            <span v-if="err === true"> {{errname}}</span>
         </form>
     </div>
 </template>
