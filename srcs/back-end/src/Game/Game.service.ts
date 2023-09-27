@@ -370,4 +370,8 @@ export class GameService {
             console.log(error)
         }
     }
+
+    invited(){
+        
+    }
 }

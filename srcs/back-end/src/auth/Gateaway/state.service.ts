@@ -102,14 +102,26 @@ export class StateService {
 
     async invite(client : Socket,token : any,id : number)
     {
-        this.User.forEach((element) => {
-            if(element.id == id)
-            {
-                element.socket.emit("invited",id)
-                client.emit("wait")
-                return
+
+        try {
+            let decode : any
+            if(token)
+                decode = this.jwtService.decode(token)
+            try {
+                const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+                this.User.forEach((element) => {
+                    if(element.id == id)
+                    {
+                        element.socket.emit("invited",user.name,user.id)
+                        return
+                    }
+                })
+            } catch (error) {
+                console.log(error)
             }
-        })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
 
@@ -118,7 +130,9 @@ export class StateService {
         this.User.forEach((element) => {
             if(element.id == id)
             {
-                element.socket.emit("accepted",id)
+                console.log("Accepted",id)
+                element.socket.emit("accepted")
+                client.emit("accepted")
             }
         })
     }

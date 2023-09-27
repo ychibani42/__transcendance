@@ -2,6 +2,8 @@ import { createStore} from "vuex";
 import { Socket } from "socket.io-client";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import Btn from "../components/Invite.vue"
+import router from "../router";
 
 
 const store = createStore(
@@ -28,13 +30,16 @@ const store = createStore(
                 banned: [],
                 admin: [],
                 muted: [],
-            },
-            gamesock:null,
-            chatsock: null,
+            }, 
+            chatsock: <Socket | undefined>null,
+
+            gamesock:<Socket | undefined>null,
             gamename:'',
             gameplay:false,
             gameTheme : false,
-            state: <Socket | undefined>null
+            gameInviteID : 0,
+            
+            state: <Socket | undefined>null,
         },
         getters:{
             getuser : state => state.user,
@@ -83,32 +88,61 @@ const store = createStore(
                 this.state.chandisp.idch = 0                
                 this.state.chandisp.messages = []
                 this.state.chandisp.user = []
-                this.state.chatsock = null
                 this.state.user.Twofavalid = true
                 this.state.gamename = ""
-                this.state.gamesock = null
                 this.state.user.id = 0,
                 this.state.user.username = '',
                 this.state.user.profileCompleted =false,
                 this.state.user.blocked = [],
                 this.state.user.friend =[],
-                this.state.user.Twofa = false
+                this.state.user.Twofa = false,
                 this.state.user.online = false
-                if(this.state.state)
+                if(this.state.state){ 
                     this.state.state.disconnect()
+                }
+                if(this.state.gamesock){
+                    this.state.gamesock.disconnect()
+                }
+                if(this.state.chatsock) { 
+                    this.state.chatsock.disconnect() 
+                }
             },
-            jwtExpired()
-            {
-                toast("JWT INVALID", {
-                    autoClose: false,
-                    closeOnClick: false,
+            Inviteoff(){ 
+                console.log("INVITE OFF")
+                this.state.state?.off('invited') },
+            Inviteon(){
+                console.log("INVITE ON")
+                 this.state.state?.on('invited',(arg1,arg2) => {
+                    toast(Btn, {
+                        autoClose: false,
+                        closeOnClick: false,
+                    })
+                    console.log(arg1,arg2)
+                    this.state.gamename = arg1
+                    this.state.gameInviteID = arg2
+                    this.dispatch("Inviteoff")
                 })
             },
-            Notification(text , text2)
+            
+            refused(){ 
+                this.state.state?.emit("refused" , this.state.gameInviteID)
+                this.state.gamename = ""
+                this.state.gameInviteID = 0
+            },
+            gotogame(){
+                router.push("/Matchmaking")
+            },
+            accepted(){ 
+                this.state.state?.emit("accepted" , this.state.gameInviteID)
+            },
+            Gameinvite()
             {
-                toast(text, {
-                    autoClose: false,
-                    closeOnClick: false,
+                this.dispatch("Inviteon")
+                this.state.state?.on('refused',() => {
+                    this.dispatch("Inviteon")
+                })
+                this.state.state?.on('accepted',() => {
+                    this.dispatch("gotogame")
                 })
             }
         }

@@ -22,23 +22,18 @@ const routes: Array<RouteRecordRaw> = [
               component: () => import(/* webpackChunkName: "about" */ '../views/Matchmaking.vue') },
           { path: '/game', name: 'game',
               component: () => import(/* webpackChunkName: "about" */ '../views/Game.vue')},
-          { path: '/Config', name: 'Config',
-              component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
-          { path: '/Twofa', name: 'Twofa',
-              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')},
           { path: '/History', name: 'History',
               component: () => import(/* webpackChunkName: "about" */ '../views/GameHistory.vue')}
     ]
 
   },
+  { path: '/Config', name: 'Config',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
+  { path: '/Twofa', name: 'Twofa',
+              component: () => import(/* webpackChunkName: "about" */ '../views/Twofa.vue')},
   {
-    path: '/login',
-    name: 'login',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
-  },
+    path: '/login', name: 'login',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')},
   {
     path: '/:pathMatch(.*)*', redirect : '/'
   }
@@ -61,6 +56,7 @@ async function checkJwt() : Promise<boolean>
         store.commit('setProfileC',res.data.profilefinish)
         store.commit('setTwofa',res.data.otpenable)
         store.commit('setTwofavalid', res.data.otpvalider)
+        store.commit('setUsername', res.data.name)
         if(res.data.state == 'Disconected')
           { store.commit('setOnline',false) }
         else
@@ -102,6 +98,7 @@ router.beforeEach((to, from) => {
         polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})
       store.commit('setState',sock)
       store.state.state?.connect()
+      store.dispatch('Gameinvite')
     }
 })
 })

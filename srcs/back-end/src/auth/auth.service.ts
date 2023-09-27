@@ -81,6 +81,7 @@ export class AuthService {
 				where : {id: token.id},
 				select : {
 					id : true,
+					name : true,
 					profilefinish : true,
 					otpenable : true,
 					otpvalider : true,

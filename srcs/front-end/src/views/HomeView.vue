@@ -67,7 +67,6 @@ p {
   padding: 0.5rem;
   margin: 0;
 }
-
 }
 .table{
   display: grid;
@@ -78,8 +77,8 @@ p {
   flex-direction: row;
   justify-content: center;*/
   div{
-    padding-left: 5rem;
-    padding-right: 5rem;
+    padding-left: 0rem;
+    padding-right: 0rem;
     border: black;
     border-radius: 15px;
   }
