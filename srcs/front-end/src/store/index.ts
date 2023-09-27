@@ -80,6 +80,7 @@ const store = createStore(
             setState(state, sock){ state.state = sock},
             setOnline(state, bool){state.user.online = bool},
             setTheme(state , bool){ state.gameTheme = bool},
+            setGameID(state, int){ state.gameInviteID = int},
         },
         actions :{
             reset()
@@ -107,17 +108,14 @@ const store = createStore(
                     this.state.chatsock.disconnect() 
                 }
             },
-            Inviteoff(){ 
-                console.log("INVITE OFF")
+            Inviteoff(){
                 this.state.state?.off('invited') },
             Inviteon(){
-                console.log("INVITE ON")
                  this.state.state?.on('invited',(arg1,arg2) => {
                     toast(Btn, {
                         autoClose: false,
                         closeOnClick: false,
                     })
-                    console.log(arg1,arg2)
                     this.state.gamename = arg1
                     this.state.gameInviteID = arg2
                     this.dispatch("Inviteoff")

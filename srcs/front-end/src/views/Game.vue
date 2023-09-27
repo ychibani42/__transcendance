@@ -3,6 +3,7 @@ import { onMounted,onBeforeMount, Ref, ref , onUnmounted} from "vue";
 import { Socket} from 'socket.io-client'
 import { useRouter , onBeforeRouteLeave} from "vue-router";
 import { useStore } from "vuex";
+import store from "../store";
 
 const router = useRouter()
 const state = useStore()
@@ -52,6 +53,8 @@ const net = ref({
 
 onBeforeRouteLeave((to,from) => {
     console.log(to,from)
+    if(finished.value == false)
+        return null
 })
 
 onUnmounted(() => {
@@ -61,6 +64,8 @@ onUnmounted(() => {
     {
         state.state.state.emit("Change")
     }
+    store.commit("setGamename","")
+    store.commit("setGameID",0)
 }),
 
 onBeforeMount(() => {

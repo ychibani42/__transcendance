@@ -15,12 +15,10 @@ import { io ,Socket} from 'socket.io-client';
 
 
 function Accept(){
-  console.log("Accepted")
   store.state.state?.emit('Accepted',store.state.gameInviteID)
   store.commit('setGameplay',false)
   if(store.state.gamesock == null)
   {
-      console.log("COnnection Soket game")
       store.commit('setGamesocket',io('http://localhost:3000/game'))
   }
   store.state.gamesock?.emit('Join',{id : store.state.user.id,name : store.state.gamename})
