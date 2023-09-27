@@ -526,13 +526,18 @@ function deleteChan() {
             
                     <ol v-for="name in chandisp.messages" v-if="onChan === true">
                         <div class="message" v-if="name.userId === User.id" >
-                            <p>
-                                {{ name.text }} {{name.userId }}
-                            </p>  
+                                    <p>
+                                        
+                                        {{ name.text }}
+                                    </p>
+                               
                         </div>
                         <div class="Autre" v-else>
+                            <li v-for="user in chandisp.user">
+                                <button v-if="user.id == name.userId"> {{ user.name }}:</button>
+                            </li>
                             <p>
-                                {{ name.text }} {{ name.userId }}
+                                {{ name.text }}
                             </p>
                         </div>
 			        </ol>
@@ -600,7 +605,12 @@ function deleteChan() {
                 padding-top: 5%;
                 padding-bottom: 5%;
             
-            }
+            } li{
+        display: flex;
+        button {
+            background-color: rgb(212, 248, 236);
+        }
+    }
         }
 
     }
@@ -741,25 +751,53 @@ function deleteChan() {
     justify-content: end;
     padding: 0;
     margin: 0;
+    margin-left: 50%;
+    width: 50%;
+    li{
+        display: flex;
+        button {
+            background-color: rgb(212, 248, 236);
+        }
+    }
     p{
         display: flex;
         margin: 5px;
-        justify-content: flex-end;
-        max-width: 50%;
+        justify-content: flex-start;
+        max-width: 100%;
         line-break: anywhere;
         background-color: rgb(159, 241, 177);
-        padding: 10px;
+        padding: 5px;
         border-radius: 10px;
+  
     }
 }
-
+// display: flex;
+//         margin: 5px;
+//         justify-content: flex-end;
+//         max-width: 50%;
+//         line-break: anywhere;
+//         background-color: rgb(229, 238, 231);
+//         padding: 10px;
+//         border-radius: 10px;
 .Autre{
     display:flex;
+    flex-direction: column;
     justify-content: start;
     padding: 0;
     margin: 0;
-    p{
+    // margin-left: 50%;
+    // width: 50%;
+    // max-width: 50%;
+    li{
         display: flex;
+        max-width:50%;
+        button {
+            background-color: rgb(212, 248, 236);
+        }
+    }
+    
+    p{
+        display: flex; 
         margin: 5px;
         justify-content: flex-end;
         max-width: 50%;
@@ -769,4 +807,5 @@ function deleteChan() {
         border-radius: 10px;
     }
 }
+
 </style>

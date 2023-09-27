@@ -65,7 +65,6 @@ const store = createStore(
                 state.chandisp.banned = chandisp.banned
                 state.chandisp.muted = chandisp.muted
                 state.chandisp.admin = chandisp.admin
-
             },
             setChanid(state, id: number){state.chandisp.idch = id},
             setTwofa(state, bool){ state.user.Twofa = bool},

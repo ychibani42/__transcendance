@@ -8,6 +8,8 @@ const friend = ref([])
 const clicking = ref(false)
 const click = ref(0)
 
+
+
 async function getFriend(){
   await Axios.get('auth/Me').then(res => {
       if(res.status == 200)
@@ -50,6 +52,10 @@ function clicked(nbr : number){
     }
 }
 
+function GotoDm(friends: any) {
+  console.log('ok', friends)
+}
+
 </script>
 
 <template>
@@ -62,6 +68,7 @@ function clicked(nbr : number){
         </li>
         <div class="modal" v-if="clicking == true && friends.user.id == click">
             <button v-on:click="GotoProfile" >Profile</button>
+            <button v-on:click="GotoDm(friends.user)">Send DM</button>
             <button v-on:click="GAME(friends.user.id)">Invite Game</button>
             <button v-on:click="cancel">Cancel</button>
         </div>

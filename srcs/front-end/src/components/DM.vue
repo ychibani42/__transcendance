@@ -24,6 +24,7 @@ const DM = ref({
     blocked: false,
 
 })
+const rooms = ref([])
 async function getFriend(){
   await Axios.get('auth/Me').then(res => {
       if(res.status == 200)
@@ -40,6 +41,9 @@ onBeforeMount(() => {
   console.log('ok')
   socket.on('messageDM',(arg1 : string) => {
         DM.value.messages.push(arg1);
+    })
+    socket.on('createDM', (arg1: any) => {
+        rooms.value.push(arg1)
     })
 });
 
@@ -79,9 +83,9 @@ function createMessage() {
 function createDM (friend: any) {
   let user1Id: number = User.id
   let user2Id: number = friend.userId
-  let id: number = DM.value.id
-	socket.emit('createDM', { user1Id, user2Id, id }, response => {
-        DM.value.id = response.id
+  console.log('socket', socket)
+	socket.emit('createDM', { user1Id, user2Id }, response => {
+        // DM.value.id = response.id
     })
     
 }
