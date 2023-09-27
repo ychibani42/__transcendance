@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
 import { FindUserOptions } from './interfaces/findUserInterface';
@@ -21,15 +21,16 @@ export class UserService {
 		} catch (error) {}
 	}
 
-	async changename(idto: number, nameto: string) {
+	async ChangeName(idto: number, nameto: string): Promise<string | undefined> {
 		try {
+			console.log(nameto);
 			await this.prismaService.user.update({
 				where: { id: idto },
 				data: { name: nameto, profilefinish: true },
 			});
-			return true;
+			return nameto;
 		} catch (error) {
-			return false;
+			throw new BadRequestException('Failed to change name');
 		}
 	}
 
@@ -108,10 +109,9 @@ export class UserService {
 					id: id,
 				},
 			});
-			console.log('console log si found [' + found.avatar + ']');
 			return found.avatar;
 		} catch (error) {
-			return undefined;
+			throw new BadRequestException('Failed to find user');
 		}
 	}
 	async findPP(username: string) {

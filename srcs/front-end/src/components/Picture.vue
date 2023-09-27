@@ -27,7 +27,6 @@ const picture = ref()
 const con = ref(0)
 
 async function getPictureBeforeMount() {
-    console.log(con.value)
      await Axios.get('auth/Me').then(res => {
          if(res.status == 200)
            con.value = res.data.id

@@ -14,14 +14,8 @@ async function setupname() {
     const id = User.id
     console.log(User.id)
     await Axios.post('users/Change',{id , sendname}).then(res => {
-        if(res.data === true)
-        {
             router.push("/")
-        }
-        else
-        {
             err.value = true
-        }
     })
 }
 </script>

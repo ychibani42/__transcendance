@@ -19,7 +19,7 @@ import { JwtAuthGuard } from 'src/auth/Guard/jwt-guard';
 
 interface name {
 	id: number;
-	sendname: string;
+	name: string;
 }
 
 @Controller('users')
@@ -28,8 +28,9 @@ export class UserController {
 
 	@Post('Change')
 	@UseGuards(JwtAuthGuard)
-	changename(@Body() body: name): Promise<string | undefined> {
-		return this.userService.changename(body.id, body.sendname);
+	ChangeName(@Body() body: name): Promise<string | undefined> {
+		console.log(body);
+		return this.userService.ChangeName(body.id, body.name);
 	}
 
 	@Post('')
