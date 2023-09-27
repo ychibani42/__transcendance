@@ -25,8 +25,7 @@ function generateQRCode(){
 function sendcode(){
     try {
         Axios.post("auth/Verify2FA",{code : code.value}).then(res => {
-            console.log(res.data)
-            if(res.data == true)
+            if (res.data == true)
                 router.push("/")
         } ); 
     } catch (error) {
