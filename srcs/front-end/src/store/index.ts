@@ -1,7 +1,9 @@
 import { createStore} from "vuex";
-import { Socket } from "socket.io-client";
+import { Socket , io} from "socket.io-client";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import Btn from "../components/Invite.vue"
+import router from "../router";
 
 
 const store = createStore(
@@ -28,13 +30,16 @@ const store = createStore(
                 banned: [],
                 admin: [],
                 muted: [],
-            },
-            gamesock:null,
-            chatsock: null,
+            }, 
+            chatsock: <Socket | undefined>null,
+
+            gamesock:<Socket | undefined>null,
             gamename:'',
             gameplay:false,
             gameTheme : false,
-            state: <Socket | undefined>null
+            gameInviteID : 0,
+            
+            state: <Socket | undefined>null,
         },
         getters:{
             getuser : state => state.user,
@@ -75,6 +80,7 @@ const store = createStore(
             setState(state, sock){ state.state = sock},
             setOnline(state, bool){state.user.online = bool},
             setTheme(state , bool){ state.gameTheme = bool},
+            setGameID(state, int){ state.gameInviteID = int},
         },
         actions :{
             reset()
@@ -83,32 +89,64 @@ const store = createStore(
                 this.state.chandisp.idch = 0                
                 this.state.chandisp.messages = []
                 this.state.chandisp.user = []
-                this.state.chatsock = null
                 this.state.user.Twofavalid = true
                 this.state.gamename = ""
-                this.state.gamesock = null
                 this.state.user.id = 0,
                 this.state.user.username = '',
                 this.state.user.profileCompleted =false,
                 this.state.user.blocked = [],
                 this.state.user.friend =[],
-                this.state.user.Twofa = false
+                this.state.user.Twofa = false,
                 this.state.user.online = false
-                if(this.state.state)
+                if(this.state.state){ 
                     this.state.state.disconnect()
+                }
+                if(this.state.gamesock){
+                    this.state.gamesock.disconnect()
+                }
+                if(this.state.chatsock) { 
+                    this.state.chatsock.disconnect() 
+                }
             },
-            jwtExpired()
-            {
-                toast("JWT INVALID", {
-                    autoClose: false,
-                    closeOnClick: false,
+            Inviteoff(){
+                this.state.state?.off('invited') },
+            Inviteon(){
+                 this.state.state?.on('invited',(arg1,arg2) => {
+                    toast(Btn, {
+                        autoClose: false,
+                        closeOnClick: false,
+                    })
+                    this.state.gamename = arg1
+                    this.state.gameInviteID = arg2
+                    this.dispatch("Inviteoff")
                 })
             },
-            Notification(text , text2)
+            refused(){ 
+                this.state.state?.emit("refused" , this.state.gameInviteID)
+                this.state.gamename = ""
+                this.state.gameInviteID = 0
+                this.state.gamesock?.emit("Delete",{name : this.state.user.username})
+                this.state.gamesock?.disconnect()
+            },
+            SocketGame(){
+                if(store.state.gamesock == null)
+                    store.commit('setGamesocket',io('http://localhost:3000/game'))
+                this.state.gamesock?.emit("Invite",{id : this.state.user.id , name : this.state.user.username})
+            },
+            gotogame(){
+                router.push("/Matchmaking")
+            },
+            accepted(){ 
+                this.state.state?.emit("accepted" , this.state.gameInviteID)
+            },
+            Gameinvite()
             {
-                toast(text, {
-                    autoClose: false,
-                    closeOnClick: false,
+                this.dispatch("Inviteon")
+                this.state.state?.on('refused',() => {
+                    this.dispatch("Inviteon")
+                })
+                this.state.state?.on('accepted',() => {
+                    this.dispatch("gotogame")
                 })
             }
         }

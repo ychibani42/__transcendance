@@ -131,17 +131,22 @@ export class GameService {
             if(element.name == name){
                 if (element.play.socket == client)
                 {
+                    console.log("PLAY1",element.play.id)
                     element.play.config = true
                     element.speed = speed
                 }    
                 if (element.play2.socket == client)
                 {
+                    console.log("PLAY2",element.play2.id)
+                    console.log(element.name)
                     element.play2.config = true
                 }
                 if(element.play.config == true && element.play2.config == true)
                 {
+                    console.log(element.name)
                     element.state = state.onroom
                 }
+                
             }
         })
     }
@@ -369,5 +374,71 @@ export class GameService {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    invited(client : Socket , arg: any){
+        let newplay = {
+            x : 0,
+            y : 0,
+            w : 8,
+            h : 37,
+            score : 0,
+            socket : client,
+            id : arg.id,
+            config : false
+        }
+        let newplay2 = {
+            x : 0,
+            y : 0,
+            w : 8,
+            h : 37,
+            score : 0,
+            socket : client,
+            id : arg.id,
+            config : false
+        }
+        let room : Room = {
+            state : state.config,
+            name : arg.name,
+            ball : {
+                x : 150,
+                y : 75,
+                r : 5,
+                speed :2,
+                velX : 1.5,
+                velY : 0,
+            },
+            speed : false,
+            play : newplay,
+            play2 : newplay2,
+            ready : false,
+            ready2 : false
+        }
+        room.play.x = 15
+        room.play2.x = 300 - 15 - 8
+        if(this.Rooms.length == 0)
+        {
+            this.addInterval()
+        }
+        this.Rooms.push(room)
+    }
+
+    acceptINV(client : Socket , arg: any){
+        this.Rooms.forEach(element => {
+            if(element.name == arg.name){
+                element.play2.socket = client
+                element.play2.id = arg.id
+            }
+        })
+    }
+
+    deleteroom(client : Socket , arg: any){
+        this.Rooms.forEach(element => {
+            if(element.name == arg.name){
+                let id = this.Rooms.indexOf(element)
+                    this.Rooms.splice(id,1)
+                return true
+            }
+        })
     }
 }
