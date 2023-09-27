@@ -11,19 +11,24 @@
 <script setup lang="ts">
 import store from '../store';
 import { toast } from 'vue3-toastify';
+import { io ,Socket} from 'socket.io-client';
 
-
-console.log("BTN")
 
 function Accept(){
   console.log("Accepted")
   store.state.state?.emit('Accepted',store.state.gameInviteID)
+  store.commit('setGameplay',false)
+  if(store.state.gamesock == null)
+  {
+      console.log("COnnection Soket game")
+      store.commit('setGamesocket',io('http://localhost:3000/game'))
+  }
+  store.state.gamesock?.emit('Join',{id : store.state.user.id,name : store.state.gamename})
   toast.clearAll()
 }
 
 
 function Refuse(){
-  console.log("Refuse")
   store.state.state?.emit('Refused',store.state.gameInviteID)
   store.dispatch("Inviteon")
   toast.clearAll()

@@ -1,5 +1,5 @@
 import { createStore} from "vuex";
-import { Socket } from "socket.io-client";
+import { Socket , io} from "socket.io-client";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import Btn from "../components/Invite.vue"
@@ -123,11 +123,17 @@ const store = createStore(
                     this.dispatch("Inviteoff")
                 })
             },
-            
             refused(){ 
                 this.state.state?.emit("refused" , this.state.gameInviteID)
                 this.state.gamename = ""
                 this.state.gameInviteID = 0
+                this.state.gamesock?.emit("Delete",{name : this.state.user.username})
+                this.state.gamesock?.disconnect()
+            },
+            SocketGame(){
+                if(store.state.gamesock == null)
+                    store.commit('setGamesocket',io('http://localhost:3000/game'))
+                this.state.gamesock?.emit("Invite",{id : this.state.user.id , name : this.state.user.username})
             },
             gotogame(){
                 router.push("/Matchmaking")

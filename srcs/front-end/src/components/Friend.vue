@@ -37,6 +37,8 @@ function GAME(id : Number){
   console.log("Invite",id)
   store.state.state?.emit("Invite",id)
   store.dispatch("Inviteoff")
+  store.dispatch("SocketGame")
+  store.commit('setGameplay',true)
   store.commit("setGamename",store.state.user.username)
   clicking.value = !clicking.value
   click.value = 0

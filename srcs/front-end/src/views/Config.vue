@@ -12,7 +12,6 @@ const err = ref(false);
 async function setupname() {
     const sendname = name.value
     const id = User.id
-    console.log(User.id)
     await Axios.post('users/Change',{id , sendname}).then(res => {
         if(res.data === true)
         {

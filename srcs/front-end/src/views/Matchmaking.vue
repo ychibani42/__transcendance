@@ -30,20 +30,10 @@ function inviteorNormal()
 function invitedgame(){
     console.log("invited")
     option.value = true
-    store.dispatch("Inviteon")
-    if(store.state.gamesock == null)
-        store.commit('setGamesocket',io('http://localhost:3000/game'))
     socket.value = store.state.gamesock
     if(!socket.value)
         return
     socket.value.connect();
-    socket.value.on("playerdef", (arg1 : number , arg2 : string) => {
-        if(arg1 == 1)
-            store.commit('setGameplay',false)
-        else
-            store.commit('setGameplay',true)
-        store.commit('setGamename',arg2)
-    })
     socket.value.on('OnRoom', () =>
     {
         router.push("/game")
