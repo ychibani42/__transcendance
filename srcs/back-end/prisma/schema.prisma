@@ -85,6 +85,7 @@ model DM {
   blocked   Boolean
   dm1       Int
   dm2       Int
+  name      String
   user1     User        @relation("msg1", fields: [dm1], references: [id])
   user2     User        @relation("msg2", fields: [dm2], references: [id])
   messages  Message[]

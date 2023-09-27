@@ -6,6 +6,7 @@ import {
 	ConnectedSocket,
 } from '@nestjs/websockets';
 import { DMservice } from './DM.service';
+import { ChatService } from 'src/chat/chat.service';
 // import { CreateDMDto } from './dto/create-DM.dto';
 import { CreateMessageDto } from '../chat/dto/create-message.dto';
 import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
@@ -25,34 +26,36 @@ export class DMGateway {
 
 	constructor(private readonly dmService: DMservice) {}
 
-	@SubscribeMessage('test')
-	test() {
-		console.log('test')
-	}
 
     @SubscribeMessage('createMessageDM')
 	async create( @MessageBody() createMessageDto: CreateMessageDto ) {
-		console.log('ici')
 		const message = await this.dmService.createMessage(
 			createMessageDto,
 		);
 		if (message == null)
 			return null
-		console.log('ici')
-		if (message.dm && message.dm.user1.name)
-		{
-			this.server.to(message.dm.user1.name).emit('message', message);
-			console.log('name of receiver', message.dm.user1.name)
-			console.log('message', message)
-		}
-			
+		if (message && message.dm)
+			this.server.to(message.dm.name).emit('messageDM', message);
 		return message;
 	}
+
+	@SubscribeMessage('joinDM')
+	async joinDM(client: Socket, data: any)
+	{
+		if (data.oldRoomId != 0)
+			await this.dmService.leaveRoom(client, data.oldRoomId)
+		let dm: any = await this.dmService.findDM(data.user1Id, data.user2Id)
+		if (dm)
+		{
+			client.join(dm.name)
+			this.server.emit('joinDM', data.user)
+			return dm
+		}
+	}
+
 	@SubscribeMessage('createDM')
 	async createDM(@Body() body :any){
-		console.log(body)
 		const chan = await this.dmService.createChat(body);
-		console.log(chan)
 		this.server.emit('createDM', chan)
 		return chan
 	}

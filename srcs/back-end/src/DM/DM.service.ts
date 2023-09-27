@@ -12,7 +12,6 @@ export class DMservice{
 
     async createMessage( createMessageDto: CreateMessageDto) {
 		try {
-			console.log(createMessageDto.id)
 			const message = await this.prismaService.message.create({
 				data: {
 					userId: createMessageDto.user,
@@ -26,7 +25,7 @@ export class DMservice{
 					name: true,
 					text: true,
 					dm: {
-						select: { user1: { select: { name: true } } } }
+						include: { user1: { select: { name: true } } } }
 				},
 			});
 			return message;
@@ -37,27 +36,77 @@ export class DMservice{
 
 	async createChat(data: any) {
 		try {
-			console.log('data', data)
-			let dm: any
-			dm = await this.prismaService.dM.create({
-			data: {
-				blocked: false,
-				dm1: data.user1Id,
-				dm2: data.user2Id,
-			},
-			include: {
-				user1: true,
-				user2: true,
-				messages: true
-			}
-		});
-		console.log('ici')
-		return dm
+			let dm: any = await this.findDM(data.user1Id, data.user2Id)
+			if (!dm){
+				dm = await this.prismaService.dM.create({
+				data: {
+					blocked: false,
+					dm1: data.user1Id,
+					dm2: data.user2Id,
+					name: ''
+				},
+				include: {
+					user1: true,
+					user2: true,
+					messages: true
+				}
+			}); 
+			let id: string = String(dm.id)
+			dm = await this.prismaService.dM.update({
+				where: {
+					id: dm.id
+				},
+				data: {
+					name: id
+				},
+				include: {
+					user1: true,
+					user2: true,
+					messages: true
+				}
+			})
+			return dm
+		}
+		
 	}
 	catch (error) {
 		console.log(error)
 	}
 }
+
+async leaveRoom(client: Socket, oldRoomId: number) {
+	try {
+		const dm = await this.prismaService.dM.findUniqueOrThrow({
+			where: {
+				id: oldRoomId
+			}
+		})
+		if (dm)
+			client.leave(dm.name)
+
+	} catch (error) {
+		console.log(error)
+	}
+}
+
+	async findDM(userId1: number, userId2: number) {
+		try {
+			const dm = await this.prismaService.dM.findFirst({
+				where: {
+					OR: [
+						{ dm1: userId1, dm2: userId2,},
+						{ dm1: userId2, dm2: userId1 }
+					]
+				},
+				include: { messages: true}
+			})
+			if (dm)
+				return dm
+		} catch (error) {
+			console.log(error)
+			return null
+		}
+	}
 
     async findAllMessages(dmId: number) {
 		try {

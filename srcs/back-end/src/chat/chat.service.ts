@@ -178,14 +178,6 @@ export class ChatService {
 		}
 	}
 
-	updateChat(id: number, updateChatDto: UpdateChatDto) {
-		return `This action updates a #${id} chat`;
-	}
-
-	removeChat(id: number) {
-		return;
-	}
-
 	async createMessage( createMessageDto: CreateMessageDto) {
 		try {
 			const muted = await this.findMuted(createMessageDto.user, createMessageDto.id)

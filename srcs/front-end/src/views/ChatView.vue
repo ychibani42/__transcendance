@@ -60,9 +60,7 @@ const isPassword = ref(false)
 
 
 onBeforeMount(() => {
-   
     displayChats()
-    console.log(inAll.value)
     socket.on('message',(arg1 : string) => {
         chandisp.value.messages.push(arg1);
     })
@@ -71,9 +69,7 @@ onBeforeMount(() => {
                 if(element.id == arg1.id){
                     chandisp.value.admin.splice(chandisp.value.admin.indexOf(element), 1)
                 }
-        })
-
-         
+        })   
     })
     socket.on('unbanned', (arg1:any) => {
         chandisp.value.banned.forEach(element => {

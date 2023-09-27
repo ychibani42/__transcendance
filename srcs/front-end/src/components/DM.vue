@@ -17,8 +17,11 @@ const emit = defineEmits(['open', 'all', 'joined'])
 const DM = ref({
 	messages : [],
 	id : 0,
-  user1: {},
-  blocked: false,
+    dm1: 0,
+    dm2: 0,
+    name: 0,
+    user1: {},
+    blocked: false,
 
 })
 async function getFriend(){
@@ -34,39 +37,51 @@ async function getFriend(){
 
 onBeforeMount(() => {
   getFriend()
+  console.log('ok')
+  socket.on('messageDM',(arg1 : string) => {
+        DM.value.messages.push(arg1);
+    })
 });
 
 function enterdm(friend: any) {
-    DM.value = friend
+    let user1Id: number = User.id
+    let user2Id: number = friend.userId
+    let user: any = User
+    let oldRoomId: number = DM.value.id
+    console.log(DM.value)
+    createDM(friend)
+    socket.emit('joinDM', { user1Id, user2Id, user, oldRoomId }, response => {
+        DM.value.id = response.id
+        DM.value.blocked = response.blocked
+        DM.value.dm1 = response.dm1
+        DM.value.dm2 = response.dm2
+        DM.value.name = response.name
+        DM.value.messages = response.messages
+    })
+    DM.value.user1 = friend
     onChan.value = true
-    console.log('ami', DM.value)
-
 }
+
 function displayChats () {
   emit('all')
 }
 
 function createMessage() {
-  console.log('ok')
   onChan.value = true
-  console.log(DM.value.id, messageText.value)
-  console.log(socket)
-  socket.emit('test')
-  socket.emit('createMessageDM', { id: 4, name: User.username, text: messageText.value , user: User.id, to: 1},
+  socket.emit('createMessageDM', { id: DM.value.id, name: DM.value.name, text: messageText.value , user: User.id, to: 1},
       response => {
           messageText.value = ""
-          console.log(response)
   });
 
 }
 
 
-function createDM () {
+function createDM (friend: any) {
   let user1Id: number = User.id
-  let user2Id: number = 3
-  console.log('ici', User.id, friend.value)
-	socket.emit('createDM', { user1Id, user2Id }, response => {
-        console.log(response)
+  let user2Id: number = friend.userId
+  let id: number = DM.value.id
+	socket.emit('createDM', { user1Id, user2Id, id }, response => {
+        DM.value.id = response.id
     })
     
 }
@@ -81,18 +96,17 @@ function createDM () {
             </div> 
         
             <ol>
-				      <li v-for="friends in friend">
-                  <button @click="enterdm(friends)"> 
-                    {{ friends.user.name }}
-                  </button>
-                  <button @click="createDM"></button>
-				        </li>
-			      </ol>
+				<li v-for="friends in friend">
+                    <button @click="enterdm(friends)"> 
+                        {{ friends.user.name }}
+                    </button>
+				</li>
+			</ol>
         </div>
         <div class="dm-display">
           <div class="dm-header">
               <div class="dm-name" v-if="onChan == true">
-                {{ DM.user.name }}
+                {{ DM.user1.user.name }}
               </div>
              
           </div>
@@ -248,5 +262,37 @@ function createDM () {
     }
 }
 
+.message{
+    display:flex;
+    justify-content: end;
+    padding: 0;
+    margin: 0;
+    p{
+        display: flex;
+        margin: 5px;
+        justify-content: flex-end;
+        max-width: 50%;
+        line-break: anywhere;
+        background-color: rgb(159, 241, 177);
+        padding: 10px;
+        border-radius: 10px;
+    }
+}
 
+.Autre{
+    display:flex;
+    justify-content: start;
+    padding: 0;
+    margin: 0;
+    p{
+        display: flex;
+        margin: 5px;
+        justify-content: flex-end;
+        max-width: 50%;
+        line-break: anywhere;
+        background-color: rgb(229, 238, 231);
+        padding: 10px;
+        border-radius: 10px;
+    }
+}
 </style>
