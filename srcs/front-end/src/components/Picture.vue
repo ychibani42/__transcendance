@@ -57,7 +57,6 @@
       };
   
       const uploadImage = async (event) => {
-        // SI L'ID EST CELUI EST LE  MIEN JE PEUX APPELER CETTE FONCTION
         selectedFile.value = event.target.files[0];
         const formData = new FormData();
         formData.append('file', selectedFile.value);
@@ -76,10 +75,7 @@
       onMounted(() => {
         getPictureBeforeMount();
       });
-  
-      return { picture, uploadImage, getPicture };
     },
-    defineExpose: ['getPicture'],
   };
   </script>
   
