@@ -6,6 +6,7 @@ import { useStore, mapState } from 'vuex'
 import Modal from '../components/Modal.vue';
 import Password from '../components/Password.vue';
 import DM from '../components/DM.vue';
+import Friend from '../components/Friend.vue';
 // import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 const store = useStore()
@@ -379,6 +380,7 @@ function deleteChan() {
     })
 }
 
+
 </script>
 
 <template>
@@ -534,10 +536,14 @@ function deleteChan() {
                         </div>
                         <div class="Autre" v-else>
                             <li v-for="user in chandisp.user">
-                                <button v-if="user.id == name.userId"> {{ user.name }}:</button>
+                                <button v-if="user.id == name.userId"> 
+                                        {{ user.name }}: 
+                                        
+                                </button>
+                               
                             </li>
                             <p>
-                                {{ name.text }}
+                                    {{ name.text }}
                             </p>
                         </div>
 			        </ol>
@@ -751,8 +757,6 @@ function deleteChan() {
     justify-content: end;
     padding: 0;
     margin: 0;
-    margin-left: 50%;
-    width: 50%;
     li{
         display: flex;
         button {
@@ -762,49 +766,40 @@ function deleteChan() {
     p{
         display: flex;
         margin: 5px;
-        justify-content: flex-start;
-        max-width: 100%;
+        justify-content: center;
+        max-width: 50%;
         line-break: anywhere;
         background-color: rgb(159, 241, 177);
         padding: 5px;
         border-radius: 10px;
-  
     }
 }
-// display: flex;
-//         margin: 5px;
-//         justify-content: flex-end;
-//         max-width: 50%;
-//         line-break: anywhere;
-//         background-color: rgb(229, 238, 231);
-//         padding: 10px;
-//         border-radius: 10px;
+
 .Autre{
     display:flex;
-    flex-direction: column;
     justify-content: start;
+    flex-wrap: wrap;
     padding: 0;
     margin: 0;
-    // margin-left: 50%;
-    // width: 50%;
-    // max-width: 50%;
+    max-width: 50%;
     li{
-        display: flex;
-        max-width:50%;
+
         button {
             background-color: rgb(212, 248, 236);
+            overflow: hidden;
         }
     }
     
     p{
-        display: flex; 
-        margin: 5px;
-        justify-content: flex-end;
+        display: flex;
+        justify-content: center;
+        margin-left: 5px;
         max-width: 50%;
         line-break: anywhere;
         background-color: rgb(229, 238, 231);
         padding: 10px;
         border-radius: 10px;
+       
     }
 }
 
