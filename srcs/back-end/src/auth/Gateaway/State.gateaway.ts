@@ -17,17 +17,19 @@ export class StateGateway {
 	server: Server;
 
 
-    handleConnection(client :Socket){
-        this.stateservice.connection(client,client.handshake.headers.cookies)
+    @SubscribeMessage('Connect')
+    Connect(client :Socket, id  : number){
+        console.log("connection",id)
+        return this.stateservice.connection(client,id)
     }
-    
+
     handleDisconnect(client :Socket){
         this.stateservice.disconnect(client,client.handshake.headers.cookies)
     }
 
     @SubscribeMessage('game')
     Gameconnection(client :Socket){
-        this.stateservice.Game(client,client.handshake.headers.cookies)
+        return this.stateservice.Game(client,client.handshake.headers.cookies)
     }
 
     @SubscribeMessage('Change')

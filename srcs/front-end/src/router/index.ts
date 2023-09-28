@@ -3,7 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import SiteLayout from '../components/SiteLayout.vue'
 import Axios from '../services'
 import store from '../store'
-import { io } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -58,7 +58,11 @@ async function checkJwt() : Promise<boolean>
         store.commit('setTwofavalid', res.data.otpvalider)
         store.commit('setUsername', res.data.name)
         if(res.data.state == 'Disconected')
-          { store.commit('setOnline',false) }
+        { 
+          store.commit('setOnline',false) 
+          const sock = connect()
+          store.commit('setState',sock)
+        }
         else
           { store.commit('setOnline',true) } 
       }
@@ -93,13 +97,26 @@ router.beforeEach((to, from) => {
     }
     if(store.state.user.online == false == valid == true)
     {
-      const sock = io("http://localhost:3000/state",{
-        transportOptions : {
-        polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}})
-      store.commit('setState',sock)
-      store.state.state?.connect()
       store.dispatch('Gameinvite')
     }
 })
 })
 export default router
+
+function connect(){
+  let sock = null
+  if($cookies.get('access_token'))
+  {
+    console.log($cookies.get('access_token'))
+    sock = io("http://localhost:3000/state",{
+      transportOptions : {
+      polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}
+    })
+    sock.emit("Connect", store.state.user.id)
+  }
+  if(sock == null)
+  {
+    return connect()
+  }
+  return sock;
+}

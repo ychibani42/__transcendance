@@ -51,12 +51,6 @@ const net = ref({
         color : 'white',
 });
 
-onBeforeRouteLeave((to,from) => {
-    console.log(to,from)
-    if(finished.value == false)
-        return null
-})
-
 onUnmounted(() => {
     if(socket.value)
         socket.value.disconnect();
@@ -201,6 +195,21 @@ function drowball(x: number,y: number,r: number,color: string)
     context.value.closePath();
     context.value.fill();
 }
+
+
+onBeforeRouteLeave((to,from,next) => {
+    console.log(to,from)
+    if(finished.value == false)
+    {
+        console.log("NOT LEAVE")
+        next()
+    }
+    else
+    {
+        next()
+    }
+})
+
 </script>
 
 <template>
