@@ -38,8 +38,12 @@ async function getFriend(){
 
 onBeforeMount(() => {
   getFriend()
-  console.log('ok')
-  socket.on('messageDM',(arg1 : string) => {
+  console.log('ok', console.log(store.getters.getFriend))
+  if (store.getters.getDM == true)
+  {
+    // createDM(store.getters.getFriend)
+  }
+    socket.on('messageDM',(arg1 : string) => {
         DM.value.messages.push(arg1);
     })
     socket.on('createDM', (arg1: any) => {

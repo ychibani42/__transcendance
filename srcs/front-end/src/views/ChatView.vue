@@ -61,7 +61,11 @@ const isPassword = ref(false)
 
 
 onBeforeMount(() => {
-    displayChats()
+    inDM.value = store.getters.getDM;
+    if (inDM.value == true)
+        displayDM()
+    else
+        displayChats()
     socket.on('message',(arg1 : string) => {
         chandisp.value.messages.push(arg1);
     })
