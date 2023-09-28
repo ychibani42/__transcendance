@@ -69,39 +69,38 @@ async function Button2fa() {
 
 <style lang="scss" scoped>
   
-.profile{
-    display: flex;
+.profile {
+	display: flex;
     flex-direction: column;
     align-content: center;
     flex-wrap: nowrap;
     align-items: center;
-	}
-  h1{
-    padding:5px;
-  }
-  input[type="text"] {
-      width:200px;
-      height:30px;
-      border-radius:5px;
-      background-color: lightblue;
-      margin-left:2px;
-  }
+}
+
+h1 {
+	padding:5px;
+}
+
+input[type="text"] {
+    width:200px;
+    height:30px;
+    border-radius:5px;
+    background-color: lightblue;
+    margin-left:2px;
+}
 
 .edit_name_class{
 	display: flex;
 }
 
 .btn {
-	.false{
+	.false {
 		background-color: red;
 		color: gold;
 	}
-	.true{
+	.true {
 		background-color: green;
 		color: gold;
 	}
 }
-
-
-
 </style>
