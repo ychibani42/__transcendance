@@ -59,4 +59,10 @@ export class DMGateway {
 		this.server.emit('createDM', chan)
 		return chan
 	}
+
+	@SubscribeMessage('findAllDM')
+	async findAllDM(@Body() data :any){
+		const dms = await this.dmService.findAllDM(data.userid, data.name);
+		return dms
+	}
 }

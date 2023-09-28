@@ -120,4 +120,24 @@ async leaveRoom(client: Socket, oldRoomId: number) {
 			console.log(error)
 		}
 	}
+
+	async findAllDM(userid: number, name: string) {
+		try {
+			const dms = await this.prismaService.user.findMany({
+				where: {
+					NOT: { id: userid },
+					OR: [
+						{ dm2: { some: { dm1: userid }}},
+						{ dm2: { some: { dm2: userid }}},
+						{ dm1 : { some: { dm1: userid }}},
+						{ dm1 : { some: { dm2 : userid}}}
+					]
+				},
+				include: {	dm1: true, dm2: true }
+			});
+			return dms;
+		} catch (error) {
+			console.log(error)
+		}
+	}
 }

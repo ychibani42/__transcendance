@@ -71,9 +71,9 @@ function connected(user : any){
 }
 
 function GotoDM(friend: any) {
-  console.log(friend)
-  store.commit('setFriend', store.state.friend)
+  store.commit('setFriendDM', friend)
   store.commit('setDM', true)
+  // console.log(store.getters.getFriend)
   router.push("/chat")
 }
 

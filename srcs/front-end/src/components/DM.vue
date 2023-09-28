@@ -24,6 +24,7 @@ const DM = ref({
     blocked: false,
 
 })
+const amigo = store.getters.getFriend
 const rooms = ref([])
 async function getFriend(){
   await Axios.get('auth/Me').then(res => {
@@ -31,33 +32,36 @@ async function getFriend(){
         ID.value = res.data.id
       
   })
-  Axios.post('friend',{id : ID.value}).then((res) => {
-        friend.value = res.data
-  })
+//   Axios.post('friend',{id : ID.value}).then((res) => {
+//         friend.value = res.data
+//   })
 }
 
 onBeforeMount(() => {
   getFriend()
-  console.log('ok', console.log(store.getters.getFriend))
+  displayDM()
   if (store.getters.getDM == true)
   {
-    // createDM(store.getters.getFriend)
+    createDM(friend)
+    enterdm(amigo)
+    onChan.value = true
   }
     socket.on('messageDM',(arg1 : string) => {
         DM.value.messages.push(arg1);
     })
     socket.on('createDM', (arg1: any) => {
+        friend.value.push(amigo)
         rooms.value.push(arg1)
     })
 });
 
 function enterdm(friend: any) {
     let user1Id: number = User.id
-    let user2Id: number = friend.userId
+    let user2Id: number = friend.id
     let user: any = User
     let oldRoomId: number = DM.value.id
-    console.log(DM.value)
-    createDM(friend)
+    DM.value.user1 = friend
+    amigo.value = friend
     socket.emit('joinDM', { user1Id, user2Id, user, oldRoomId }, response => {
         DM.value.id = response.id
         DM.value.blocked = response.blocked
@@ -66,12 +70,20 @@ function enterdm(friend: any) {
         DM.value.name = response.name
         DM.value.messages = response.messages
     })
-    DM.value.user1 = friend
     onChan.value = true
 }
 
 function displayChats () {
   emit('all')
+}
+
+function displayDM () {
+    let userid: number = User.id
+    let name: string = User.name
+    socket.emit('findAllDM', { userid, name }, (response) => {
+		    friend.value = response
+            console.log(response)
+	    });
 }
 
 function createMessage() {
@@ -86,8 +98,7 @@ function createMessage() {
 
 function createDM (friend: any) {
   let user1Id: number = User.id
-  let user2Id: number = friend.userId
-  console.log('socket', socket)
+  let user2Id: number = friend.id
 	socket.emit('createDM', { user1Id, user2Id }, response => {
         // DM.value.id = response.id
     })
@@ -106,7 +117,7 @@ function createDM (friend: any) {
             <ol>
 				<li v-for="friends in friend">
                     <button @click="enterdm(friends)"> 
-                        {{ friends.user.name }}
+                        {{ friends.name }}
                     </button>
 				</li>
 			</ol>
@@ -114,7 +125,7 @@ function createDM (friend: any) {
         <div class="dm-display">
           <div class="dm-header">
               <div class="dm-name" v-if="onChan == true">
-                {{ DM.user1.user.name }}
+                {{ amigo.value.name }}
               </div>
              
           </div>
