@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, UnauthorizedException} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import  * as QRCode  from 'qrcode'
+import * as QRCode from 'qrcode';
 import { authenticator } from 'otplib';
 
 @Injectable({})
@@ -11,16 +11,17 @@ export class AuthService {
 		private prismaService: PrismaService,
 	) {}
 
-	async login(id: number, link: string) {
+	async login(id: number) {
 		try {
-			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
+			const users = await this.prismaService.user.findUniqueOrThrow({
+				where: { id42: id },
+			});
 			return users;
 		} catch (error) {
 			const user = await this.prismaService.user.create({
 				data: {
 					id42: id,
-					name: link,
-					avatar: './storage/uploads/default.jpg',
+					avatar: './storage/uploads/hamoud.gif',
 				},
 			});
 			return user;
@@ -32,22 +33,22 @@ export class AuthService {
 			id: User.id,
 			Profile: User.profilefinish,
 			TwoFa: User.otpenable,
-			Connected : User.state
+			Connected: User.state,
 		};
 		const jwt = await this.jwtService.signAsync(payload);
-		return(jwt);
+		return jwt;
 	}
 
-
-	decodedtok(token : string)
-	{
-		const decode = this.jwtService.decode(token)
+	decodedtok(token: string) {
+		const decode = this.jwtService.decode(token);
 		return decode;
 	}
 
-	async loginInviter(id : number) {
+	async loginInviter(id: number) {
 		try {
-			const users = await this.prismaService.user.findUniqueOrThrow({where : {id42: id}});
+			const users = await this.prismaService.user.findUniqueOrThrow({
+				where: { id42: id },
+			});
 			return users;
 		} catch (error) {
 			const user = await this.prismaService.user.create({
@@ -62,77 +63,94 @@ export class AuthService {
 
 	async changeotp(id: number) {
 		try {
-			const users = await this.prismaService.user.findUniqueOrThrow({where : {id: id}});
-			let user : any;
+			const users = await this.prismaService.user.findUniqueOrThrow({
+				where: { id: id },
+			});
+			let user: any;
 			if (users.otpenable == true)
-				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : false , otpvalider : true}})
+				user = await this.prismaService.user.update({
+					where: { id: id },
+					data: { otpenable: false, otpvalider: true },
+				});
 			else
-				user = await this.prismaService.user.update({where : {id : id},data : {otpenable : true , otpvalider : true}})
-			return users.otpenable
-		} 
-		catch (error) {
-			throw new BadRequestException
+				user = await this.prismaService.user.update({
+					where: { id: id },
+					data: { otpenable: true, otpvalider: true },
+				});
+			return users.otpenable;
+		} catch (error) {
+			throw new BadRequestException();
 		}
 	}
 
-	async loginInfo(token : any){
+	async loginInfo(token: any) {
 		try {
 			const user = await this.prismaService.user.findUniqueOrThrow({
-				where : {id: token.id},
-				select : {
-					id : true,
-					profilefinish : true,
-					otpenable : true,
-					otpvalider : true,
-					state : true
-				}
+				where: { id: token.id },
+				select: {
+					id: true,
+					name: true,
+					profilefinish: true,
+					otpenable: true,
+					otpvalider: true,
+					state: true,
+				},
 			});
-			return user
+			return user;
 		} catch (error) {
-			throw new BadRequestException
+			throw new BadRequestException();
 		}
 	}
 
-	async generateCode(token : string)
-	{
+	async generateCode(token: string) {
 		try {
-			const decode = this.jwtService.verify(token)
-			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
-			if(user.name == null)
-				return false
-			const secret : string = authenticator.generateSecret()
-			await this.prismaService.user.update({where :{ id : decode.id}, data :{otpcode : secret , otpvalider : false}})
-			const uri = authenticator.keyuri(user.name,"GROSSECRETS",secret)
-			const code = await QRCode.toDataURL(uri)
-			return code
+			const decode = this.jwtService.verify(token);
+			const user = await this.prismaService.user.findFirstOrThrow({
+				where: { id: decode.id },
+			});
+			if (user.name == null) return false;
+			const secret: string = authenticator.generateSecret();
+			await this.prismaService.user.update({
+				where: { id: decode.id },
+				data: { otpcode: secret, otpvalider: false },
+			});
+			const uri = authenticator.keyuri(user.name, 'GROSSECRETS', secret);
+			const code = await QRCode.toDataURL(uri);
+			return code;
 		} catch (error) {
-			return null
+			return null;
 		}
 	}
 
-	async verify(code : string, token : string){
-		
-		const decode = this.jwtService.verify(token)
+	async verify(code: string, token: string) {
+		const decode = this.jwtService.verify(token);
 		try {
-			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
-			let verify : boolean
-			if(user.otpcode){
-				verify = authenticator.check(code,user.otpcode)
-				return verify
+			const user = await this.prismaService.user.findFirstOrThrow({
+				where: { id: decode.id },
+			});
+			let verify: boolean;
+			if (user.otpcode) {
+				verify = authenticator.check(code, user.otpcode);
+				return verify;
 			}
-			return false
+			return false;
 		} catch (error) {
-			return false
+			return false;
 		}
 	}
 
-	async validate2FA(token : string){
-		const decode = this.jwtService.verify(token)
+	async validate2FA(token: string) {
+		const decode = this.jwtService.verify(token);
 		try {
-			const user = await this.prismaService.user.findFirstOrThrow({where :{ id : decode.id}})
-			await this.prismaService.user.update({where :{ id : decode.id}, data :{otpcode : "", otpvalider : true}})
+			const user = await this.prismaService.user.findFirstOrThrow({
+				where: { id: decode.id },
+			});
+			await this.prismaService.user.update({
+				where: { id: decode.id },
+				data: { otpcode: '', otpvalider: true },
+			});
 		} catch (error) {
-			return false
+			return false;
 		}
 	}
 }

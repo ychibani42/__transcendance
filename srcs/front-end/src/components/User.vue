@@ -68,9 +68,9 @@ function GotoProfile(){
           </div>
         </li>
         <div class="modal" v-if="clicking == true && Users.id == click">
-            <button v-on:click="GotoProfile" >Profile</button>
-            <button v-on:click="addfriend(Users.id)">Add friend</button>
-            <button v-on:click="cancel">Cancel</button>
+            <button class="modal-btn" v-on:click="GotoProfile" >Profile</button>
+            <button class="modal-btn" v-on:click="addfriend(Users.id)">Add friend</button>
+            <button class="modal-btn" v-on:click="cancel">Cancel</button>
         </div>
       </ul>
     </div>
@@ -95,6 +95,11 @@ function GotoProfile(){
     display: flex;
     flex-direction: column;
     border-radius: 8px;
+    .modal-btn {
+    width: 15rem;
+    height: 3rem;
+    margin: 0.5rem;
+  }
   }
 
 .User {
@@ -110,6 +115,7 @@ function GotoProfile(){
   flex-direction: row;
   align-items: center;
   overflow-y: auto;
+  width: 100;
 }
 
 ul{

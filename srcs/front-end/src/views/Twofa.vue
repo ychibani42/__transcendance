@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Axios from '../services';
 import {onMounted, Ref, ref} from "vue";
-import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import router from '../router';
 
@@ -26,8 +25,7 @@ function generateQRCode(){
 function sendcode(){
     try {
         Axios.post("auth/Verify2FA",{code : code.value}).then(res => {
-            console.log(res.data)
-            if(res.data == true)
+            if (res.data == true)
                 router.push("/")
         } ); 
     } catch (error) {

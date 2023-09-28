@@ -1,46 +1,44 @@
-<template>
-	<div class="profile">
-		<label for="fileField"><img src="../assets/logo.png" class="img_class"></label>
-		<h1>{{ name }}</h1>
-		<form @submit.prevent="uploadImage" className="" ref="selectedFile">
-		<input type="file" id="fileField" name="file" accept="image/*" style="display:none" @change="handleFile($event)">
-		<button type="submit" className="button_picture">change Avatar</button>
-		</form>
-		<p>Edit Name: <input type="text" class="edit_name_class" @change="editName"></p>
-		<div class="btn"> 2FA
-			<button class="false" @click="Button2fa" v-if="btn == false">FALSE</button>
-			<button class="true" @click="Button2fa" v-else>TRUE</button>
-		</div>
-	</div>
-</template>
+
   
 <script lang="ts" setup>
 
-import { ref, onMounted , onUpdated} from 'vue'
+import { ref, onMounted} from 'vue'
 import Axios from '../services'
 import { useStore } from 'vuex';
+import Picture from '../components/Picture.vue';
+import History from '../components/History.vue';
 
 					/* Variables */
 const store = useStore()
 const User = ref()
-const selectedFile = ref('')
-const name = ref('Name')
+const name = ref()
 const btn = ref(false)
-
 					/*Before Mount */
+
+
 
 onMounted(() => {
 	btn.value = store.state.user.Twofa
-}),
+	name.value = store.state.user.username
+})
 					/* function */
-function handleFile( event ) {
-	selectedFile.value = event.target.files[0];
+
+
+async function editName(event){
+	User.value = store.getters.getuser
+	console.log(event.target.value)
+	await Axios.post("users/Change", {id : User.value.id, name: event.target.value}).then(response => {
+		if (response) {
+			console.log(response.data)
+			name.value = response.data
+		}
+	})
 }
+
 
 async function Button2fa(){
 	User.value = store.getters.getuser
-	console.log(User.value.id)
-	await Axios.post("auth/Button2FA",{id : User.value.id}).then(response => {
+	await Axios.post("auth/Button2FA", {id : User.value.id}).then(response => {
 		if(response){
 			if(response.data == true)
 				btn.value = true 
@@ -51,25 +49,20 @@ async function Button2fa(){
 	btn.value = !btn.value
 }
 
-const uploadImage = async () => {
-
-	const formData = new FormData();
-	console.log(selectedFile.value);
-      formData.append("file", selectedFile.value);
-	try {
-		console.log(formData);
-		const response = await Axios.post("users/upload", formData, {
-			headers: {
-				'Content-Type': 'multipart/form-data',
-			}
-		});
-	} catch (error) {
-		console.log(error);
-	}
-}
-
-
 </script>
+
+<template>
+	<div class="profile">
+		<Picture/>	
+		{{ name }}
+		<p>Edit Name: <input type="text" class="edit_name_class" @change="editName($event)"></p>
+		<div class="btn"> 2FA
+			<button class="false" @click="Button2fa" v-if="btn == false">FALSE</button>
+			<button class="true" @click="Button2fa" v-else>TRUE</button>
+		</div>
+		<History/>
+	</div>
+</template>
 
 <style lang="scss" scoped>
   
@@ -90,7 +83,12 @@ const uploadImage = async () => {
       background-color: lightblue;
       margin-left:2px;
   }
-.btn{
+
+.edit_name_class{
+	display: flex;
+}
+
+.btn {
 	.false{
 		background-color: red;
 		color: gold;
@@ -100,5 +98,7 @@ const uploadImage = async () => {
 		color: gold;
 	}
 }
+
+
 
 </style>

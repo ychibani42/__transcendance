@@ -35,4 +35,20 @@ export class StateGateway {
         this.stateservice.Change(client,client.handshake.headers.cookies)
     }
 
+    @SubscribeMessage('Invite')
+    Invite(client :Socket,id : number){
+        this.stateservice.invite(client,client.handshake.headers.cookies,id)
+    }
+
+    @SubscribeMessage('Accepted')
+    Accepte(client :Socket,id : number){
+        console.log("Yes",id)
+        this.stateservice.accept(client,client.handshake.headers.cookies,id)
+    }
+
+    @SubscribeMessage('Refused')
+    Refused(client :Socket,id : number){
+        console.log("no",id)
+        this.stateservice.refused(client,client.handshake.headers.cookies,id)
+    }
 }
