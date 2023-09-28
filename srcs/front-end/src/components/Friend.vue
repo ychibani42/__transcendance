@@ -9,6 +9,8 @@ const friend = ref([])
 const clicking = ref(false)
 const click = ref(0)
 
+
+
 async function getFriend(){
   await Axios.get('auth/Me').then(res => {
       if(res.status == 200)
