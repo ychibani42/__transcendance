@@ -287,6 +287,30 @@ export class GameService {
 
 	remove(socket: Socket) {
 		this.stoploop();
+		this.Matchmacking.forEach((elem) => {
+			if(elem.socket == socket)
+			{
+				let id = this.Matchmacking.indexOf(elem);
+				this.Matchmacking.splice(id, 1);
+			}
+		})
+		this.Rooms.forEach((element) => {
+			if (element.play2.socket == socket || element.play.socket == socket) 
+			{
+				if(element.state == state.config)
+				{
+
+				}
+				if(element.state == state.play || element.state == state.onroom)
+				{
+					
+				}
+				let id = this.Rooms.indexOf(element);
+				this.Rooms.splice(id, 1);
+				return true;
+			}
+		});
+
 	}
 
 	//INTERVAL GESTION

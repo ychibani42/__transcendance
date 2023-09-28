@@ -206,8 +206,6 @@ onBeforeMount(() => {
     })
     
     store.commit('setChatsocket', socket)
-  
-
 });
 
 onBeforeUnmount(() => {

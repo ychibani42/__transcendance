@@ -1,11 +1,12 @@
 
 <script setup lang="ts">
 import { io , Socket} from 'socket.io-client';
-import {onMounted, Ref, ref} from "vue";
-import { useRouter } from 'vue-router';
+import { Ref, ref, onUnmounted} from "vue";
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import { toast } from 'vue3-toastify';
 import { useStore } from 'vuex';
 
-const socket: Ref<Socket | undefined> = ref()
+const socket = io('http://localhost:3000/game')
 const socket2: Ref<Socket | undefined> = ref()
 const store = useStore()
 const router = useRouter()
@@ -13,8 +14,9 @@ const User = store.getters.getuser
 const option = ref(false)
 const theme = ref(false)
 const speed = ref('')
+const onQueue = ref(false)
+const Quit = ref(false)
 
-socket.value = store.state.gamesock
 
 
 inviteorNormal()
@@ -30,62 +32,96 @@ function inviteorNormal()
 function invitedgame(){
     console.log("invited")
     option.value = true
-    socket.value = store.state.gamesock
-    if(!socket.value)
-        return
-    socket.value.connect();
-    socket.value.on('OnRoom', () =>
+    
+    store.state.gamesock.on('OnRoom', () =>
     {
         router.push("/game")
         socket2.value = store.state.state
         socket2.value?.emit('game')
     })
+    onQueue.value = true
 }
 
 function debut(){
-    console.log("Debut")
     if(store.state.gamesock == null)
-        store.commit('setGamesocket',io('http://localhost:3000/game'))
-    socket.value = store.state.gamesock
-    if(!socket.value)
-        return
-    socket.value.connect();
-    socket.value.on('onQueue', () =>
+        store.commit('setGamesocket',socket)
+    socket.on('onQueue', () =>
     {
         console.log("ON QUEUE")
+        onQueue.value = true
     })
-    socket.value.on("playerdef", (arg1 : number , arg2 : string) => {
+    socket.on("playerdef", (arg1 : number , arg2 : string) => {
         if(arg1 == 1)
             store.commit('setGameplay',false)
         else
             store.commit('setGameplay',true)
         store.commit('setGamename',arg2)
     })
-    socket.value.on('OnRoom', () =>
+    socket.on('OnRoom', () =>
     {
         router.push("/game")
-        socket2.value = store.state.state
-        socket2.value?.emit('game')
+        
     })
-    socket.value.on('config', () =>
+    socket.on('config', () =>
     {
+        changeState()
         option.value = true
     })
 }
 
+function changeState() {
+    socket2.value = store.state.state
+    socket2.value?.emit('game',{} ,(res : Boolean) => {
+        if (res == false)
+        {
+            changeState()
+        }
+    })
+}
+
 function joinQueue(){
-    socket.value?.emit("JoinQueue",store.state.user.id)
+    socket.emit("JoinQueue",store.state.user.id)
 }
 
 function ConfigGame(){
-    console.log(theme.value)
-    console.log(speed.value)
     if(speed.value == 'true')
-        socket.value?.emit("Config",true,store.state.gamename)
+        socket.emit("Config",true,store.state.gamename)
     else
-        socket.value?.emit("Config",false,store.state.gamename)
+        socket.emit("Config",false,store.state.gamename)
     store.commit('setTheme',theme.value)
 }
+
+onUnmounted(()=> {
+    if(store.state.gamename == "")
+        store.state.gamesock.disconnect()
+}),
+
+onBeforeRouteLeave((to,from,next) => {
+    if(onQueue.value == true )
+    {
+        if(to.path !== "/game"){
+            const answer = window.confirm('You gonna Quit the Queue, Are you sure?')
+            if(answer == false)
+                return
+            else
+            {
+                socket2.value?.emit("Change")
+                next()
+            }
+                
+        }
+        else
+        {
+            socket2.value?.emit("Change")
+            next()
+        }
+    }
+    else
+    {
+        socket2.value?.emit("Change")
+        next()
+    }
+})
 
 </script>
 
