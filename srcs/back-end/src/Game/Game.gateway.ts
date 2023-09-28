@@ -21,6 +21,7 @@ export class GameGateway {
 	server: Server;
 
     handleDisconnect(client :Socket){
+        console.log(client.id)
         this.GameService.remove(client);
     }
 

@@ -86,6 +86,10 @@ onBeforeMount(() => {
         finished.value = true
         renderfinish(arg1)
     })
+    socket.value.on('Bug',(arg1 : string) => {
+       renderfinish("Crash")
+       finished.value = true
+    })
     roomname.value = state.state.gamename
     myplay.value = state.state.gameplay
 }),

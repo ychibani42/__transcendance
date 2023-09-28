@@ -39,6 +39,11 @@ function invitedgame(){
         socket2.value = store.state.state
         socket2.value?.emit('game')
     })
+    socket.on('Leave', () =>
+    {
+        option.value = false
+        store.commit('setGamename',"")
+    })
     onQueue.value = true
 }
 
@@ -66,6 +71,11 @@ function debut(){
     {
         changeState()
         option.value = true
+    })
+    socket.on('Leave', () =>
+    {
+        option.value = false
+        store.commit('setGamename',"")
     })
 }
 
@@ -106,9 +116,10 @@ onBeforeRouteLeave((to,from,next) => {
             else
             {
                 socket2.value?.emit("Change")
+                store.state.gamesock.disconnect()
+                store.commit('setGamename',"")
                 next()
             }
-                
         }
         else
         {
@@ -126,6 +137,7 @@ onBeforeRouteLeave((to,from,next) => {
 </script>
 
 <template>
+    <div class="all">
     <div class="Queue" v-if="option == false">
         <div class="matchmaking">
         <h4>Click to join Queue</h4>
@@ -138,26 +150,68 @@ onBeforeRouteLeave((to,from,next) => {
         <h2>Choose Your option</h2>
         <div class="Option">
             <form @submit.prevent="ConfigGame()">
-                <div v-if="store.state.gameplay === true">
-                    <input type="checkbox"  v-model="speed" true-value="true" false-value="fasle">
-                    <label for="speed">Acceleration speedball</label>
+                <div v-if="store.state.gameplay === true" class="OptionBoX">
+                    <label for="speed">
+                        Acceleration speedball
+                        <input type="checkbox"  v-model="speed" true-value="true" false-value="fasle">
+                    </label>
                 </div>
-                <div>
-                    <input type="radio" id="theme" name="theme" value="true"  v-model="theme" required/>
-                    <label for="theme">Classic</label>
+                <div class="theme">
+                    
+                    <label for="theme">
+                        Classic
+                        <input type="radio" id="theme" name="theme" value="true"  v-model="theme" placeholder="CLassic" required/>
+                    </label>
                 </div>
-                <div>
-                    <input type="radio" id="theme" name="theme" value="false" v-model="theme" required/>
-                    <label for="theme">Color</label>
+                <div class="theme">
+                   <label for="theme"> 
+                        Color
+                        <input type="radio" id="theme" name="theme" value="false" v-model="theme" required/>
+                    </label>
                 </div>
                 <input type="submit" value="Validate">
             </form>
         </div>
     </div>
     <p>Your ID is {{ User.id }}</p>
+    </div>
   </template>
   
   <style lang="scss" scoped>
+
+  .OptionBoX{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    label{
+        display: flex;
+        align-items: center;
+        height: 2rem;
+        width: 100%;
+        justify-content: center;
+        input{
+            height: 2rem;
+            width: 2rem;
+        }
+    }
+  }
+  .theme{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    label{
+        display: flex;
+        align-items: center;
+        height: 2rem;
+        width: 100%;
+        justify-content: center;
+        input{
+        height: 2rem;
+        width: 2rem;
+        }
+    }
+    
+  }
 
   </style>
   

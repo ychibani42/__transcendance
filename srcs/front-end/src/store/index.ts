@@ -141,6 +141,7 @@ const store = createStore(
             },
             Gameinvite()
             {
+                console.log("DIsss")
                 this.dispatch("Inviteon")
                 this.state.state?.on('refused',() => {
                     this.dispatch("Inviteon")

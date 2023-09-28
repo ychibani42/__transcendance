@@ -1,6 +1,6 @@
 <template>
-    <div>
-      <span>Invited by </span>
+    <div class="all">
+      <span> {{ store.state.gamename }} Invite you for a Game</span>
       <div class="Butt">
         <button @click="Accept">yes</button>
         <button @click="Refuse">no</button>
@@ -39,5 +39,11 @@ function Refuse(){
 .Butt{
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  width: 100%;
+}
+.all{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

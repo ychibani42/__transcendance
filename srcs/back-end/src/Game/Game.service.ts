@@ -295,15 +295,18 @@ export class GameService {
 			}
 		})
 		this.Rooms.forEach((element) => {
+			console.log("sss",socket.id)
 			if (element.play2.socket == socket || element.play.socket == socket) 
 			{
 				if(element.state == state.config)
 				{
-
+					element.play2.socket.emit("Leave")
+					element.play.socket.emit("Leave")
 				}
 				if(element.state == state.play || element.state == state.onroom)
 				{
-					
+					element.play2.socket.emit("Bug")
+					element.play.socket.emit("Bug")
 				}
 				let id = this.Rooms.indexOf(element);
 				this.Rooms.splice(id, 1);
