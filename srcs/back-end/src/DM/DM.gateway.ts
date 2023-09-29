@@ -13,6 +13,7 @@ import { Body, Controller, Get, Post, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { Param } from '@nestjs/common';
 import { channel } from 'diagnostics_channel';
+import { UserService } from '../user/user.service';
 
 @WebSocketGateway({
 	cors: {
@@ -56,6 +57,7 @@ export class DMGateway {
 	@SubscribeMessage('createDM')
 	async createDM(@Body() body :any){
 		const chan = await this.dmService.createChat(body);
+		console.log('chan', chan)
 		this.server.emit('createDM', chan)
 		return chan
 	}

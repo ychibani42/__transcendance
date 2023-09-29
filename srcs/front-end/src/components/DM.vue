@@ -32,27 +32,25 @@ async function getFriend(){
         ID.value = res.data.id
       
   })
-//   Axios.post('friend',{id : ID.value}).then((res) => {
-//         friend.value = res.data
-//   })
 }
 
 onBeforeMount(() => {
   getFriend()
-  displayDM()
-  if (store.getters.getDM == true)
-  {
-    createDM(friend)
-    enterdm(amigo)
-    onChan.value = true
-  }
+  
+    if (store.getters.getDM == true)
+        createDM(amigo)
     socket.on('messageDM',(arg1 : string) => {
         DM.value.messages.push(arg1);
     })
     socket.on('createDM', (arg1: any) => {
-        friend.value.push(amigo)
-        rooms.value.push(arg1)
+        if (arg1 && arg1.user1.name != User.username && arg1.user2.name != User.username)
+            return
+        else if (arg1 && arg1.user1.name != User.username)
+            friend.value.push(arg1.user1)
+        else if (arg1 && arg1.user2.name != User.username)
+            friend.value.push(arg1.user2)
     })
+    displayDM()
 });
 
 function enterdm(friend: any) {
@@ -71,6 +69,7 @@ function enterdm(friend: any) {
         DM.value.messages = response.messages
     })
     onChan.value = true
+    
 }
 
 function displayChats () {

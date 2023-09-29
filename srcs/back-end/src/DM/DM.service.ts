@@ -6,6 +6,7 @@ import { Message } from '../chat/entities/message.entity';
 import { Exclude } from 'class-transformer';
 import { Socket } from 'socket.io';
 
+
 @Injectable()
 export class DMservice{
     constructor(private prismaService: PrismaService) {}
@@ -41,13 +42,11 @@ export class DMservice{
 				dm = await this.prismaService.dM.create({
 				data: {
 					blocked: false,
-					dm1: data.user1Id,
-					dm2: data.user2Id,
-					name: ''
+					name: '',
+					user1: { connect: { id: data.user1Id }},
+					user2: { connect: { id: data.user2Id }}
 				},
 				include: {
-					user1: true,
-					user2: true,
 					messages: true
 				}
 			}); 
@@ -136,6 +135,19 @@ async leaveRoom(client: Socket, oldRoomId: number) {
 				include: {	dm1: true, dm2: true }
 			});
 			return dms;
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	async findUser(id: number) {
+		try {
+			const found = await this.prismaService.user.findUniqueOrThrow({
+				where: {
+					id: id,
+				},
+			});
+			return found;
 		} catch (error) {
 			console.log(error)
 		}
