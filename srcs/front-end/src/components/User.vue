@@ -3,6 +3,7 @@ import { useStore } from 'vuex';
 import { ref ,watch, onMounted ,onBeforeMount,onUpdated ,onBeforeUpdate} from 'vue';
 import Axios from '../services';
 import router from '../router';
+import { useRoute } from 'vue-router';
 
 const ID  = ref();
 const User = ref(GetUser())
@@ -10,6 +11,7 @@ const clicking = ref(false)
 const click = ref(0)
 const emit = defineEmits(['refresh'])
 const props = defineProps({'counter': Number})
+const route = useRoute()
 
 async function GetUser() {
   await Axios.get('auth/Me').then(res => {
@@ -54,8 +56,8 @@ async function addfriend(id : Number){
   click.value = 0
 }
 
-function GotoProfile(){
-  this.$router.push({name: 'profile', params: {id: click.value}})
+function GotoProfile(id : Number){
+  router.push("/User/" + id)
 }
 
 </script>
@@ -69,7 +71,7 @@ function GotoProfile(){
           </div>
         </li>
         <div class="modal" v-if="clicking == true && Users.id == click">
-            <button class="modal-btn" @click="GotoProfile" >Profile</button>
+            <button class="modal-btn" @click="GotoProfile(Users.id)" >Profile</button>
             <button class="modal-btn" v-on:click="addfriend(Users.id)">Add friend</button>
             <button class="modal-btn" v-on:click="cancel">Cancel</button>
         </div>
