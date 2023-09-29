@@ -42,8 +42,8 @@ async function Button2fa() {
 
 	User.value = store.getters.getuser
 	await Axios.post("auth/Button2FA", {id : User.value.id}).then(response => {
-		if(response){
-			if(response.data == true)
+		if (response){
+			if (response.data == true)
 				btn.value = true 
 			else
 				btn.value = false 

@@ -43,9 +43,6 @@ onMounted(() => {
 
 
 <style scoped>
-.reseach {
-    padding: 2rem;
-}
 
 span {
     gap: 2;

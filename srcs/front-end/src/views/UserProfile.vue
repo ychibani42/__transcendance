@@ -20,7 +20,6 @@ import History from '../components/History.vue';
 
 
 const routes = useRoute()
-const store = useStore()
 const name = ref()
 const picture = ref()
 const con = ref(0);
@@ -28,7 +27,6 @@ const id = ref(useRoute().params.id);
 
 
 onMounted(() => {
-    name.value = store.state.user.username;
     fetchUser(routes.params.id);
     getPictureBeforeMount();
 })
@@ -43,7 +41,7 @@ const getPictureBeforeMount = async () => {
     try {
         const res = await Axios.get('auth/Me');
         if (res.status === 200) {
-            con.value = res.data.id;
+            con.value = routes.params.id;
             getPicture();
         }
     } catch (error) {
@@ -53,7 +51,7 @@ const getPictureBeforeMount = async () => {
 
 const getPicture = async () => {
     try {
-        const res = await Axios.get(`users/picture/${id.value}`, {
+        const res = await Axios.get(`users/picture/${con.value}`, {
             responseType: 'blob',
         });
         const blob = res.data;

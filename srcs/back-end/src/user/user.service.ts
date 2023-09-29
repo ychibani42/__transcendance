@@ -103,6 +103,7 @@ export class UserService {
 		}
 		return undefined;
 	}
+
 	async findUser(id: number) {
 		try {
 			const found = await this.prismaService.user.findUniqueOrThrow({
