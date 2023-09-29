@@ -14,6 +14,10 @@ const myplay : Ref<Boolean> = ref(false)
 const finished :  Ref<Boolean> = ref(false)
 const playing :  Ref<Boolean> = ref(false)
 const roomname : Ref<string> = ref("")
+const Image = ref()
+
+const pongBorder = ref("solid white") 
+const pongBorderRadius = ref("1rem") 
 
 const ball = ref({
         x: 147,
@@ -64,6 +68,8 @@ onUnmounted(() => {
 }),
 
 onBeforeMount(() => {
+    let img = new window.Image();
+    img.src = "../public/soccer-field.png"
     socket.value = state.state.gamesock
     if(!socket.value)
         return
@@ -185,8 +191,16 @@ function drowplay1(x: number,y: number,w: number,h: number,color: string)
     if (!context.value) {
         return;
     }
-    context.value.fillStyle = color;
+    context.value.beginPath();
+    context.value.shadowBlur = 20
+    context.value.shadowColor = '#963232'
+    context.value.fillStyle = 'cyan'
+    context.value.strokeStyle = 'cyan'
+    context.value.lineWidth = 5
+    context.value.stroke()
     context.value.fillRect(x,y,w,h);
+    context.value.closePath();
+    context.value.lineWidth = 0
 }
 
 function clearCanvas(x: number,y: number,w: number,h: number,color: string){
@@ -200,11 +214,15 @@ function drowball(x: number,y: number,r: number,color: string)
 {
     if (!context.value) {
         return;
-    }
-    context.value.fillStyle = color;
+    } 
     context.value.beginPath();
+    context.value.shadowColor = 'cyan'
+    context.value.shadowBlur = 5
     context.value.arc(x,y,r,0,Math.PI*2,false);
+    context.value.fillStyle = 'white';
+    context.value.stroke()
     context.value.closePath();
+    context.value.fillStyle = 'white';
     context.value.fill();
 }
 
@@ -235,7 +253,7 @@ onBeforeRouteLeave((to,from,next) => {
 <template>
     <div class="canvasDiv">
         <h1>THE GAME</h1>
-        <canvas ref = "canvasElement" id="pong"></canvas>
+        <canvas :style="{'border': pongBorder, 'border-radius': pongBorderRadius}" ref="canvasElement" id="pong"></canvas>
     </div>
    
 </template>
@@ -263,5 +281,6 @@ canvas {
     max-width: 80vw;
     max-height: 80vw;
     justify-content: center;
+    color:cyan;
 }
 </style>
