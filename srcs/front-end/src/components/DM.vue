@@ -24,6 +24,7 @@ const DM = ref({
     blocked: false,
 
 })
+const clicking = ref(false)
 const amigo = store.getters.getFriend
 const rooms = ref([])
 async function getFriend(){
@@ -103,6 +104,21 @@ function createDM (friend: any) {
     })
     
 }
+
+function cancel(){
+  clicking.value = false
+}
+
+function GAME(id : Number){
+  console.log("Invite",id)
+  store.state.state?.emit("Invite",id)
+  store.dispatch("Inviteoff")
+  store.dispatch("SocketGame")
+  store.commit('setGameplay',true)
+  store.commit("setGamename",store.state.user.username)
+  clicking.value = !clicking.value
+}
+
 </script>
 
 <template>
@@ -136,8 +152,16 @@ function createDM (friend: any) {
                       </p>  
                   </div>
                         <div class="Autre" v-else>
+                                <button @click="clicking = true" v-if="User.id != name.userId"> 
+                                        {{ amigo.value.name }}:         
+                                </button>
+                                <div class="modal" v-if="clicking == true">
+                                    <button class="modal-btn" >Profile</button>
+                                    <button class="modal-btn" @click="GAME(amigo.value.id)">Invite for Game</button>
+                                    <button class="modal-btn" @click="cancel">Cancel</button>
+                                </div>
                             <p>
-                                {{ name.text }} {{ name.userId }}
+                                {{ name.text }}
                             </p>
                         </div>
 			        </ol>
@@ -296,21 +320,50 @@ function createDM (friend: any) {
         border-radius: 10px;
     }
 }
-
 .Autre{
     display:flex;
     justify-content: start;
+    flex-wrap: wrap;
     padding: 0;
     margin: 0;
+    max-width: 50%;
+    button {
+        background-color: rgb(212, 248, 236);
+        overflow: hidden;
+    }    
     p{
         display: flex;
-        margin: 5px;
-        justify-content: flex-end;
+        justify-content: center;
+        margin-left: 5px;
         max-width: 50%;
         line-break: anywhere;
         background-color: rgb(229, 238, 231);
         padding: 10px;
         border-radius: 10px;
+       
     }
+}
+.modal {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 20px 1px;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+  .modal-btn {
+    width: 15rem;
+    height: 3rem;
+    margin: 0.2rem;
+  }
 }
 </style>
