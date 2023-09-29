@@ -111,11 +111,21 @@ export class GameService {
 	}
 
 	ReadyGame(client: Socket, name: string) {
+		console.log("Room name",client.id,"ID ",name)
 		this.Rooms.forEach((element) => {
 			if (element.name == name) {
-				if (element.play.socket == client) element.ready = true;
-				if (element.play2.socket == client) element.ready2 = true;
-				if (element.ready == true && element.ready2 == true) {
+				if (element.play.socket == client)
+				{
+					console.log("READY1",client.id,"ID ",element.play.id)
+					element.ready = true;
+				}
+				if (element.play2.socket == client) 
+				{
+					console.log("READY2",client.id,"ID ",element.play.id)
+					element.ready2 = true;
+				}
+				if (element.ready == true && element.ready2 == true){
+					console.log("READY",client.id)
 					element.state = state.play;
 				}
 			}
@@ -128,9 +138,11 @@ export class GameService {
 				if (element.play.socket == client) {
 					element.play.config = true;
 					element.speed = speed;
+					console.log(element.play.id)
 				}
 				if (element.play2.socket == client) {
 					element.play2.config = true;
+					console.log(element.play2.id)
 				}
 				if (element.play.config == true && element.play2.config == true) {
 					element.state = state.onroom;
@@ -286,7 +298,7 @@ export class GameService {
 	}
 
 	remove(socket: Socket) {
-		this.stoploop();
+		
 		this.Matchmacking.forEach((elem) => {
 			if(elem.socket == socket)
 			{
@@ -295,22 +307,26 @@ export class GameService {
 			}
 		})
 		this.Rooms.forEach((element) => {
+			console.log("sss",socket.id)
 			if (element.play2.socket == socket || element.play.socket == socket) 
 			{
 				if(element.state == state.config)
 				{
-
+					element.play2.socket.emit("Leave")
+					element.play.socket.emit("Leave")
 				}
 				if(element.state == state.play || element.state == state.onroom)
 				{
-					
+					element.play2.socket.emit("Bug")
+					element.play.socket.emit("Bug")
 				}
 				let id = this.Rooms.indexOf(element);
 				this.Rooms.splice(id, 1);
 				return true;
 			}
 		});
-
+		console.log(this.Rooms.length,"ROOM LENGHT")
+		this.stoploop();
 	}
 
 	//INTERVAL GESTION
@@ -318,6 +334,7 @@ export class GameService {
 	stoploop() {
 		if (this.Rooms.length != 0) return;
 		try {
+			console.log('end inter');
 			if (this.schedulerRegistry.doesExist('interval', 'game')) {
 				this.schedulerRegistry.deleteInterval('game');
 			}
@@ -328,7 +345,7 @@ export class GameService {
 
 	addInterval() {
 		try {
-			console.log('add');
+			console.log('add inter');
 			const interval = setInterval(this.rungame, 15, this);
 			this.schedulerRegistry.addInterval('game', interval);
 		} catch (error) {

@@ -65,12 +65,16 @@ export class StateService {
 
     async Game(client : Socket, token : any){
         try {
-            let decode : any
-            if(token)
-                decode = this.jwtService.decode(token)
+            let user;
+                this.User.forEach((element) => {
+                    if(element.socket == client)
+                    {
+                        user = element.id
+                    }
+                })
             try {
-                await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-                const user = await this.prismaService.user.update({where : {id : decode.id},data : {state : 'OnGame'}})
+                await this.prismaService.user.findFirstOrThrow({where : {id: user}})
+                await this.prismaService.user.update({where : {id : user},data : {state : 'OnGame'}})
             } catch (error) {
                 console.log(error)
             }
@@ -82,12 +86,16 @@ export class StateService {
     async Change(client : Socket, token : any){
         
         try {
-                let decode : any
-                if(token)
-                    decode = this.jwtService.decode(token)
+                let user;
+                this.User.forEach((element) => {
+                    if(element.socket == client)
+                    {
+                        user = element.id
+                    }
+                })
                 try {
-                    const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-                    await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
+                    await this.prismaService.user.findFirstOrThrow({where : {id: user}})
+                    await this.prismaService.user.update({where : {id : user},data : {state : 'Online'}})
                 } catch (error) {
                     console.log(error)
                 }

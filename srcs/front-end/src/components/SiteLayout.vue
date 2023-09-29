@@ -26,6 +26,9 @@
     margin: 0;
   }
   
+  .component{
+    background: linear-gradient(to bottom right,red, green,blue);
+  }
   
   .app {
   
