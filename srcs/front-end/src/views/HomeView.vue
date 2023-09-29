@@ -29,10 +29,6 @@ function test() {
       <BloquedComp />
     </div>
     <div class="botton">
-      <p>
-        To play, please click on the button just below.
-      </p>
-
       <router-link to="/matchmaking" class="button">
         <button class="play"> Let's play </button>
       </router-link>
@@ -43,10 +39,14 @@ function test() {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-h1 {
-  padding: 1rem;
-}
 
+h1{
+  padding: 1rem;
+  color: yellowgreen;
+  font-size: 3rem;
+  font-style:italic;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
 .botton {
 
   button {

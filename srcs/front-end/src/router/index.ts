@@ -62,9 +62,8 @@ async function checkJwt() : Promise<boolean>
           store.commit('setOnline',false) 
           const sock = connect()
           store.commit('setState',sock)
+          store.dispatch('Gameinvite')
         }
-        else
-          { store.commit('setOnline',true) } 
       }
     })
     if(store.state.user.id != 0)
@@ -94,10 +93,6 @@ router.beforeEach((to, from) => {
     if(store.state.user.Twofa === true && valid === true && store.state.user.Twofavalid == false)
     {
       router.push("/Twofa")
-    }
-    if(store.state.user.online == false == valid == true)
-    {
-      store.dispatch('Gameinvite')
     }
 })
 })

@@ -14,6 +14,10 @@ const myplay : Ref<Boolean> = ref(false)
 const finished :  Ref<Boolean> = ref(false)
 const playing :  Ref<Boolean> = ref(false)
 const roomname : Ref<string> = ref("")
+const Image = ref()
+
+const pongBorder = ref("solid white") 
+const pongBorderRadius = ref("1rem") 
 
 const ball = ref({
         x: 147,
@@ -22,7 +26,7 @@ const ball = ref({
         speed : 2,
         velX : 2,
         velY : 0,
-        color : 'yellow',
+        color : 'white',
 });
 
 const play1 = ref({
@@ -30,7 +34,7 @@ const play1 = ref({
         y : 75,
         w : 8,
         h : 37,
-        color : 'red',
+        color : 'white',
         score : 0,
 });
 
@@ -39,7 +43,7 @@ const play2 = ref({
         y : 75,
         w : 8,
         h : 37,
-        color : 'red',
+        color : 'white',
         score : 0,
 });
 
@@ -58,11 +62,14 @@ onUnmounted(() => {
     {
         state.state.state.emit("Change")
     }
+    state.state.gamesock?.disconnect()
     store.commit("setGamename","")
     store.commit("setGameID",0)
 }),
 
 onBeforeMount(() => {
+    let img = new window.Image();
+    img.src = "../public/soccer-field.png"
     socket.value = state.state.gamesock
     if(!socket.value)
         return
@@ -86,8 +93,13 @@ onBeforeMount(() => {
         finished.value = true
         renderfinish(arg1)
     })
+    socket.value.on('Bug',() => {
+       renderfinish("Crash")
+       finished.value = true
+    })
     roomname.value = state.state.gamename
     myplay.value = state.state.gameplay
+   
 }),
 
 
@@ -96,14 +108,20 @@ onMounted(() => {
     context.value = canvasElement.value?.getContext('2d') || undefined;
     canvasElement.value?.addEventListener("mousemove",Updatexy);
     canvasElement.value?.addEventListener("click",ReadyOrQuit);
-    render();
+    render(); 
+    if(roomname.value == "")
+        finished.value = true
 });
 
 function ReadyOrQuit(){
     if(playing.value == false)
+    {
         socket.value?.emit("ready",roomname.value)
+    }
     if(finished.value == true)
+    {
         router.push('/')
+    }
 }
 
 function renderfinish(text : string){
@@ -173,8 +191,16 @@ function drowplay1(x: number,y: number,w: number,h: number,color: string)
     if (!context.value) {
         return;
     }
-    context.value.fillStyle = color;
+    context.value.beginPath();
+    context.value.shadowBlur = 20
+    context.value.shadowColor = '#963232'
+    context.value.fillStyle = 'cyan'
+    context.value.strokeStyle = 'cyan'
+    context.value.lineWidth = 5
+    context.value.stroke()
     context.value.fillRect(x,y,w,h);
+    context.value.closePath();
+    context.value.lineWidth = 0
 }
 
 function clearCanvas(x: number,y: number,w: number,h: number,color: string){
@@ -188,24 +214,36 @@ function drowball(x: number,y: number,r: number,color: string)
 {
     if (!context.value) {
         return;
-    }
-    context.value.fillStyle = color;
+    } 
     context.value.beginPath();
+    context.value.shadowColor = 'cyan'
+    context.value.shadowBlur = 5
     context.value.arc(x,y,r,0,Math.PI*2,false);
+    context.value.fillStyle = 'white';
+    context.value.stroke()
     context.value.closePath();
+    context.value.fillStyle = 'white';
     context.value.fill();
 }
 
 
 onBeforeRouteLeave((to,from,next) => {
-    console.log(to,from)
     if(finished.value == false)
     {
-        console.log("NOT LEAVE")
-        next()
+        const answer = window.confirm('You gonna Quit the Queue, Are you sure?')
+        if(answer == false)
+            return
+        else
+        {
+            store.state.gamesock?.disconnect()
+            store.commit('setGamename',"")
+            next() 
+        }    
     }
     else
     {
+        store.state.gamesock?.disconnect()
+        store.commit('setGamename',"")
         next()
     }
 })
@@ -215,7 +253,7 @@ onBeforeRouteLeave((to,from,next) => {
 <template>
     <div class="canvasDiv">
         <h1>THE GAME</h1>
-        <canvas ref = "canvasElement" id="pong"></canvas>
+        <canvas :style="{'border': pongBorder, 'border-radius': pongBorderRadius}" ref="canvasElement" id="pong"></canvas>
     </div>
    
 </template>
@@ -243,5 +281,6 @@ canvas {
     max-width: 80vw;
     max-height: 80vw;
     justify-content: center;
+    color:cyan;
 }
 </style>

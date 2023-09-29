@@ -108,7 +108,8 @@ const store = createStore(
                 }
             },
             Inviteoff(){
-                this.state.state?.off('invited') },
+                this.state.state?.off('invited') 
+            },
             Inviteon(){
                  this.state.state?.on('invited',(arg1,arg2) => {
                     toast(Btn, {
@@ -119,12 +120,14 @@ const store = createStore(
                     this.state.gameInviteID = arg2
                     this.dispatch("Inviteoff")
                 })
-            },
-            refused(){ 
-                this.state.state?.emit("refused" , this.state.gameInviteID)
                 this.state.gamename = ""
                 this.state.gameInviteID = 0
-                this.state.gamesock?.emit("Delete",{name : this.state.user.username})
+            },
+            refused(){
+                console.log("Refused")
+                if(this.state.user.id == this.state.gameInviteID){
+                    this.state.gamesock?.emit("Delete",{name : this.state.user.username})
+                }
                 this.state.gamesock?.disconnect()
             },
             SocketGame(){
@@ -143,6 +146,7 @@ const store = createStore(
                 this.dispatch("Inviteon")
                 this.state.state?.on('refused',() => {
                     this.dispatch("Inviteon")
+                    this.dispatch("refused")
                 })
                 this.state.state?.on('accepted',() => {
                     this.dispatch("gotogame")
