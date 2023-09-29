@@ -38,6 +38,8 @@ const store = createStore(
             gameplay:false,
             gameTheme : false,
             gameInviteID : 0,
+            DM: false,
+            friend: {},
             
             state: <Socket | undefined>null,
         },
@@ -49,6 +51,8 @@ const store = createStore(
             getGamename : state => state.gamename,
             getGameplay : state => state.gameplay,
             getState : state => state,
+            getDM : state => state.DM,
+            getFriend : state => state.friend
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -80,6 +84,8 @@ const store = createStore(
             setOnline(state, bool){state.user.online = bool},
             setTheme(state , bool){ state.gameTheme = bool},
             setGameID(state, int){ state.gameInviteID = int},
+            setFriendDM(state , friend){ state.friend = friend},
+            setDM(state, bool){state.DM = bool}
         },
         actions :{
             reset()

@@ -32,7 +32,7 @@ export class ChatGateway {
 	@SubscribeMessage('createMessage')
 	async create(
 		@MessageBody() createMessageDto: CreateMessageDto,data : number,@ConnectedSocket() client: Socket) {
-		const message = await this.chatService.createMessage(
+		const message = await this.chatService.createMessage( client,
 			createMessageDto,
 		);
 		if (message == null)
@@ -122,14 +122,14 @@ export class ChatGateway {
 			while (i < data.userid.length)
 			{			
 				
-				let user: any = await this.chatService.kickChan(data.userid[i], data.chanid)
+				let user: any = await this.chatService.kickChan(client, data.userid[i], data.chanid)
 				this.server.to(chan.channelName).emit('kicked', user)
-				client.leave(chan.channelName)
 				i++;
 			}
 		}
 			
 	}
+
 
 	@SubscribeMessage('unadmin')
 	async unadmin(@Body() data: any) 

@@ -3,6 +3,8 @@ import { useStore } from 'vuex';
 import { ref , onMounted,onBeforeMount } from 'vue';
 import Axios from '../services';
 import store from '../store';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
+const router = useRouter()
 
 const ID = ref()
 const friend = ref([])
@@ -62,6 +64,14 @@ function clicked(nbr : number){
     }
 }
 
+
+function GotoDM(friend: any) {
+  store.commit('setFriendDM', friend)
+  store.commit('setDM', true)
+  // console.log(store.getters.getFriend)
+  router.push("/chat")
+}
+
 </script>
 
 <template>
@@ -79,6 +89,7 @@ function clicked(nbr : number){
           </div>
           <div class="modal" v-if="clicking == true && friends.user.id == click">
             <button class="modal-btn" v-on:click="GotoProfile" >Profile</button>
+            <button class="modal-btn" v-on:click="GotoDM(friends.user)" >Send DM</button>
             <div v-if="friends.user.state == 'Online'">
               <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
             </div>
