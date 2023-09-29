@@ -22,7 +22,7 @@ const ball = ref({
         speed : 2,
         velX : 2,
         velY : 0,
-        color : 'yellow',
+        color : 'white',
 });
 
 const play1 = ref({
@@ -30,7 +30,7 @@ const play1 = ref({
         y : 75,
         w : 8,
         h : 37,
-        color : 'red',
+        color : 'white',
         score : 0,
 });
 
@@ -39,7 +39,7 @@ const play2 = ref({
         y : 75,
         w : 8,
         h : 37,
-        color : 'red',
+        color : 'white',
         score : 0,
 });
 
@@ -58,6 +58,7 @@ onUnmounted(() => {
     {
         state.state.state.emit("Change")
     }
+    state.state.gamesock?.disconnect()
     store.commit("setGamename","")
     store.commit("setGameID",0)
 }),
@@ -86,12 +87,13 @@ onBeforeMount(() => {
         finished.value = true
         renderfinish(arg1)
     })
-    socket.value.on('Bug',(arg1 : string) => {
+    socket.value.on('Bug',() => {
        renderfinish("Crash")
        finished.value = true
     })
     roomname.value = state.state.gamename
     myplay.value = state.state.gameplay
+   
 }),
 
 
@@ -100,14 +102,20 @@ onMounted(() => {
     context.value = canvasElement.value?.getContext('2d') || undefined;
     canvasElement.value?.addEventListener("mousemove",Updatexy);
     canvasElement.value?.addEventListener("click",ReadyOrQuit);
-    render();
+    render(); 
+    if(roomname.value == "")
+        finished.value = true
 });
 
 function ReadyOrQuit(){
     if(playing.value == false)
+    {
         socket.value?.emit("ready",roomname.value)
+    }
     if(finished.value == true)
+    {
         router.push('/')
+    }
 }
 
 function renderfinish(text : string){
@@ -202,14 +210,22 @@ function drowball(x: number,y: number,r: number,color: string)
 
 
 onBeforeRouteLeave((to,from,next) => {
-    console.log(to,from)
     if(finished.value == false)
     {
-        console.log("NOT LEAVE")
-        next()
+        const answer = window.confirm('You gonna Quit the Queue, Are you sure?')
+        if(answer == false)
+            return
+        else
+        {
+            store.state.gamesock?.disconnect()
+            store.commit('setGamename',"")
+            next() 
+        }    
     }
     else
     {
+        store.state.gamesock?.disconnect()
+        store.commit('setGamename',"")
         next()
     }
 })

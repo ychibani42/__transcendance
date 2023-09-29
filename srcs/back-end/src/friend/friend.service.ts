@@ -1,6 +1,13 @@
 import { BadRequestException, Injectable} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
+enum State {
+    Disconected,
+    Online,
+    Afk,
+    OnGame,
+  }
+
 @Injectable({})
 export class FriendService {
 	constructor(
@@ -10,8 +17,11 @@ export class FriendService {
     async friendlist(id : number){
         try {
             const friend = this.prismaService.friends.findMany(
-                {where : { userFriend : id},
-                include: { user : true}
+                {
+                    where : { 
+                        userFriend : id,
+                    },
+                include: {user : true}
             })
             return friend
         } catch (error) {

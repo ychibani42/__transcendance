@@ -10,9 +10,11 @@
 
 <script setup lang="ts">
 import store from '../store';
+import {onUnmounted , ref} from "vue"
 import { toast } from 'vue3-toastify';
 import { io ,Socket} from 'socket.io-client';
 
+const r = ref(true)
 
 function Accept(){
   store.state.state?.emit('Accepted',store.state.gameInviteID)
@@ -23,6 +25,7 @@ function Accept(){
   }
   store.state.gamesock?.emit('Join',{id : store.state.user.id,name : store.state.gamename})
   toast.clearAll()
+  r.value = false
 }
 
 
@@ -31,7 +34,13 @@ function Refuse(){
   store.dispatch("Inviteon")
   toast.clearAll()
 }
-
+onUnmounted(() => {
+  if(r.value == true)
+  {
+    store.state.state?.emit('Refused',store.state.gameInviteID)
+    store.dispatch("Inviteon")
+  }
+})
 </script>
 
 <style scoped>

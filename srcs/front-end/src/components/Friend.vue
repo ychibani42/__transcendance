@@ -35,6 +35,8 @@ function cancel(){
 
 function GAME(id : Number){
   console.log("Invite",id)
+  if(store.state.gamename != "")
+    return
   store.state.state?.emit("Invite",id)
   store.dispatch("Inviteoff")
   store.dispatch("SocketGame")
@@ -58,29 +60,29 @@ function clicked(nbr : number){
     }
 }
 
-function connected(user : any){
-  if(user.user.state == 'Online' || user.user.state == 'OnGame')
-  {
-    return true
-  }
-  return false
-}
-
 </script>
 
 <template>
     <div class="friend">
-      <ul v-for="friends in friend">
-        <li class="lis" v-if="connected(friends)"> 
-          <div class="Userdisp">
+      <ul>
+        <li class="lis" v-for="friends in friend"> 
+          <div v-if="friends.user.state == 'Online'" class="UserdispON">
             <button class="Ubtn" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
           </div>
-        </li>
-        <div class="modal" v-if="clicking == true && friends.user.id == click">
+          <div v-else-if="friends.user.state == 'OnGame'" class="UserdispGame">
+            <button class="UbtnG" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
+          </div>
+          <div v-else class="UserdispDis">
+            <button class="UbtnDis" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
+          </div>
+          <div class="modal" v-if="clicking == true && friends.user.id == click">
             <button class="modal-btn" v-on:click="GotoProfile" >Profile</button>
-            <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
+            <div v-if="friends.user.state == 'Online'">
+              <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
+            </div>
             <button class="modal-btn" v-on:click="cancel">Cancel</button>
         </div>
+        </li>
       </ul>
     </div>
 </template>
@@ -90,16 +92,20 @@ function connected(user : any){
 ul{
   display: flex;
   justify-content: center;
+  flex-direction: column;
   list-style: none;
   padding: 0;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   width: 100%;
-  .lis{
+  
+}
+.lis{
     width: 100%;
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
     display: flex;
     justify-content: center;
-  }
 }
 
 .modal {
@@ -126,6 +132,20 @@ ul{
   }
 }
 
+.UserdispDis{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow-y: auto;
+  width: 80%;
+  justify-content: center;
+}
+
+.UbtnDis{
+    background-color: red;
+    width: 100%;
+}
+
 
 .friend {
   display: flex;
@@ -135,7 +155,7 @@ ul{
   height: 15rem;
 }
 
-.Userdisp{
+.UserdispGame{
   
   display: flex;
   flex-direction: row;
@@ -143,8 +163,24 @@ ul{
   overflow-y: auto;
   width: 80%;
   justify-content: center;
-  .Ubtn{
+  
+}
+.UbtnG{
+    background-color: orange;
     width: 100%;
   }
-}
+.UserdispON{
+  
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow-y: auto;
+  width: 80%;
+  justify-content: center;
+ 
+} 
+.Ubtn{
+    background-color: green;
+    width: 100%;
+  }
 </style>
