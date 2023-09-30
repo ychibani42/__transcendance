@@ -36,6 +36,7 @@ export class UserController {
 	@Post('')
 	@UseGuards(JwtAuthGuard)
 	AllUser(@Body() body: any) {
+		console.log("Body == " + body.id);
 		return this.userService.findAll(body.id);
 	}
 
@@ -60,5 +61,10 @@ export class UserController {
 		} else {
 			res.sendFile(process.cwd() + '/' + filename);
 		}
+	}
+
+	@Get('fetch/:id')
+	async fetchUser(@Param('id', ParseIntPipe) id: number) {
+		return this.userService.findUserById(id);
 	}
 }

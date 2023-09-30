@@ -31,8 +31,9 @@ onMounted(() => {
     getPictureBeforeMount();
 })
 
-async function fetchUser(id: Number) {
-    await Axios.post('users', { id: id }).then((res) => {
+async function fetchUser(id: number) {
+    await Axios.get('users/fetch/' + id).then((res) => {
+        name.value = res.data.name;
         console.log(res.data)
     })
 }
@@ -75,6 +76,12 @@ const getPicture = async () => {
     flex-wrap: nowrap;
     align-items: center;
 }
+
+.img_class {
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+  }
 
 h1 {
 	padding:5px;

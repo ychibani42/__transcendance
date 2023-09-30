@@ -36,8 +36,6 @@ async function editName(event) {
 }
 
 
-// SI L'ID EST CELUI EST LE  MIEN JE PEUX APPELER CETTE FONCTION
-
 async function Button2fa() {
 
 	User.value = store.getters.getuser

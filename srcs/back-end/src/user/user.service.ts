@@ -37,6 +37,7 @@ export class UserService {
 
 	async findAll(ids: number) {
 		try {
+			console.log(typeof ids);
 			const users = await this.prismaService.user.findMany({
 				where: {
 					NOT: {
@@ -60,8 +61,10 @@ export class UserService {
 					},
 				},
 			});
+			console.log(users);
 			return users;
 		} catch (error) {
+			console.log(error);
 			return null;
 		}
 	}
@@ -122,5 +125,22 @@ export class UserService {
 				name: username,
 			})
 		)?.avatar;
+	}
+
+	async findUserById(id: number) {
+		try {
+			const user = await this.prismaService.user.findUniqueOrThrow({
+				where: { id: id },
+				select: {
+					id: true,
+					name: true,
+					avatar: true,
+					profilefinish: true,
+				},
+			});
+			return user;
+		} catch (error) {
+			throw new BadRequestException('Failed to find user');
+		}
 	}
 }
