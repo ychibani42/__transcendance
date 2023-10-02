@@ -9,7 +9,6 @@ const gamesre = ref([])
 const name = ref('')
 const store = useStore()
 
-
 async function GetGames(usersname:string) {
     await Axios.post('game/Findbyname', {
         name: usersname })
@@ -21,6 +20,7 @@ async function GetGames(usersname:string) {
 onMounted(() => {
     name.value = store.state.user.username;
     GetGames(name.value)
+
 });
 
 </script>
@@ -28,19 +28,21 @@ onMounted(() => {
 
 <template>
         <h1> GameHistory</h1>
+            <div v-if="games.length == 0">
+                <span> No game played </span>
+            </div>
+        <div v-else>
         <div v-for="name in games">
             <span v-if="name.score[0] == 5"> Winner {{ name.user1.name }} | {{ name.score[0] }} : {{ name.score[1] }} | {{
                 name.user2.name }} Looser </span>
             <span v-else> Looser {{ name.user1.name }} | {{ name.score[0] }} : {{ name.score[1] }} | {{ name.user2.name }}
                 Winner</span>
         </div>
+        </div>
 </template>
 
 
 <style scoped>
-.reseach {
-    padding: 2rem;
-}
 
 span {
     gap: 2;

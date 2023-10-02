@@ -24,7 +24,7 @@ onMounted(() => {
 					/* function */
 
 
-async function editName(event){
+async function editName(event) {
 	User.value = store.getters.getuser
 	console.log(event.target.value)
 	await Axios.post("users/Change", {id : User.value.id, name: event.target.value}).then(response => {
@@ -36,11 +36,12 @@ async function editName(event){
 }
 
 
-async function Button2fa(){
+async function Button2fa() {
+
 	User.value = store.getters.getuser
 	await Axios.post("auth/Button2FA", {id : User.value.id}).then(response => {
-		if(response){
-			if(response.data == true)
+		if (response){
+			if (response.data == true)
 				btn.value = true 
 			else
 				btn.value = false 
@@ -66,39 +67,38 @@ async function Button2fa(){
 
 <style lang="scss" scoped>
   
-.profile{
-    display: flex;
+.profile {
+	display: flex;
     flex-direction: column;
     align-content: center;
     flex-wrap: nowrap;
     align-items: center;
-	}
-  h1{
-    padding:5px;
-  }
-  input[type="text"] {
-      width:200px;
-      height:30px;
-      border-radius:5px;
-      background-color: lightblue;
-      margin-left:2px;
-  }
+}
+
+h1 {
+	padding:5px;
+}
+
+input[type="text"] {
+    width:200px;
+    height:30px;
+    border-radius:5px;
+    background-color: lightblue;
+    margin-left:2px;
+}
 
 .edit_name_class{
 	display: flex;
 }
 
 .btn {
-	.false{
+	.false {
 		background-color: red;
 		color: gold;
 	}
-	.true{
+	.true {
 		background-color: green;
 		color: gold;
 	}
 }
-
-
-
 </style>

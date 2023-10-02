@@ -18,17 +18,22 @@ const routes: Array<RouteRecordRaw> = [
             component: () => import(/* webpackChunkName: "about" */ '../views/ChatView.vue') },
           { path: '/profile', name: 'profile',
               component: () => import(/* webpackChunkName: "about" */ '../views/ProfileView.vue') },
+          { path: '/user/:id', name: 'user',
+              component: () => import(/* webpackChunkName: "about" */ '../views/UserProfile.vue') },
           { path: '/matchmaking', name: 'matchmaking',
               component: () => import(/* webpackChunkName: "about" */ '../views/Matchmaking.vue') },
           { path: '/game', name: 'game',
               component: () => import(/* webpackChunkName: "about" */ '../views/Game.vue')},
           { path: '/History', name: 'History',
-              component: () => import(/* webpackChunkName: "about" */ '../views/GameHistory.vue')},
-          { path: '/test', name: 'test',
-              component: () => import(/* webpackChunkName: "about" */ '../views/TEST.vue')}
+              component: () => import(/* webpackChunkName: "about" */ '../views/GameHistory.vue')}
     ]
 
   },
+
+  // ... Your existing routes ...
+
+  // Add a route for the user's profile page
+ 
   { path: '/Config', name: 'Config',
               component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
   { path: '/Twofa', name: 'Twofa',
@@ -40,6 +45,9 @@ const routes: Array<RouteRecordRaw> = [
     path: '/:pathMatch(.*)*', redirect : '/'
   }
 ]
+
+
+
 
 const router = createRouter({
   history: createWebHistory(),
