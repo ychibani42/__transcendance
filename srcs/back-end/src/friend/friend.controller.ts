@@ -10,6 +10,7 @@ export class FriendController {
 	@Post('')
 	@UseGuards(JwtAuthGuard)
 	GetfriendsList(@Body() id: FriendDto) {
+		console.log("PPUUUUUUUUUUUUUUUUUUUUUUUUUTE");
 		const friend = this.FriendService.friendlist(id.id);
 		return friend;
 	}
@@ -18,6 +19,13 @@ export class FriendController {
 	@UseGuards(JwtAuthGuard)
 	Addfriends(@Body() req: AddFriendDto) {
 		const friend = this.FriendService.addfriend(req.id, req.addid);
+		return friend;
+	}
+
+	@Post('blocked')
+	@UseGuards(JwtAuthGuard)
+	Blockedfriends(@Body() req: AddFriendDto) {
+		const friend = this.FriendService.blockfriend(req.id, req.addid);
 		return friend;
 	}
 }

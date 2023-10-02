@@ -36,7 +36,6 @@ export class UserController {
 	@Post('')
 	@UseGuards(JwtAuthGuard)
 	AllUser(@Body() body: any) {
-		console.log("Body == " + body.id);
 		return this.userService.findAll(body.id);
 	}
 

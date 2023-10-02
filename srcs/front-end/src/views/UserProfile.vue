@@ -1,13 +1,25 @@
 
 <template>
     <div class="profile">
-      <label for="fileField">
-        <img :src="picture" class="img_class">
-      </label>
-      {{ name }}
-      <History/>
+        <label for="fileField">
+            <img :src="picture" class="img_class">
+        </label>
+        {{ name }}
+        <h1> GameHistory</h1>
+        <div v-if="games.length == 0">
+            <span> No game played </span>
+        </div>
+        <div v-else>
+            <div v-for="name in games">
+                <span v-if="name.score[0] == 5"> Winner {{ name.user1.name }} | {{ name.score[0] }} : {{ name.score[1] }} |
+                    {{
+                        name.user2.name }} Looser </span>
+                <span v-else> Looser {{ name.user1.name }} | {{ name.score[0] }} : {{ name.score[1] }} | {{ name.user2.name
+                }}
+                    Winner</span>
+            </div>
+        </div>
     </div>
-
 </template>
 
 <script setup lang="ts">
@@ -24,6 +36,7 @@ const name = ref()
 const picture = ref()
 const con = ref(0);
 const id = ref(useRoute().params.id);
+const games = ref([])
 
 
 onMounted(() => {
@@ -31,10 +44,22 @@ onMounted(() => {
     getPictureBeforeMount();
 })
 
+async function GetGames(usersname: string) {
+    await Axios.post('game/Findbyname', {
+        name: usersname
+    })
+        .then(res => {
+            console.log(res.data);
+            games.value = res.data
+        })
+}
+
 async function fetchUser(id: number) {
     await Axios.get('users/fetch/' + id).then((res) => {
         name.value = res.data.name;
         console.log(res.data)
+    }).then(() => {
+        GetGames(name.value)
     })
 }
 
@@ -70,7 +95,7 @@ const getPicture = async () => {
 
 <style lang="scss" scoped>
 .profile {
-	display: flex;
+    display: flex;
     flex-direction: column;
     align-content: center;
     flex-wrap: nowrap;
@@ -81,9 +106,9 @@ const getPicture = async () => {
     width: 400px;
     height: 400px;
     border-radius: 50%;
-  }
+}
 
 h1 {
-	padding:5px;
+    padding: 5px;
 }
 </style>

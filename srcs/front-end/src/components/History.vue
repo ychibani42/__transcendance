@@ -9,7 +9,6 @@ const gamesre = ref([])
 const name = ref('')
 const store = useStore()
 
-
 async function GetGames(usersname:string) {
     await Axios.post('game/Findbyname', {
         name: usersname })
@@ -21,6 +20,7 @@ async function GetGames(usersname:string) {
 onMounted(() => {
     name.value = store.state.user.username;
     GetGames(name.value)
+
 });
 
 </script>

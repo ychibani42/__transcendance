@@ -60,6 +60,14 @@ function GotoProfile(id : Number){
   router.push("/User/" + id)
 }
 
+function blockFriend(id : Number){
+  Axios.post('Friend/blocked',{id : ID.value , blockid : id }).then((res) => {
+      console.log(res.status)   
+  })
+  clicking.value = false
+  click.value = 0
+} 
+
 </script>
 
 <template>
@@ -74,6 +82,7 @@ function GotoProfile(id : Number){
             <button class="modal-btn" @click="GotoProfile(Users.id)" >Profile</button>
             <button class="modal-btn" v-on:click="addfriend(Users.id)">Add friend</button>
             <button class="modal-btn" v-on:click="cancel">Cancel</button>
+            <button class="modal-btn" v-on:click="blockFriend(Users.id)">Block Friend</button>
         </div>
       </ul>
     </div>

@@ -11,7 +11,7 @@ const click = ref(0)
 
 async function getFriend(){
   await Axios.get('auth/Me').then(res => {
-      if(res.status == 200)
+      if (res.status == 200)
         ID.value = res.data.id
       
   })
