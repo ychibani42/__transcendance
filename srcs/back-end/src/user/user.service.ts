@@ -119,6 +119,7 @@ export class UserService {
 			throw new BadRequestException('Failed to find user');
 		}
 	}
+
 	async findPP(username: string) {
 		return (
 			await this.findUniqueUser({

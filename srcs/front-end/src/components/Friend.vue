@@ -3,6 +3,7 @@ import { useStore } from 'vuex';
 import { ref , onMounted,onBeforeMount } from 'vue';
 import Axios from '../services';
 import store from '../store';
+import router from '../router';
 
 const ID = ref()
 const friend = ref([])
@@ -24,8 +25,8 @@ onMounted(() => {
   getFriend()
 });
 
-function GotoProfile(){
-  console.log("EASy")
+function GotoProfile(id: number){
+  router.push("/User/" + id)
 }
 
 function cancel(){
@@ -60,11 +61,19 @@ function clicked(nbr : number){
 
 function connected(user : any){
   if(user.user.state == 'Online' || user.user.state == 'OnGame')
-  {
     return true
-  }
   return false
 }
+
+function blockFriend(id : Number){
+  Axios.post('friend/blocked', {
+    id : ID.value , blockid : id
+  }).then((res) => {
+      console.log(res.status)   
+  })
+  clicking.value = false
+  click.value = 0
+} 
 
 </script>
 
@@ -77,8 +86,9 @@ function connected(user : any){
           </div>
         </li>
         <div class="modal" v-if="clicking == true && friends.user.id == click">
-            <button class="modal-btn" v-on:click="GotoProfile" >Profile</button>
+            <button class="modal-btn" v-on:click="GotoProfile(friends.user.id)" >Profile</button>
             <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
+            <button class="modal-btn" v-on:click="blockFriend(friends.user.id)">Block Friend</button>
             <button class="modal-btn" v-on:click="cancel">Cancel</button>
         </div>
       </ul>
@@ -87,7 +97,7 @@ function connected(user : any){
 
 <style scoped>
 
-ul{
+ul {
   display: flex;
   justify-content: center;
   list-style: none;
@@ -95,7 +105,7 @@ ul{
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   width: 100%;
-  .lis{
+  .lis {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -147,4 +157,5 @@ ul{
     width: 100%;
   }
 }
+
 </style>

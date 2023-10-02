@@ -11,7 +11,6 @@ const clicking = ref(false)
 const click = ref(0)
 const emit = defineEmits(['refresh'])
 const props = defineProps({'counter': Number})
-const route = useRoute()
 
 async function GetUser() {
   await Axios.get('auth/Me').then(res => {
@@ -61,8 +60,10 @@ function GotoProfile(id : Number){
 }
 
 function blockFriend(id : Number){
-  Axios.post('Friend/blocked',{id : ID.value , blockid : id }).then((res) => {
-      console.log(res.status)   
+  Axios.post('friend/blocked',{
+    id : ID.value , blockid : id 
+  }).then((res) => {
+      console.log(res.status);
   })
   clicking.value = false
   click.value = 0

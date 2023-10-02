@@ -29,6 +29,7 @@ import { useStore } from 'vuex';
 import Axios from '../services';
 import { useRoute } from 'vue-router';
 import History from '../components/History.vue';
+import router from '../router';
 
 
 const routes = useRoute()
@@ -58,6 +59,12 @@ async function fetchUser(id: number) {
     await Axios.get('users/fetch/' + id).then((res) => {
         name.value = res.data.name;
         console.log(res.data)
+        if (res.status === 200) {
+            name.value = res.data.name;
+        }
+        else {
+            router.push('/Home')
+        }
     }).then(() => {
         GetGames(name.value)
     })

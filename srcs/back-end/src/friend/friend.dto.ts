@@ -12,3 +12,11 @@ export class AddFriendDto {
 	@IsInt()
 	addid: number;
 }
+
+export class BlockFriendDto {
+	@IsInt()
+	id: number;
+
+	@IsInt()
+	blockid: number;
+}
