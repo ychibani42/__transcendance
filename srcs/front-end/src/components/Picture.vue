@@ -1,8 +1,6 @@
 <template>
-    <div>
-        <label for="fileField">
-            <img :src="picture" class="img_class">
-        </label>
+    <div class="picture">          
+        <img :src="picture" class="img_class">
         <input type="file" id="fileField" ref="selectedFile" name="file" accept="image/*" style="display:none"
             @change="uploadImage($event)">
     </div>
@@ -73,9 +71,14 @@ async function getPicture() {
 
 <style lang="scss" scoped>
 
+.picture {
+    display: flex;
+}
+
 .img_class {
-    width: 400px;
-    height: 400px;
+    margin: 5rem;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
 }
 

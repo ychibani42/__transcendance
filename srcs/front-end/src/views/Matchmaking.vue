@@ -137,7 +137,7 @@ function LeaveQueue(){
             <div>
                 <h2>Click to join Queue</h2>
             </div>
-            <div class="button">
+            <div class="join-button">
                 <button class="button" @click="joinQueue()">Join Queue</button>
             </div>
         </div>
@@ -145,7 +145,7 @@ function LeaveQueue(){
             <div>
                 <h2>Click to join Queue</h2>
             </div>
-            <div class="button">
+            <div class="leave-button">
                 <button class="button" @click="LeaveQueue()">Leave Queue</button>
             </div>
         </div>
@@ -173,7 +173,7 @@ function LeaveQueue(){
                         <input type="radio" id="theme" name="theme" value="false" v-model="theme" required/>
                     </label>
                 </div>
-                <input type="submit" value="Validate">
+                <button type="submit"> Validate </button>
             </form>
         </div>
     </div>
@@ -181,6 +181,10 @@ function LeaveQueue(){
   </template>
   
   <style lang="scss" scoped>
+
+  .all {
+    margin-top: 15rem;
+  }
 
   .OptionBoX{
     width: 100%;
@@ -215,6 +219,49 @@ function LeaveQueue(){
     }
     
   }
+
+  
+  .join-button button  {
+  background-color: #bfc7cb;
+  color: #141d22;
+  border: 1px solid #1a4258;
+  border-radius: 8px;
+  text-align: center;
+  padding: 15px 32px;
+  transition: 0.1s ease-in-out;
+ &:hover {
+    border: 2px solid #131719;
+    background-color: #4ade80;
+    }
+}
+
+.leave-button button  {
+  background-color: #bfc7cb;
+  color: #141d22;
+  border: 1px solid #1a4258;
+  border-radius: 8px;
+  text-align: center;
+  padding: 15px 32px;
+  transition: 0.1s ease-in-out;
+ &:hover {
+    border: 2px solid #131719;
+    background-color: #e62929;
+    }
+}
+
+.Option button  {
+  background-color: #bfc7cb;
+  color: #141d22;
+  border: 1px solid #1a4258;
+  border-radius: 8px;
+  text-align: center;
+  padding: 15px 32px;
+  transition: 0.1s ease-in-out;
+ &:hover {
+    border: 2px solid #131719;
+    background-color: #4ade80;
+    }
+}
 
   </style>
   

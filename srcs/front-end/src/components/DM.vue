@@ -148,7 +148,7 @@ function GAME(id : Number){
             <ol v-for="name in DM.messages" v-if="onChan === true">
                   <div class="message" v-if="name.userId === User.id" >
                       <p>
-                          {{ name.text }} {{name.userId }}
+                          {{ name.text }}
                       </p>  
                   </div>
                         <div class="Autre" v-else>
@@ -182,7 +182,8 @@ function GAME(id : Number){
     height: 100%;
     width: 100%;
     display: flex;
-    background-color: aliceblue;
+    background-color: rgb(5, 5, 5);
+    font-size: 0.7rem;
 
 .chats {
     display: flex;
@@ -207,7 +208,7 @@ function GAME(id : Number){
     max-width: 300px;
     position: relative;
     height: 100%;
-    background-color: rgb(240, 240, 231);
+    background-color: rgb(5, 5, 5);
     overflow-y: auto;
     ol {
         padding: 0;
@@ -255,12 +256,12 @@ function GAME(id : Number){
     min-height: 64px;
     width: 100%;
     margin-right: 1px;
-    background-color: azure;
+    background-color: rgb(5, 5, 5);
     justify-content: center; 
 }
 
 .dm-messages{
-    background-color: rgb(212, 248, 236);
+    background-color: rgb(57, 57, 57);
     flex: 1;
     flex:content;
     overflow-y: auto;
@@ -316,7 +317,8 @@ function GAME(id : Number){
         max-width: 50%;
         line-break: anywhere;
         background-color: rgb(159, 241, 177);
-        padding: 10px;
+        color: rgb(5, 5, 5);
+        padding: 10px;        color: rgb(5, 5, 5);
         border-radius: 10px;
     }
 }
@@ -328,7 +330,7 @@ function GAME(id : Number){
     margin: 0;
     max-width: 50%;
     button {
-        background-color: rgb(212, 248, 236);
+        background-color: rgb(57, 57, 57);
         overflow: hidden;
     }    
     p{
@@ -338,6 +340,7 @@ function GAME(id : Number){
         max-width: 50%;
         line-break: anywhere;
         background-color: rgb(229, 238, 231);
+        color: rgb(5, 5, 5);
         padding: 10px;
         border-radius: 10px;
        
@@ -364,6 +367,22 @@ function GAME(id : Number){
     width: 15rem;
     height: 3rem;
     margin: 0.2rem;
-  }
+     
+    }   
+    button  {
+    
+            background-color: #bfc7cb;
+            color: #141d22;
+            border: 1px solid #1a4258;
+            border-radius: 8px;
+            text-align: center;
+            padding: 15px 32px;
+            transition: 0.1s ease-in-out;
+
+            &:hover {
+                border: 2px solid #131719;
+                background-color: #4ade80;;
+            }
+        }
 }
 </style>

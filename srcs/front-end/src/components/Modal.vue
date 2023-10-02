@@ -8,8 +8,9 @@
             <form @submit.prevent="status" class="content">
                   <div class="list-user" v-for="users in chandisp.user" > 
                     <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId && ((stat === 'admin' && !isAdmin(users.id)) || (stat === 'banned' && !isBanned(users.id)) || (stat === 'muted' && !isMuted(users.id)) || (stat === 'kicked')) ">
-                      <input type="checkbox" :value="users.id" v-model="checked"> 
-                      {{ users.name }}
+                      <div class="checking"> <input type="checkbox" :value="users.id" v-model="checked"> </div>
+                      <div class="name">{{ users.name }}</div>
+                      
                       
                     </div>
                    
@@ -18,8 +19,8 @@
                 <div v-if="stat == 'unadmin'" > 
                   <div class="list-user" v-for="users in chandisp.admin" > 
                     <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId ">
-                      <input type="checkbox" :value="users.id" v-model="checked"> 
-                      {{ users.user.name }}
+                      <div class="checking"><input type="checkbox" :value="users.id" v-model="checked">  </div> 
+                      <div class="name">{{ users.user.name }}</div>
                       
                     </div>
                      
@@ -29,20 +30,20 @@
                 <div v-if="stat == 'unbanned'" >
                   <div class="list-user" v-for="users in chandisp.banned" > 
                     <div class="checkbox" v-if="User.id != users.id">
-                      <input type="checkbox" :value="users.id" v-model="checked"> 
-                      {{ users.user.name }}
+                      <div class="checking"><input type="checkbox" :value="users.id" v-model="checked"> </div>
+                      <div class="name">{{ users.user.name }}</div>
                     </div>
                   </div>
                 </div>
 
-                <div v-if="stat == 'unmuted'" >
+                <!-- <div v-if="stat == 'unmuted'" >
                   <div class="list-user" v-for="users in chandisp.muted" > 
                     <div class="checkbox" v-if="User.id != users.id">
                       <input type="checkbox" :value="users.id" v-model="checked"> 
-                      {{ users.user.name }}
+                      <div class="name">{{ users.user.name }}</div>
                     </div>
                   </div>
-                </div> 
+                </div>  -->
                  <div v-if="stat == 'muted'"> 
                     Time:
                       <select name="time" id="time">
@@ -52,15 +53,18 @@
                         <option value="30">30</option>
                       </select>
                    </div>
-                    <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true" @kick="kicked === true" @unadmin="unadmin === true">
-                        Submit
-                    </button>
+                   <div class="buttons"> 
+                      <button type="submit" @ban="banned === true" @mute="muted === true" @admin="admin === true" @kick="kicked === true" @unadmin="unadmin === true">
+                          Submit
+                      </button>
+                    
+
+                      <button type="button" class="cancel" @click="emit('close')">
+                          Cancel
+                      </button>
+
+                   </div>
                    
-
-                    <button type="button" class="cancel" @click="emit('close')">
-                        Cancel
-                    </button>
-
                 </form>
             </div>
         </div>
@@ -151,6 +155,7 @@ function isMuted(userid: number) {
     display: flex;
     justify-content: center;
     align-items: center;
+   
   }
 .modal {
     background: #FFFFFF;
@@ -159,6 +164,7 @@ function isMuted(userid: number) {
     display: flex;
     flex-direction: column;
     border-radius: 8px;
+
   }
   button {
     margin-top: 10px;
@@ -168,6 +174,43 @@ function isMuted(userid: number) {
     justify-content: flex-start;
     margin-left: 20%;
     padding-right: 10px;
+    color:  rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-body {
+    form {
+       .list-user {
+        .checkbox {
+          display: flex;
+          flex-direction: row;
+          .name {
+            font-size: 0.7rem;
+            margin-top: 4px;
+            margin-left: 4px;
+            
+          }
+         
+        }
+       
+     }
+    }
+    .buttons {
+      button{
+            background-color: #ffffff;
+            color: #141d22;
+            border-radius: 8px;
+            text-align: center;
+            padding: 10px 25px;
+            transition: 0.1s ease-in-out;
+
+            &:hover {
+            border: 2px solid #131719;
+            background-color: #4ade80;;
+            }
+      }
+      
+    }
+   
   }
  
 </style>

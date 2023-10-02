@@ -33,21 +33,23 @@ function login(){
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 
 /* Style général du conteneur de connexion */
 .Log {
+    margin-top: 15rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #f2f2f2;
-    border-radius: 12px;
+    background-color: #000000;
+    height: 100%;
+    width: 100%;
 }
 /* Style du titre */
 h1 {
     font-size: 2rem;
-    color: #333;
+    color: #ffffff;
     margin-bottom: 1rem;
 }
 
@@ -56,23 +58,30 @@ a{
 }
 
 /* Style du bouton Log With 42 */
-.btn {
-    background-color: #3498db;
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-}
+button {
 
-.btn:hover {
-    background-color: #2980b9;
-    color:gold;
-    border-color: gold;
-    border: 2px;
-}
+                width: 100%;
+                background-color: #bfc7cb;
+                color: #141d22;
+                border: 1px solid #1a4258;
+                border-radius: 8px;
+                text-align: center;
+                padding: 20px 32px;
+                transition: 0.1s ease-in-out;
+
+
+                &:hover {
+                    border: 2px solid #131719;
+                    background-color: #4ade80;;
+                }
+            }
+
+// .btn:hover {
+//     background-color: #2980b9;
+//     color:gold;
+//     border-color: gold;
+//     border: 2px;
+// }
 
 /* Style du formulaire */
 .form {

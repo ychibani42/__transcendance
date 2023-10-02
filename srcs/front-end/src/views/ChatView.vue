@@ -490,19 +490,24 @@ function GAME(id : Number){
             
             
             <div class="formSetting" v-if="setting === true">
-                <p>Propriete du chat</p>
+                <h2>Propriete du chat</h2>
 
                 <form @submit.prevent="updateChan">
-                    <div>
-                        Status:
-				        <input type="checkbox"  v-model="newstatus">  {{ newstatus ? 'private' : 'public' }}     
+                    <div class="status">
+                        <h4>Status:</h4>
+				        <input type="checkbox"  v-model="newstatus"> 
+                        <div class="change-status">{{ newstatus ? 'private' : 'public' }}  </div>    
                     </div>
                     
-				    <label for="password">
-                        Password
-                        <input type="password" id="newpass" v-model="newpass" @focus="isFocused = true" @blur="isFocused = false">  
-                    </label>
-                    <button type="submit">Submit modification</button>
+				    <!-- <label for="password"> -->
+                        <div class="password">
+                            <h4>Password:</h4>
+                            <input type="password" id="newpass" v-model="newpass" @focus="isFocused = true" @blur="isFocused = false">  
+                        </div>
+                        
+                    <!-- </label> -->
+                    <div class="submit-modif"> <button type="submit">Submit modification</button></div>
+                   
                      <div class="buttons">
                         <button type="button" class="btn" @click="isModalKick = true">
                             Kick
@@ -536,12 +541,16 @@ function GAME(id : Number){
                         <Modal emit='unbanned' header="unBan" v-if="isModalunBan === true" @close="isModalunBan = false"/>
 
                     </div>
-                   
-                    <button v-if="User.id != chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
-                   
+                    <div class="leaving-admin"> 
+                        <button v-if="User.id != chandisp.ownerId" class="leave" @click="leaveChan">Leave channel</button>
+                    </div>
+                    
                 </form> 
-                <button v-if="User.id === chandisp.ownerId && inDM == false" class="leave" @click="leaveChan">Leave channel</button>
-                <button v-if="User.id === chandisp.ownerId  && inDM == false" class="leave" @click="deleteChan">Delete room</button>
+                <div class="leaving"> 
+                    <button v-if="User.id === chandisp.ownerId && inDM == false" class="leave" @click="leaveChan">Leave channel</button>
+                    <button v-if="User.id === chandisp.ownerId  && inDM == false" class="leave" @click="deleteChan">Delete room</button>
+                </div>
+              
             </div>                  
             <div class="chat-header" >
               
@@ -597,7 +606,7 @@ function GAME(id : Number){
                 <form id='test' @submit.prevent="createMessage" v-if="onChan === true">
                     <input class="text" type="text" placeholder="type your message" v-model="messageText" required>
                     <button><span class="material-icons">send</span></button>
-                </form>
+                </form>            
             </div>
         </div>
         
@@ -610,23 +619,25 @@ function GAME(id : Number){
     height: 100%;
     width: 100%;
     display: flex;
-    background-color: aliceblue;
+    background-color: rgb(29, 29, 28);
 }
 .chat-page {
+    font-size: 0.7rem;
     height: 100%;
     width: 100%;
     display: flex;
-    background-color: aliceblue;
+    background-color: rgb(5, 5, 5);
 }
 .channel-list {
     display: flex;
     flex-flow: column;
-    flex: 0 0 15%;
+    flex: 0 0 25%;
     min-width: 150px;
-    max-width: 300px;
+    max-width: 400px;
     position: relative;
     height: 100%;
-    background-color: rgb(240, 240, 231);
+    background-color: rgb(5, 5, 5);
+    border-color:rgb(255, 255, 255);
     overflow-y: auto;
     ol {
         padding: 0;
@@ -658,7 +669,8 @@ function GAME(id : Number){
             } li{
         display: flex;
         button {
-            background-color: rgb(212, 248, 236);
+            background-color: rgb(147, 149, 149);
+            font-size: 0.5rem;
         }
     }
         }
@@ -666,11 +678,11 @@ function GAME(id : Number){
     }
 }
 .formSetting {
-    background-color: rgb(240, 240, 231);
+    background-color: rgb(8, 8, 8);
     form{
         display:flex;
         flex-direction:column;
-        align-items: start;
+        align-items: flex-start;
         margin-left: 3px;
         label input {
             width: 70%;
@@ -678,21 +690,96 @@ function GAME(id : Number){
         .buttons {
             display: flex;
             button {
-                width: 5rem; 
+                width: 6rem;
+                background-color: #bfc7cb;
+                color: #141d22;
+                border: 1px solid #1a4258;
+                border-radius: 8px;
+                text-align: center;
+                padding: 10px 25px;
+                transition: 0.1s ease-in-out;
+
+                &:hover {
+                    border: 2px solid #131719;
+                    background-color: #4ade80;;
+                }
+        }
+        }
+        .submit-modif {
+            button {
+                background-color: #bfc7cb;
+                color: #141d22;
+                border: 1px solid #1a4258;
+                border-radius: 8px;
+                text-align: center;
+                padding: 10px 25px;
+                transition: 0.1s ease-in-out;
+
+                &:hover {
+                    border: 2px solid #131719;
+                    background-color: #4ade80;;
+                }
+        }
+        }
+        .leaving-admin {
+                display: flex;
+                justify-content: flex-start;
+                
+                button {
+                    margin: 5px;
+                    padding: 10px;
+                    background-color: rgb(236, 89, 89);
+                 }
+        }
+        .status {
+            display: flex;
+            flex-direction: row;
+            margin: 4px;
+            h4 {
+                margin: 2px;
+            }
+            input {
+                margin-top: 0;
+                margin-right: 6px;
+            }
+            .change-status {
+                margin: 2px;
             }
         }
+        .password {
+            display:flex;
+            flex-direction: row;
+            margin: 4px;
+            h4 {
+                margin: 2px;
+            }
+            input {
+                margin-bottom: 4px;
+                padding: 0;
+            }
+        }
+
+        
        
     }
 }
+.leaving {
+            display: flex;
+            justify-content: flex-start;
+            button {
+                margin: 5px;
+                padding: 10px;
+            }
+        }
 .btn {
     display: flex;
     justify-content: center;
     margin: 5px;
     button {
         color: black;
-        background-color: rgb(223, 224, 208);
+        background-color: rgb(68, 69, 66);
     }
-    background-color: rgb(223, 224, 208);
+    background-color: rgb(129, 129, 128);
     padding: 10px;
     border-radius: 10px;
 }
@@ -722,7 +809,7 @@ function GAME(id : Number){
     min-height: 64px;
     width: 100%;
     margin-right: 1px;
-    background-color: azure;
+    background-color: rgb(2, 2, 2);
     justify-content: center; 
     .title {
         width: 100%;
@@ -737,7 +824,7 @@ function GAME(id : Number){
 }
 
 .chat-messages{
-    background-color: rgb(212, 248, 236);
+    background-color: rgb(57, 57, 57);
     flex: 1;
     flex:content;
     overflow-y: auto;
@@ -767,7 +854,7 @@ function GAME(id : Number){
     width: 100%;
     height: 5%;
     border-bottom-right-radius: 4px;
-    background-color: rgb(250, 228, 217);
+    background-color: rgb(5, 5, 5);
     form {
         display: flex;
         width: 100%;
@@ -804,7 +891,8 @@ function GAME(id : Number){
     li{
         display: flex;
         button {
-            background-color: rgb(212, 248, 236);
+            background-color: rgb(57, 57, 57);
+            color: rgb(254, 254, 254);
         }
     }
     p{
@@ -814,8 +902,9 @@ function GAME(id : Number){
         max-width: 50%;
         line-break: anywhere;
         background-color: rgb(159, 241, 177);
-        padding: 5px;
+        padding: 10px;
         border-radius: 10px;
+        color:  rgb(0, 0, 0);
     }
 }
 
@@ -829,8 +918,10 @@ function GAME(id : Number){
     li{
 
         button {
-            background-color: rgb(212, 248, 236);
+            background-color: rgb(57, 57, 57);
             overflow: hidden;
+            padding: 10px;
+            color: rgb(254, 250, 250);
         }
     }
     
@@ -843,6 +934,7 @@ function GAME(id : Number){
         background-color: rgb(229, 238, 231);
         padding: 10px;
         border-radius: 10px;
+        color:  rgb(9, 10, 9);
        
     }
 }
@@ -867,6 +959,8 @@ function GAME(id : Number){
     width: 15rem;
     height: 3rem;
     margin: 0.2rem;
+    background-color: rgb(245, 245, 245);
+    color:  rgb(4, 4, 4);
   }
 }
 

@@ -54,12 +54,21 @@ async function Button2fa(){
 <template>
 	<div class="profile">
 		<Picture/>	
-		{{ name }}
-		<p>Edit Name: <input type="text" class="edit_name_class" @change="editName($event)"></p>
-		<div class="btn"> 2FA
-			<button class="false" @click="Button2fa" v-if="btn == false">FALSE</button>
-			<button class="true" @click="Button2fa" v-else>TRUE</button>
+		<div class="name"> <h2>{{ name }}</h2></div>
+		<div class="components">
+			<div class="edit">
+				<h5>Edit Name:</h5>
+					<input type="text" class="edit_name_class" @change="editName($event)">
+				
+				
+			</div>
+			<div class="btn"> 
+				<h5>Auth 2FA: </h5>
+				<button class="false" @click="Button2fa" v-if="btn == false">FALSE</button>
+				<button class="true" @click="Button2fa" v-else>TRUE</button>
+			</div>
 		</div>
+			
 		<History/>
 	</div>
 </template>
@@ -69,33 +78,56 @@ async function Button2fa(){
 .profile{
     display: flex;
     flex-direction: column;
-    align-content: center;
+    align-content:flex-start;
     flex-wrap: nowrap;
     align-items: center;
+	
 	}
   h1{
     padding:5px;
   }
   input[type="text"] {
       width:200px;
-      height:30px;
-      border-radius:5px;
-      background-color: lightblue;
+	  margin-top: 0.4rem;
+      height:25px;
+      border-radius:3px;
+      background-color: rgb(237, 239, 239);
       margin-left:2px;
+	 
   }
-
+ .edit {
+		display: flex;
+		flex-direction: row;
+		h5 {
+			margin-top: 1rem;
+		}
+}
 .edit_name_class{
 	display: flex;
 }
 
 .btn {
+	display: flex;
+	flex-direction: row;
 	.false{
-		background-color: red;
-		color: gold;
+    	color: #f8f9f9;
+    	border: 1px solid #1a4258;
+    	border-radius: 30px;
+		text-align: center;
+		// padding: 0 0;
+		font-size: 0.7rem;
+		transition: 0.1s ease-in-out;
+    	background-color: #d91b1b;
 	}
 	.true{
-		background-color: green;
-		color: gold;
+		color: #e8edef;
+    	border: 1px solid #1a4258;
+    	border-radius: 30px;
+		text-align: center;
+		// padding: 7px 20px;
+		font-size: 0.7rem;
+		transition: 0.1s ease-in-out;
+    	background-color: #4ade80;
 	}
 }
 
