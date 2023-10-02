@@ -14,7 +14,7 @@ const myplay : Ref<Boolean> = ref(false)
 const finished :  Ref<Boolean> = ref(false)
 const playing :  Ref<Boolean> = ref(false)
 const roomname : Ref<string> = ref("")
-const msg = ref("")
+const msg = ref("You abandonned the game")
 
 const pongBorder = ref("solid white") 
 const pongBorderRadius = ref("1rem") 
@@ -34,7 +34,7 @@ const play1 = ref({
         y : 75,
         w : 8,
         h : 37,
-        color : 'white',
+        color : '#ee6363',
         score : 0,
 });
 
@@ -43,7 +43,7 @@ const play2 = ref({
         y : 75,
         w : 8,
         h : 37,
-        color : 'white',
+        color : 'cyan',
         score : 0,
 });
 
@@ -68,8 +68,6 @@ onUnmounted(() => {
 }),
 
 onBeforeMount(() => {
-    let img = new window.Image();
-    img.src = "../public/soccer-field.png"
     socket.value = state.state.gamesock
     if(!socket.value)
         return
@@ -99,7 +97,12 @@ onBeforeMount(() => {
     })
     roomname.value = state.state.gamename
     myplay.value = state.state.gameplay
-   
+    if(state.state.gameTheme == false)
+    {
+        net.value.color = "white"
+        play1.value.color = "white"
+        play2.value.color = "white"
+    }
 }),
 
 
@@ -110,8 +113,11 @@ onMounted(() => {
     canvasElement.value?.addEventListener("click",ReadyOrQuit);
     render(); 
     if(roomname.value == "")
+    {
         finished.value = true
+    }
 });
+
 
 function ReadyOrQuit(){
     if(playing.value == false)
@@ -177,13 +183,21 @@ function drowplay1(x: number,y: number,w: number,h: number,color: string)
         return;
     }
     context.value.beginPath();
-    context.value.shadowBlur = 20
-    context.value.shadowColor = '#963232'
-    context.value.fillStyle = 'cyan'
-    context.value.strokeStyle = 'cyan'
-    context.value.lineWidth = 5
-    context.value.stroke()
-    context.value.fillRect(x,y,w,h);
+    if(state.state.gameTheme == true)
+    {
+        context.value.fillStyle = color
+        context.value.fillRect(x,y,w,h);
+    }    
+    else
+    {
+        context.value.beginPath();
+        context.value.shadowBlur = 8
+        context.value.shadowColor = color
+        context.value.strokeStyle = color
+        context.value.lineWidth = 2
+        context.value.rect(x,y,w - 2,h -2)
+        context.value.stroke()
+    }
     context.value.closePath();
     context.value.lineWidth = 0
 }
@@ -201,14 +215,25 @@ function drowball(x: number,y: number,r: number,color: string)
         return;
     } 
     context.value.beginPath();
-    context.value.shadowColor = 'cyan'
-    context.value.shadowBlur = 5
-    context.value.arc(x,y,r,0,Math.PI*2,false);
-    context.value.fillStyle = 'white';
-    context.value.stroke()
+    if(state.state.gameTheme == true)
+    {
+        context.value.arc(x,y,r,0,Math.PI*2,false);
+        context.value.fillStyle = 'white';
+        context.value.fill();   
+    }    
+    else
+    {
+    
+        context.value.arc(x,y,r-2,0,Math.PI*2,false);
+        context.value.fillStyle = 'white';
+        context.value.fill(); 
+        context.value.shadowColor = 'white'
+        context.value.shadowBlur = 2
+        context.value.lineWidth = 2
+        context.value.strokeStyle = 'cyan';
+        context.value.stroke()
+    }
     context.value.closePath();
-    context.value.fillStyle = 'white';
-    context.value.fill();
 }
 
 
@@ -246,8 +271,10 @@ function redir()
         <canvas :style="{'border': pongBorder, 'border-radius': pongBorderRadius}" ref="canvasElement" id="pong"></canvas>
     </div>
     <div class="modal" v-if="finished == true">
-        <span>{{  }}</span>
-        <button class="modal-btn" v-on:click="redir()">Go to Home</button>
+        <div class="block">
+             <h1 class="title">{{ msg }}</h1>
+            <button class="modal-btn" v-on:click="redir()">Go to Home</button>
+        </div>   
     </div>
    
 </template>
@@ -278,14 +305,16 @@ canvas {
     color:cyan;
 }
 
-.modal {
+.block{
     position: fixed;
-    top: 0;
+    top: 30%;
     bottom: 0;
-    left: 0;
+    left: 30%;
     right: 0;
-    z-index: 3;
-    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 15;
+    width: 50%;
+    height: 50%;
+    background-color: rgba(253, 168, 168, 1);
     display: flex;
 
     justify-content: center;
@@ -295,7 +324,30 @@ canvas {
     display: flex;
     flex-direction: column;
     border-radius: 8px;
-  .modal-btn {
+}
+.modal {
+
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 15;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 20px 1px;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+  .title{
+        color: chocolate;
+        border: solid ;
+    }
+    .modal-btn {
     width: 15rem;
     height: 3rem;
     margin: 0.2rem;

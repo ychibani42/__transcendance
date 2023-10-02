@@ -23,7 +23,9 @@ const routes: Array<RouteRecordRaw> = [
           { path: '/game', name: 'game',
               component: () => import(/* webpackChunkName: "about" */ '../views/Game.vue')},
           { path: '/History', name: 'History',
-              component: () => import(/* webpackChunkName: "about" */ '../views/GameHistory.vue')}
+              component: () => import(/* webpackChunkName: "about" */ '../views/GameHistory.vue')},
+          { path: '/test', name: 'test',
+              component: () => import(/* webpackChunkName: "about" */ '../views/TEST.vue')}
     ]
 
   },
@@ -63,6 +65,7 @@ async function checkJwt() : Promise<boolean>
           const sock = connect()
           store.commit('setState',sock)
           store.dispatch('Gameinvite')
+          console.log("2")
         }
       }
     })
@@ -93,6 +96,12 @@ router.beforeEach((to, from) => {
     if(store.state.user.Twofa === true && valid === true && store.state.user.Twofavalid == false)
     {
       router.push("/Twofa")
+    }
+    console.log(to.path)
+    if(to.path == "/matchmaking")
+    {
+      console.log("1",store.state.state)
+      store.state.state?.emit("game")
     }
 })
 })

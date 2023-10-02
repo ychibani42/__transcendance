@@ -15,21 +15,20 @@ interface Com
 export class StateService {
 	constructor(
 		private prismaService: PrismaService,
-        private jwtService : JwtService
 	) {}
 
     User : Array<Com> = []
 
     async connection(client : Socket , token : number){
         try {
-
-            await this.prismaService.user.findFirstOrThrow({where : {id: token}})
-            await this.prismaService.user.update({where : {id : token},data : {state : 'Online'}})
             const user2 : Com = {
                 socket : client,
                 id : token
             }
             this.User.push(user2)
+            await this.prismaService.user.findFirstOrThrow({where : {id: token}})
+            await this.prismaService.user.update({where : {id : token},data : {state : 'Online'}})
+            console.log("con userid ",user2.socket.id)
         }
         catch (error) {
             console.log(error)
@@ -37,7 +36,6 @@ export class StateService {
     }
 
     async disconnect(client : Socket){
-        
         try {
                 let user;
                 this.User.forEach((element) => {
@@ -46,7 +44,7 @@ export class StateService {
                         user = element.id
                     }
                 })
-                console.log("userid ",user)
+                console.log(" dis userid ",user)
                 await this.prismaService.user.findFirstOrThrow({where : {id: user}})
                 await this.prismaService.user.update({where : {id : user},data : {state : 'Disconected', otpvalider : false}})
                 this.User.forEach((element) => {
@@ -59,7 +57,7 @@ export class StateService {
                 })
             }
          catch (error) {
-            console.log(error)
+            console.log("Prisma error dis")
         }
     }
 
@@ -67,19 +65,17 @@ export class StateService {
         try {
             let user;
                 this.User.forEach((element) => {
+                    console.log("userid ",element.id , "socket id ", element.socket.id ,"client ", client.id)
                     if(element.socket == client)
                     {
                         user = element.id
                     }
                 })
-            try {
+                console.log("userid ",user)
                 await this.prismaService.user.findFirstOrThrow({where : {id: user}})
                 await this.prismaService.user.update({where : {id : user},data : {state : 'OnGame'}})
-            } catch (error) {
-                console.log(error)
-            }
         } catch (error) {
-            console.log(error)
+            console.log("Prisma error game")
         }
     }
 
@@ -93,14 +89,10 @@ export class StateService {
                         user = element.id
                     }
                 })
-                try {
-                    await this.prismaService.user.findFirstOrThrow({where : {id: user}})
-                    await this.prismaService.user.update({where : {id : user},data : {state : 'Online'}})
-                } catch (error) {
-                    console.log(error)
-                }
+                await this.prismaService.user.findFirstOrThrow({where : {id: user}})
+                await this.prismaService.user.update({where : {id : user},data : {state : 'Online'}})
             } catch (error) {
-            console.log(error)
+                console.log("Prisma error change")
         }
     }
 
