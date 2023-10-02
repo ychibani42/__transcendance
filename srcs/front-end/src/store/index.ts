@@ -38,6 +38,8 @@ const store = createStore(
             gameplay:false,
             gameTheme : false,
             gameInviteID : 0,
+            DM: false,
+            friend: {},
             
             state: <Socket | undefined>null,
         },
@@ -49,7 +51,11 @@ const store = createStore(
             getGamename : state => state.gamename,
             getGameplay : state => state.gameplay,
             getState : state => state,
+
             getStatesock : state => state.state,
+            getDM : state => state.DM,
+            getFriend : state => state.friend
+
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -71,7 +77,6 @@ const store = createStore(
                 state.chandisp.banned = chandisp.banned
                 state.chandisp.muted = chandisp.muted
                 state.chandisp.admin = chandisp.admin
-
             },
             setChanid(state, id: number){state.chandisp.idch = id},
             setTwofa(state, bool){ state.user.Twofa = bool},
@@ -82,6 +87,8 @@ const store = createStore(
             setOnline(state, bool){state.user.online = bool},
             setTheme(state , bool){ state.gameTheme = bool},
             setGameID(state, int){ state.gameInviteID = int},
+            setFriendDM(state , friend){ state.friend = friend},
+            setDM(state, bool){state.DM = bool}
         },
         actions :{
             reset()

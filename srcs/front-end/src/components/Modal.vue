@@ -88,7 +88,9 @@ const time = ref(0)
 function status() {
       let userid: number = checked.value
       let chanid: number = chandisp.idch
-      let duration: number = document.querySelector('#time').value
+      let duration: number = 0
+      if (props.emit == 'muted')
+        duration = document.querySelector('#time').value
       socket.emit(props.emit, { userid, chanid, duration }, response => {
         emit('close')
       })
