@@ -79,6 +79,7 @@ function debut(){
 
 function joinQueue(){
     socket.value?.emit("JoinQueue",store.state.user.id)
+    store.state.state.emit("Game")
 }
 
 function ConfigGame(){
@@ -122,16 +123,31 @@ onBeforeRouteLeave((to,from,next) => {
     }
 })
 
+function LeaveQueue(){
+    socket.value?.emit("LeaveQueue",store.state.user.id)
+    onQueue.value = false
+}
+
 </script>
 
 <template>
     <div class="all">
     <div class="Queue" v-if="option == false">
-        <div class="matchmaking">
-        <h4>Click to join Queue</h4>
+        <div class="matchmaking" v-if="onQueue == false">
+            <div>
+                <h2>Click to join Queue</h2>
+            </div>
+            <div class="button">
+                <button class="button" @click="joinQueue()">Join Queue</button>
+            </div>
         </div>
-        <div class="button">
-            <button class="button" @click="joinQueue()">Join Queue</button>
+        <div class="Onqueu" v-else>
+            <div>
+                <h2>Click to join Queue</h2>
+            </div>
+            <div class="button">
+                <button class="button" @click="LeaveQueue()">Leave Queue</button>
+            </div>
         </div>
     </div>
     <div class="Option" v-else>
@@ -161,7 +177,6 @@ onBeforeRouteLeave((to,from,next) => {
             </form>
         </div>
     </div>
-    <p>Your ID is {{ User.id }}</p>
     </div>
   </template>
   

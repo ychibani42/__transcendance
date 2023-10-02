@@ -30,6 +30,11 @@ export class GameGateway {
         this.GameService.JoinQueue(client , id)
     }
 
+    @SubscribeMessage('LeaveQueue')
+    LeaveQueue(client : Socket , id: number){
+        return this.GameService.LeaveQueue(client,id)
+    }
+
     @SubscribeMessage('position')
     positionY(client : Socket,Y : pos){
         this.GameService.updateY(Y[0],Y[1] , client);

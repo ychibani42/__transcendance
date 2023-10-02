@@ -118,9 +118,12 @@ const store = createStore(
             },
             Inviteon(){
                  this.state.state?.on('invited',(arg1,arg2) => {
+                    console.log("Invited by arg2")
                     toast(Btn, {
                         autoClose: false,
                         closeOnClick: false,
+                        closeButton : false,
+                        toastId: 1,
                     })
                     this.state.gamename = arg1
                     this.state.gameInviteID = arg2
@@ -130,7 +133,6 @@ const store = createStore(
                 this.state.gameInviteID = 0
             },
             refused(){
-                console.log("Refused")
                 if(this.state.user.id == this.state.gameInviteID){
                     this.state.gamesock?.emit("Delete",{name : this.state.user.username})
                 }
@@ -157,6 +159,15 @@ const store = createStore(
                 this.state.state?.on('accepted',() => {
                     this.dispatch("gotogame")
                 })
+                this.state.state?.on("AlreadyInvite",() => {
+                    this.dispatch("Inviteon")
+                    console.log("Invited")
+                    toast("This friend is already Invited or in Game", {
+                        autoClose: true,
+                        closeOnClick: true,
+                        closeButton : false,
+                    })
+                }) 
             }
         }
     }
