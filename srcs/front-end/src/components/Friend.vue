@@ -15,7 +15,7 @@ async function getFriend(){
       
   })
   Axios.post('friend',{id : ID.value}).then((res) => {
-        friend.value = res.data
+      friend.value = res.data
   })
 }
 
@@ -97,7 +97,6 @@ ul{
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   width: 100%;
-  
 }
 .lis{
     width: 100%;

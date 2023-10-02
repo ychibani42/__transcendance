@@ -12,7 +12,7 @@
 import store from '../store';
 import {onUnmounted , ref} from "vue"
 import { toast } from 'vue3-toastify';
-import { io ,Socket} from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 const r = ref(true)
 
