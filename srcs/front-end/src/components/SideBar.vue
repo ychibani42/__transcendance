@@ -69,8 +69,8 @@ aside {
 	font-family: 'Fira sans', sans-serif;
 	--primary: #4ade80;
 	--grey: #64748b;
-	--dark: #1e293b;
-	--darkalt: #334155;
+	--dark: rgb(7, 6, 6);
+	--darkalt: #080808;
 	--light: #f1f5f9;
 
 	h3, .button .text {

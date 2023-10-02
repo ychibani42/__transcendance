@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <label for="fileField">
-      <img :src="picture" class="img_class">
-    </label>
-    <input type="file" id="fileField" ref="selectedFile" name="file" accept="image/*" style="display:none"
-      @change="uploadImage($event)">
-  </div>
+    <div class="picture">  
+        <label for="fileField">        
+          <img :src="picture" class="img_class">
+        </label>
+        <input type="file" id="fileField" ref="selectedFile" name="file" accept="image/*" style="display:none"
+            @change="uploadImage($event)">
+    </div>
 </template>
   
 <script setup lang="ts">
@@ -68,12 +68,19 @@ onMounted(() => {
 });
 
 </script>
-  
-<style scoped>
+
+
+<style lang="scss" scoped>
+
+.picture {
+    display: flex;
+}
+
 .img_class {
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
+    margin: 5rem;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
 }
 </style>
   

@@ -89,7 +89,7 @@ function blockFriend(id : Number){
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 
 .modal {
     position: fixed;
@@ -103,23 +103,53 @@ function blockFriend(id : Number){
 
     justify-content: center;
     align-items: center;
-    box-shadow: 2px 2px 20px 1px;
+    box-shadow: 2px 2px 20px 1px;  ul {
+     width: 100%;
+  }
+ 
     overflow-x: auto;
     display: flex;
     flex-direction: column;
     border-radius: 8px;
-    .modal-btn {
-    width: 15rem;
-    height: 3rem;
-    margin: 0.5rem;
-  }
+    button .modal-btn {
+        background-color: #bfc7cb;
+      color: #141d22;
+      border: 1px solid #1a4258;
+      border-radius: 8px;
+      text-align: center;
+      padding: 15px 32px;
+      transition: 0.1s ease-in-out;
+
+      &:hover {
+        border: 2px solid #131719;
+        background-color: #4ade80;;
+      }
+    }
   }
 
+  ul{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  align-items: center;
+  
+}
+li {
+  width: 80%;
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
+    align-items: center;
+}
 .User {
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-y: auto;
+  // overflow-y: auto;
   height: 15rem;
 }
 
@@ -129,6 +159,22 @@ function blockFriend(id : Number){
   align-items: center;
   overflow-y: auto;
   width: 100;
+  button{
+    background-color: #bfc7cb;
+      color: #141d22;
+      border: 1px solid #1a4258;
+      border-radius: 8px;
+      text-align: center;
+      padding: 7px;
+      width: 100%;
+      transition: 0.2s ease-in-out;
+
+      &:hover {
+        border: 2px solid #131719;
+        background-color: #4ade80;;
+      }
+  }
+
 }
 
 ul{

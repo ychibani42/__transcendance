@@ -112,7 +112,7 @@ function blockFriend(id : Number){
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 
 ul {
   display: flex;
@@ -138,7 +138,7 @@ ul {
     left: 0;
     right: 0;
     z-index: 3;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(74, 72, 72, 0.3);
     display: flex;
 
     justify-content: center;
@@ -148,11 +148,23 @@ ul {
     display: flex;
     flex-direction: column;
     border-radius: 8px;
-  .modal-btn {
-    width: 15rem;
-    height: 3rem;
-    margin: 0.2rem;
-  }
+  button .modal-btn {
+  
+    background-color: #bfc7cb;
+    color: #141d22;
+    border: 1px solid #1a4258;
+    border-radius: 8px;
+    text-align: center;
+    padding: 15px 32px;
+    transition: 0.1s ease-in-out;
+
+    &:hover {
+      border: 2px solid #131719;
+      background-color: #4ade80;;
+    }
+
+    }
+  
 }
 
 .UserdispDis{
@@ -165,9 +177,20 @@ ul {
 }
 
 .UbtnDis{
-    background-color: red;
+    background-color: #bfc7cb;
     width: 100%;
-}
+    color: #141d22;
+    border: 1px solid #1a4258;
+    border-radius: 8px;
+    text-align: center;
+    padding: 7px 0;
+    width: 100%;
+    transition: 0.1s ease-in-out;
+    &:hover {
+      border: 2px solid #131719;
+      background-color: rgb(232, 29, 29);
+    }
+  }
 
 
 .friend {
@@ -189,8 +212,19 @@ ul {
   
 }
 .UbtnG{
-    background-color: orange;
+    background-color: #bfc7cb;
     width: 100%;
+    color: #141d22;
+    border: 1px solid #1a4258;
+    border-radius: 8px;
+    text-align: center;
+    padding: 7px 0;
+    width: 100%;
+    transition: 0.1s ease-in-out;
+    &:hover {
+      border: 2px solid #131719;
+      background-color: rgb(233, 180, 47);
+    }
   }
 .UserdispON{
   
@@ -203,8 +237,18 @@ ul {
  
 } 
 .Ubtn{
-    background-color: green;
+    background-color: #bfc7cb;
+    color: #141d22;
+    border: 1px solid #1a4258;
+    border-radius: 8px;
+    text-align: center;
+    padding: 7px 0;
     width: 100%;
+    transition: 0.1s ease-in-out;
+    &:hover {
+      border: 2px solid #131719;
+      background-color: #4ade80;;
+    }
   }
 }
 
