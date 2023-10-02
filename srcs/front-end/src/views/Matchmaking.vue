@@ -82,6 +82,7 @@ function ConfigGame(){
     else
         socket.value?.emit("Config",false,store.state.gamename)
     store.commit('setTheme',theme.value)
+    console.log("THEME BEFORE", store.state.gameTheme)
 }
 
 onUnmounted(()=> {
@@ -157,13 +158,13 @@ function LeaveQueue(){
                 <div class="theme">
                     
                     <label for="theme">
-                        Classic
+                        Color
                         <input type="radio" id="theme" name="theme" value="true"  v-model="theme" placeholder="CLassic" required/>
                     </label>
                 </div>
                 <div class="theme">
                    <label for="theme"> 
-                        Color
+                        CLassic
                         <input type="radio" id="theme" name="theme" value="false" v-model="theme" required/>
                     </label>
                 </div>
