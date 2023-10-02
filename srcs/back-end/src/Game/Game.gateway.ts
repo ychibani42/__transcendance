@@ -21,12 +21,13 @@ export class GameGateway {
 	server: Server;
 
     handleDisconnect(client :Socket){
-        console.log(client.id)
+        console.log("DISCONNECT GAME",client.id)
         this.GameService.remove(client);
     }
 
     @SubscribeMessage("JoinQueue")
     JoinQueue(client : Socket, id : number){
+        console.log("wwwww",client.id)
         this.GameService.JoinQueue(client , id)
     }
 

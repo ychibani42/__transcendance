@@ -30,13 +30,14 @@ export class UserService {
 			});
 			return nameto;
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			throw new BadRequestException('Failed to change name');
 		}
 	}
 
 	async findAll(ids: number) {
 		try {
+			console.log(typeof ids);
 			const users = await this.prismaService.user.findMany({
 				where: {
 					NOT: {
@@ -60,8 +61,10 @@ export class UserService {
 					},
 				},
 			});
+			console.log(users);
 			return users;
 		} catch (error) {
+			console.log(error);
 			return null;
 		}
 	}
@@ -103,6 +106,7 @@ export class UserService {
 		}
 		return undefined;
 	}
+
 	async findUser(id: number) {
 		try {
 			const found = await this.prismaService.user.findUniqueOrThrow({
@@ -115,11 +119,29 @@ export class UserService {
 			throw new BadRequestException('Failed to find user');
 		}
 	}
+
 	async findPP(username: string) {
 		return (
 			await this.findUniqueUser({
 				name: username,
 			})
 		)?.avatar;
+	}
+
+	async findUserById(id: number) {
+		try {
+			const user = await this.prismaService.user.findUniqueOrThrow({
+				where: { id: id },
+				select: {
+					id: true,
+					name: true,
+					avatar: true,
+					profilefinish: true,
+				},
+			});
+			return user;
+		} catch (error) {
+			throw new BadRequestException('Failed to find user');
+		}
 	}
 }

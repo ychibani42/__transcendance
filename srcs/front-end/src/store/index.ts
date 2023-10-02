@@ -34,7 +34,7 @@ const store = createStore(
             chatsock: <Socket | undefined>null,
 
             gamesock:<Socket | undefined>null,
-            gamename:'',
+            gamename:<string> '',
             gameplay:false,
             gameTheme : false,
             gameInviteID : 0,
@@ -51,8 +51,11 @@ const store = createStore(
             getGamename : state => state.gamename,
             getGameplay : state => state.gameplay,
             getState : state => state,
+
+            getStatesock : state => state.state,
             getDM : state => state.DM,
             getFriend : state => state.friend
+
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -119,14 +122,14 @@ const store = createStore(
             Inviteon(){
                  this.state.state?.on('invited',(arg1,arg2) => {
                     console.log("Invited by arg2")
+                    this.state.gamename = arg1
+                    this.state.gameInviteID = arg2
                     toast(Btn, {
                         autoClose: false,
                         closeOnClick: false,
                         closeButton : false,
                         toastId: 1,
                     })
-                    this.state.gamename = arg1
-                    this.state.gameInviteID = arg2
                     this.dispatch("Inviteoff")
                 })
                 this.state.gamename = ""
@@ -136,6 +139,8 @@ const store = createStore(
                 if(this.state.user.id == this.state.gameInviteID){
                     this.state.gamesock?.emit("Delete",{name : this.state.user.username})
                 }
+                this.state.gamename = ""
+                this.state.gameInviteID = 0
                 this.state.gamesock?.disconnect()
             },
             SocketGame(){

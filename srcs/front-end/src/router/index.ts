@@ -18,6 +18,8 @@ const routes: Array<RouteRecordRaw> = [
             component: () => import(/* webpackChunkName: "about" */ '../views/ChatView.vue') },
           { path: '/profile', name: 'profile',
               component: () => import(/* webpackChunkName: "about" */ '../views/ProfileView.vue') },
+          { path: '/user/:id', name: 'user',
+              component: () => import(/* webpackChunkName: "about" */ '../views/UserProfile.vue') },
           { path: '/matchmaking', name: 'matchmaking',
               component: () => import(/* webpackChunkName: "about" */ '../views/Matchmaking.vue') },
           { path: '/game', name: 'game',
@@ -27,6 +29,11 @@ const routes: Array<RouteRecordRaw> = [
     ]
 
   },
+
+  // ... Your existing routes ...
+
+  // Add a route for the user's profile page
+ 
   { path: '/Config', name: 'Config',
               component: () => import(/* webpackChunkName: "about" */ '../views/Config.vue')},
   { path: '/Twofa', name: 'Twofa',
@@ -38,6 +45,9 @@ const routes: Array<RouteRecordRaw> = [
     path: '/:pathMatch(.*)*', redirect : '/'
   }
 ]
+
+
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -63,6 +73,7 @@ async function checkJwt() : Promise<boolean>
           const sock = connect()
           store.commit('setState',sock)
           store.dispatch('Gameinvite')
+          console.log("2")
         }
       }
     })
@@ -93,6 +104,10 @@ router.beforeEach((to, from) => {
     if(store.state.user.Twofa === true && valid === true && store.state.user.Twofavalid == false)
     {
       router.push("/Twofa")
+    }
+    if(to.path == "/matchmaking")
+    {
+      store.state.state?.emit("game")
     }
 })
 })

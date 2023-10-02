@@ -6,7 +6,6 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import { useStore } from 'vuex';
 
 const socket : Ref<Socket | undefined> = ref()
-const socket2: Ref<Socket | undefined> = ref()
 const store = useStore()
 const router = useRouter()
 const User = store.getters.getuser
@@ -14,9 +13,6 @@ const option = ref(false)
 const theme = ref(false)
 const speed = ref('')
 const onQueue = ref(false)
-const Quit = ref(false)
-
-
 
 inviteorNormal()
 
@@ -32,22 +28,20 @@ function invitedgame(){
     console.log("invited")
     option.value = true
     socket.value = store.state.gamesock
-    store.state.state.emit('game')
     socket.value?.on('OnRoom', () =>
     {
         router.push("/game")
     })
     socket.value?.on('Leave', () =>
     {
+        onQueue.value = false
         option.value = false
         store.commit('setGamename',"")
     })
-    onQueue.value = true
 }
 
 function debut(){
-   
-    socket.value = io('http://localhost:3000/game') 
+    socket.value = io('http://localhost:3000/game')
     store.commit('setGamesocket',socket)
     socket.value.on('onQueue', () => {
         onQueue.value = true
@@ -66,11 +60,11 @@ function debut(){
     })
     socket.value.on('config', () =>
     {
-        store.state.state.emit('game')
         option.value = true
     })
     socket.value.on('Leave', () =>
     {
+        onQueue.value = false
         option.value = false
         store.commit('setGamename',"")
     })
@@ -78,8 +72,8 @@ function debut(){
 
 
 function joinQueue(){
+    console.log(socket.value , store.state.user.id)
     socket.value?.emit("JoinQueue",store.state.user.id)
-    store.state.state.emit("Game")
 }
 
 function ConfigGame(){
@@ -88,6 +82,7 @@ function ConfigGame(){
     else
         socket.value?.emit("Config",false,store.state.gamename)
     store.commit('setTheme',theme.value)
+    console.log("THEME BEFORE", store.state.gameTheme)
 }
 
 onUnmounted(()=> {
@@ -104,21 +99,21 @@ onBeforeRouteLeave((to,from,next) => {
                 return
             else
             {
-                socket2.value?.emit("Change")
+                store.state.state?.emit("Change")
                 store.state.gamesock.disconnect()
                 store.commit('setGamename',"")
                 next()
             }
         }
-        else 
+        else
         {
-            socket2.value?.emit("Change")
+            store.state.state?.emit("Change")
             next()
         }
     }
     else
     {
-        socket2.value?.emit("Change")
+        store.state.state?.emit("Change")
         next()
     }
 })
@@ -163,13 +158,13 @@ function LeaveQueue(){
                 <div class="theme">
                     
                     <label for="theme">
-                        Classic
+                        Color
                         <input type="radio" id="theme" name="theme" value="true"  v-model="theme" placeholder="CLassic" required/>
                     </label>
                 </div>
                 <div class="theme">
                    <label for="theme"> 
-                        Color
+                        CLassic
                         <input type="radio" id="theme" name="theme" value="false" v-model="theme" required/>
                     </label>
                 </div>
@@ -177,6 +172,7 @@ function LeaveQueue(){
             </form>
         </div>
     </div>
+    <p>Your ID is {{ User.id }}</p>
     </div>
   </template>
   

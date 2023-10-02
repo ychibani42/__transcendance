@@ -24,7 +24,7 @@ onMounted(() => {
 					/* function */
 
 
-async function editName(event){
+async function editName(event) {
 	User.value = store.getters.getuser
 	console.log(event.target.value)
 	await Axios.post("users/Change", {id : User.value.id, name: event.target.value}).then(response => {
@@ -36,11 +36,12 @@ async function editName(event){
 }
 
 
-async function Button2fa(){
+async function Button2fa() {
+
 	User.value = store.getters.getuser
 	await Axios.post("auth/Button2FA", {id : User.value.id}).then(response => {
-		if(response){
-			if(response.data == true)
+		if (response){
+			if (response.data == true)
 				btn.value = true 
 			else
 				btn.value = false 
@@ -75,8 +76,8 @@ async function Button2fa(){
 
 <style lang="scss" scoped>
   
-.profile{
-    display: flex;
+.profile {
+	display: flex;
     flex-direction: column;
     align-content:flex-start;
     flex-wrap: nowrap;
@@ -130,7 +131,4 @@ async function Button2fa(){
     	background-color: #4ade80;
 	}
 }
-
-
-
 </style>

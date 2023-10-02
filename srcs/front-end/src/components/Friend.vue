@@ -1,7 +1,8 @@
-<script setup lang="ts">
+<script  setup lang="ts">
 import { ref , onMounted} from 'vue';
 import Axios from '../services';
 import store from '../store';
+// import router from '../router';
 import { useRouter, onBeforeRouteLeave } from 'vue-router';
 const router = useRouter()
 
@@ -14,12 +15,12 @@ const click = ref(0)
 
 async function getFriend(){
   await Axios.get('auth/Me').then(res => {
-      if(res.status == 200)
+      if (res.status == 200)
         ID.value = res.data.id
       
   })
   Axios.post('friend',{id : ID.value}).then((res) => {
-        friend.value = res.data
+      friend.value = res.data
   })
 }
 
@@ -27,8 +28,8 @@ onMounted(() => {
   getFriend()
 });
 
-function GotoProfile(){
-  console.log("EASy")
+function GotoProfile(id: number){
+  router.push("/User/" + id)
 }
 
 function cancel(){
@@ -63,6 +64,11 @@ function clicked(nbr : number){
     }
 }
 
+function connected(user : any){
+  if(user.user.state == 'Online' || user.user.state == 'OnGame')
+    return true
+  return false
+}
 
 function GotoDM(friend: any) {
   store.commit('setFriendDM', friend)
@@ -70,6 +76,14 @@ function GotoDM(friend: any) {
   // console.log(store.getters.getFriend)
   router.push("/chat")
 }
+
+function blockFriend(id : Number){
+  Axios.post('friend/blocked', { id:  ID.value,  blockid:  id }).then((res) => {
+      console.log(res.status)   
+  })
+  clicking.value = false
+  click.value = 0
+} 
 
 </script>
 
@@ -80,20 +94,19 @@ function GotoDM(friend: any) {
           <div v-if="friends.user.state == 'Online'" class="UserdispON">
             <button class="Ubtn" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
           </div>
-          <div v-else-if="friends.user.state == 'OnGame'" class="UserdispGame">
-            <button class="UbtnG" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
-          </div>
-          <div v-else class="UserdispDis">
-            <button class="UbtnDis" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
-          </div>
-          <div class="modal" v-if="clicking == true && friends.user.id == click">
-            <button class="modal-btn" v-on:click="GotoProfile" >Profile</button>
-            <button class="modal-btn" v-on:click="GotoDM(friends.user)" >Send DM</button>
-            <div v-if="friends.user.state == 'Online'">
-              <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
+           <div v-else-if="friends.user.state == 'OnGame'" class="UserdispGame">
+              <button class="UbtnG" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
             </div>
+            <div v-else class="UserdispDis">
+                <button class="UbtnDis" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
+            </div>
+            <div class="modal" v-if="clicking == true && friends.user.id == click">
+            <button class="modal-btn" v-on:click="GotoProfile(friends.user.id)" >Profile</button>
+            <button class="modal-btn" v-on:click="GotoDM(friends.user)">Send DM </button>
+            <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
+            <button class="modal-btn" v-on:click="blockFriend(friends.user.id)">Block Friend</button>
             <button class="modal-btn" v-on:click="cancel">Cancel</button>
-        </div>
+            </div>
         </li>
       </ul>
     </div>
@@ -101,7 +114,7 @@ function GotoDM(friend: any) {
 
 <style lang="scss" scoped>
 
-ul{
+ul {
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -110,9 +123,7 @@ ul{
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   width: 100%;
-  
-}
-.lis{
+  .lis {
     width: 100%;
     margin-top: 0.3rem;
     margin-bottom: 0.3rem;
@@ -239,4 +250,6 @@ ul{
       background-color: #4ade80;;
     }
   }
+}
+
 </style>

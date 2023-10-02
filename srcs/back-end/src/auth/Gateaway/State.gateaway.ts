@@ -18,22 +18,24 @@ export class StateGateway {
 
 
     @SubscribeMessage('Connect')
-    Connect(client :Socket, id  : number){
+    async Connect(client :Socket, id  : number){
         console.log("connection",id)
-        return this.stateservice.connection(client,id)
+        await this.stateservice.connection(client,id)
     }
 
-    handleDisconnect(client :Socket){
-        this.stateservice.disconnect(client)
+    async handleDisconnect(client :Socket){
+        await this.stateservice.disconnect(client)
     }
 
     @SubscribeMessage('game')
     Gameconnection(client :Socket){
-        return this.stateservice.Game(client)
+        console.log("game")
+        this.stateservice.Game(client)
     }
 
     @SubscribeMessage('Change')
     Change(client :Socket){
+        console.log("Change")
         this.stateservice.Change(client)
     }
 

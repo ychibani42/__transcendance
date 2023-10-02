@@ -61,4 +61,9 @@ export class UserController {
 			res.sendFile(process.cwd() + '/' + filename);
 		}
 	}
+
+	@Get('fetch/:id')
+	async fetchUser(@Param('id', ParseIntPipe) id: number) {
+		return this.userService.findUserById(id);
+	}
 }

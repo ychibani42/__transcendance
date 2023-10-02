@@ -5,6 +5,7 @@ import { Ref, ref, onMounted } from "vue";
 import Friend from '../components/Friend.vue';
 import Users from '../components/User.vue';
 import BloquedComp from '../components/Bloqued.vue';
+import Picture from '../components/Picture.vue';
 import Axios from '../services';
 
 const store = useStore();
