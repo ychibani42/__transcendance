@@ -6,6 +6,9 @@ import { useStore, mapState } from 'vuex'
 import Modal from '../components/Modal.vue';
 import Password from '../components/Password.vue';
 import DM from '../components/DM.vue';
+import Friend from '../components/Friend.vue';
+import { toast } from 'vue3-toastify'
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 // import { useState, useActions } from 'vuex-composition-helpers/dist'
 
 const store = useStore()
@@ -37,12 +40,13 @@ const createChan = ref({
 })
 const messageText = ref('');
 const onChan = ref(false);
+const router = useRouter()
 
 const setting = ref(false);
 const inAll = ref(true);
 const inJoined = ref(false)
 const inDM = ref(false)
-
+const clicking = ref(false)
 const checked = ref(false)
 const newstatus = ref(false)
 const isFocused = ref(false)
@@ -60,7 +64,11 @@ const isPassword = ref(false)
 
 
 onBeforeMount(() => {
-    displayChats()
+    inDM.value = store.getters.getDM;
+    if (inDM.value == true)
+        displayDM()
+    else
+        displayChats()
     socket.on('message',(arg1 : string) => {
         chandisp.value.messages.push(arg1);
     })
@@ -104,7 +112,7 @@ onBeforeMount(() => {
     socket.on('banned', (arg1: any) => {
         chandisp.value.user.forEach(element => {
             if(element.id == arg1.user.id){
-                chandisp.value.banned.push(arg1)    
+                chandisp.value.banned.push(arg1)
             }
             if (User.id == arg1.user.id)
                 {
@@ -116,6 +124,7 @@ onBeforeMount(() => {
                         displayJoined()
                 }
         })
+        console.log(chandisp.value.banned)
         chandisp.value.user.forEach(element => {
             if(element.id == arg1.user.id){
                 chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
@@ -153,6 +162,7 @@ onBeforeMount(() => {
     })
     socket.on('kicked', (arg1: any) => {
         chandisp.value.user.forEach(element => {
+            console.log(element.id, arg1.id)
             if(element.id == arg1.id){
                 chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
             }
@@ -185,7 +195,16 @@ onBeforeMount(() => {
     })
     socket.on('error', (arg1: string) => {
         if (arg1 == 'banned')
+        {
+            toast("You were banned from there", { autoClose: true})    
             onChan.value = false
+        }
+        if (arg1 == 'muted')
+        {
+            toast("You were muted", { autoClose: true})  
+            
+        }
+            
     })
     socket.on('updateStatus', (arg1: any) => {
        
@@ -377,6 +396,29 @@ function deleteChan() {
     })
 }
 
+function GotoDM(friend: any) {
+    console.log('gotodm')
+    store.commit('setFriendDM', friend)
+    console.log('friend',friend)
+    inDM.value = true
+    clicking.value = false
+  // console.log(store.getters.getFriend)
+}
+
+function cancel(){
+  clicking.value = false
+}
+
+function GAME(id : Number){
+  console.log("Invite",id)
+  store.state.state?.emit("Invite",id)
+  store.dispatch("Inviteoff")
+  store.dispatch("SocketGame")
+  store.commit('setGameplay',true)
+  store.commit("setGamename",store.state.user.username)
+  clicking.value = !clicking.value
+}
+
 </script>
 
 <template>
@@ -524,13 +566,28 @@ function deleteChan() {
             
                     <ol v-for="name in chandisp.messages" v-if="onChan === true">
                         <div class="message" v-if="name.userId === User.id" >
-                            <p>
-                                {{ name.text }} {{name.userId }}
-                            </p>  
+                                    <p>
+                                        
+                                        {{ name.text }}
+                                    </p>
+                               
                         </div>
                         <div class="Autre" v-else>
+                            <li v-for="user in chandisp.user">
+                                <button v-if="user.id == name.userId" @click="clicking = true"> 
+                                        {{ user.name }}: 
+                                        
+                                </button>
+                                <div class="modal" v-if="clicking == true && user.id == name.userId">
+                                    <button class="modal-btn" >Profile</button>
+                                    <button class="modal-btn" @click="GotoDM(user)">Send DM</button>
+                                    <button class="modal-btn" @click="GAME(user.id)">Invite for Game</button>
+                                    <button class="modal-btn" @click="cancel">Cancel</button>
+                                </div>
+                               
+                            </li>
                             <p>
-                                {{ name.text }} {{ name.userId }}
+                                    {{ name.text }}
                             </p>
                         </div>
 			        </ol>
@@ -598,7 +655,12 @@ function deleteChan() {
                 padding-top: 5%;
                 padding-bottom: 5%;
             
-            }
+            } li{
+        display: flex;
+        button {
+            background-color: rgb(212, 248, 236);
+        }
+    }
         }
 
     }
@@ -739,14 +801,20 @@ function deleteChan() {
     justify-content: end;
     padding: 0;
     margin: 0;
+    li{
+        display: flex;
+        button {
+            background-color: rgb(212, 248, 236);
+        }
+    }
     p{
         display: flex;
         margin: 5px;
-        justify-content: flex-end;
+        justify-content: center;
         max-width: 50%;
         line-break: anywhere;
         background-color: rgb(159, 241, 177);
-        padding: 10px;
+        padding: 5px;
         border-radius: 10px;
     }
 }
@@ -754,17 +822,52 @@ function deleteChan() {
 .Autre{
     display:flex;
     justify-content: start;
+    flex-wrap: wrap;
     padding: 0;
     margin: 0;
+    max-width: 50%;
+    li{
+
+        button {
+            background-color: rgb(212, 248, 236);
+            overflow: hidden;
+        }
+    }
+    
     p{
         display: flex;
-        margin: 5px;
-        justify-content: flex-end;
+        justify-content: center;
+        margin-left: 5px;
         max-width: 50%;
         line-break: anywhere;
         background-color: rgb(229, 238, 231);
         padding: 10px;
         border-radius: 10px;
+       
     }
 }
+.modal {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 20px 1px;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+  .modal-btn {
+    width: 15rem;
+    height: 3rem;
+    margin: 0.2rem;
+  }
+}
+
 </style>
