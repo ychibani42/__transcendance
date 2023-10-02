@@ -1,14 +1,17 @@
-<script setup lang="ts">
-import { useStore } from 'vuex';
-import { ref , onMounted,onBeforeMount } from 'vue';
+<script  setup lang="ts">
+import { ref , onMounted} from 'vue';
 import Axios from '../services';
 import store from '../store';
-import router from '../router';
+// import router from '../router';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
+const router = useRouter()
 
 const ID = ref()
 const friend = ref([])
 const clicking = ref(false)
 const click = ref(0)
+
+
 
 async function getFriend(){
   await Axios.get('auth/Me').then(res => {
@@ -17,7 +20,7 @@ async function getFriend(){
       
   })
   Axios.post('friend',{id : ID.value}).then((res) => {
-        friend.value = res.data
+      friend.value = res.data
   })
 }
 
@@ -36,6 +39,8 @@ function cancel(){
 
 function GAME(id : Number){
   console.log("Invite",id)
+  if(store.state.gamename != "")
+    return
   store.state.state?.emit("Invite",id)
   store.dispatch("Inviteoff")
   store.dispatch("SocketGame")
@@ -65,10 +70,15 @@ function connected(user : any){
   return false
 }
 
+function GotoDM(friend: any) {
+  store.commit('setFriendDM', friend)
+  store.commit('setDM', true)
+  // console.log(store.getters.getFriend)
+  router.push("/chat")
+}
+
 function blockFriend(id : Number){
-  Axios.post('friend/blocked', {
-    id : ID.value , blockid : id
-  }).then((res) => {
+  Axios.post('friend/blocked', { id:  ID.value,  blockid:  id }).then((res) => {
       console.log(res.status)   
   })
   clicking.value = false
@@ -79,18 +89,25 @@ function blockFriend(id : Number){
 
 <template>
     <div class="friend">
-      <ul v-for="friends in friend">
-        <li class="lis" v-if="connected(friends)"> 
-          <div class="Userdisp">
+      <ul>
+        <li class="lis" v-for="friends in friend"> 
+          <div v-if="friends.user.state == 'Online'" class="UserdispON">
             <button class="Ubtn" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
           </div>
-        </li>
-        <div class="modal" v-if="clicking == true && friends.user.id == click">
+           <div v-else-if="friends.user.state == 'OnGame'" class="UserdispGame">
+              <button class="UbtnG" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
+            </div>
+            <div v-else class="UserdispDis">
+                <button class="UbtnDis" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
+            </div>
+            <div class="modal" v-if="clicking == true && friends.user.id == click">
             <button class="modal-btn" v-on:click="GotoProfile(friends.user.id)" >Profile</button>
+            <button class="modal-btn" v-on:click="GotoDM(friends.user)">Send DM </button>
             <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
             <button class="modal-btn" v-on:click="blockFriend(friends.user.id)">Block Friend</button>
             <button class="modal-btn" v-on:click="cancel">Cancel</button>
-        </div>
+            </div>
+        </li>
       </ul>
     </div>
 </template>
@@ -100,6 +117,7 @@ function blockFriend(id : Number){
 ul {
   display: flex;
   justify-content: center;
+  flex-direction: column;
   list-style: none;
   padding: 0;
   margin-top: 0.5rem;
@@ -107,9 +125,10 @@ ul {
   width: 100%;
   .lis {
     width: 100%;
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
     display: flex;
     justify-content: center;
-  }
 }
 
 .modal {
@@ -136,6 +155,20 @@ ul {
   }
 }
 
+.UserdispDis{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow-y: auto;
+  width: 80%;
+  justify-content: center;
+}
+
+.UbtnDis{
+    background-color: red;
+    width: 100%;
+}
+
 
 .friend {
   display: flex;
@@ -145,7 +178,7 @@ ul {
   height: 15rem;
 }
 
-.Userdisp{
+.UserdispGame{
   
   display: flex;
   flex-direction: row;
@@ -153,7 +186,24 @@ ul {
   overflow-y: auto;
   width: 80%;
   justify-content: center;
-  .Ubtn{
+  
+}
+.UbtnG{
+    background-color: orange;
+    width: 100%;
+  }
+.UserdispON{
+  
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow-y: auto;
+  width: 80%;
+  justify-content: center;
+ 
+} 
+.Ubtn{
+    background-color: green;
     width: 100%;
   }
 }

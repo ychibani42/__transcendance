@@ -15,42 +15,38 @@ interface Com
 export class StateService {
 	constructor(
 		private prismaService: PrismaService,
-        private jwtService : JwtService
 	) {}
 
     User : Array<Com> = []
 
-    async connection(client : Socket , token : any){
-        
+    async connection(client : Socket , token : number){
         try {
-            let decode : any
-            if(token)
-                decode = this.jwtService.decode(token)
-            try {
-                const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-                await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
-                let user2 : Com = {
-                    socket : client,
-                    id : decode.id
-                }
-                this.User.push(user2)
-            } catch (error) {
-                console.log(error)
-            } 
-        } catch (error) {
+            const user2 : Com = {
+                socket : client,
+                id : token
+            }
+            this.User.push(user2)
+            await this.prismaService.user.findFirstOrThrow({where : {id: token}})
+            await this.prismaService.user.update({where : {id : token},data : {state : 'Online'}})
+            console.log("con userid ",user2.socket.id)
+        }
+        catch (error) {
             console.log(error)
         }
     }
 
-    async disconnect(client : Socket, token : any){
-        
+    async disconnect(client : Socket){
         try {
-            let decode : any
-            if(token)
-                decode = this.jwtService.decode(token)
-            try {
-                await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-                await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Disconected', otpvalider : false}})
+                let user;
+                this.User.forEach((element) => {
+                    if(element.socket == client)
+                    {
+                        user = element.id
+                    }
+                })
+                console.log(" dis userid ",user)
+                await this.prismaService.user.findFirstOrThrow({where : {id: user}})
+                await this.prismaService.user.update({where : {id : user},data : {state : 'Disconected', otpvalider : false}})
                 this.User.forEach((element) => {
                     if(element.socket == client)
                     {
@@ -59,60 +55,75 @@ export class StateService {
                     }
     
                 })
-            } catch (error) {
-                console.log(error)
             }
-        } catch (error) {
-            console.log(error)
+         catch (error) {
+            console.log("Prisma error dis")
         }
     }
 
-    async Game(client : Socket, token : any){
+    async Game(client : Socket){
         try {
-            let decode : any
-            if(token)
-                decode = this.jwtService.decode(token)
-            try {
-                const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-                await this.prismaService.user.update({where : {id : decode.id},data : {state : 'OnGame'}})
-            } catch (error) {
-                console.log(error)
-            }
+            let user;
+                this.User.forEach((element) => {
+                    console.log("userid ",element.id , "socket id ", element.socket.id ,"client ", client.id)
+                    if(element.socket == client)
+                    {
+                        user = element.id
+                    }
+                })
+                console.log("userid ",user)
+                await this.prismaService.user.findFirstOrThrow({where : {id: user}})
+                await this.prismaService.user.update({where : {id : user},data : {state : 'OnGame'}})
         } catch (error) {
-            console.log(error)
+            console.log("Prisma error game")
         }
     }
 
-    async Change(client : Socket, token : any){
+    async Change(client : Socket){
         
         try {
-                let decode : any
-                if(token)
-                    decode = this.jwtService.decode(token)
-                try {
-                    const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
-                    await this.prismaService.user.update({where : {id : decode.id},data : {state : 'Online'}})
-                } catch (error) {
-                    console.log(error)
-                }
+                let user;
+                this.User.forEach((element) => {
+                    if(element.socket == client)
+                    {
+                        user = element.id
+                    }
+                })
+                await this.prismaService.user.findFirstOrThrow({where : {id: user}})
+                await this.prismaService.user.update({where : {id : user},data : {state : 'Online'}})
             } catch (error) {
-            console.log(error)
+                console.log("Prisma error change")
         }
     }
 
-    async invite(client : Socket,token : any,id : number)
+    async invite(client : Socket,id : number)
     {
 
         try {
-            let decode : any
-            if(token)
-                decode = this.jwtService.decode(token)
+            
+            let user :any ;
+            this.User.forEach((element) => {
+                if(element.socket == client)
+                {
+                    user = element.id
+                }
+            })
             try {
-                const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+                const users = await this.prismaService.user.findFirstOrThrow({where : {id: user}})
+                console.log("Inviting" , users.id , "User.state ",users.state , "name ", users.name)
+                const invited = await this.prismaService.user.findFirstOrThrow({where : {id: id}})
+                if(invited.state == 'OnGame')
+                {
+                    console.log("Inviting 2" , id)
+                    client.emit('AlreadyInvite')
+                    return
+                }
                 this.User.forEach((element) => {
                     if(element.id == id)
                     {
-                        element.socket.emit("invited",user.name,user.id)
+                        this.Game(client)
+                        this.Game(element.socket)
+                        element.socket.emit("invited",users.name,users.id)
                         return
                     }
                 })
@@ -125,7 +136,7 @@ export class StateService {
     }
 
 
-    async accept(client : Socket,token : any,id : number)
+    async accept(client : Socket,id : number)
     {
         this.User.forEach((element) => {
             if(element.id == id)
@@ -137,11 +148,15 @@ export class StateService {
         })
     }
 
-    async refused(client : Socket,token : any,id : number)
+    async refused(client : Socket,id : number)
     {
+        console.log("refused", id)
+        this.Change(client)
         this.User.forEach((element) => {
             if(element.id == id)
             {
+                console.log("ref", id)
+                this.Change(element.socket)
                 element.socket.emit("refused",id)
             }
         })

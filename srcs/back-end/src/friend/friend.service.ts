@@ -8,7 +8,9 @@ export class FriendService {
 	async friendlist(id: number) {
 		try {
 			const friend = this.prismaService.friends.findMany({
-				where: { userFriend: id },
+				where: {
+					userFriend: id,
+				},
 				include: { user: true },
 			});
 			return friend;
@@ -109,7 +111,7 @@ export class FriendService {
 
 	async unblockfriend(id: number, idadd: number) {
 		try {
-			const block = await this.findblock(id, idadd)
+			const block = await this.findblock(id, idadd);
 
 			if (block === null) {
 				return;

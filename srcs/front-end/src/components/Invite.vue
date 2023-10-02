@@ -1,6 +1,6 @@
 <template>
-    <div>
-      <span>Invited by </span>
+    <div class="all">
+      <span> {{ store.state.gamename }} Invite you for a Game</span>
       <div class="Butt">
         <button @click="Accept">yes</button>
         <button @click="Refuse">no</button>
@@ -10,9 +10,11 @@
 
 <script setup lang="ts">
 import store from '../store';
+import {onUnmounted , ref} from "vue"
 import { toast } from 'vue3-toastify';
-import { io ,Socket} from 'socket.io-client';
+import { io } from 'socket.io-client';
 
+const r = ref(true)
 
 function Accept(){
   store.state.state?.emit('Accepted',store.state.gameInviteID)
@@ -23,15 +25,23 @@ function Accept(){
   }
   store.state.gamesock?.emit('Join',{id : store.state.user.id,name : store.state.gamename})
   toast.clearAll()
+  r.value = false
 }
 
 
 function Refuse(){
   store.state.state?.emit('Refused',store.state.gameInviteID)
-  store.dispatch("Inviteon")
   toast.clearAll()
+  store.dispatch("Inviteon")
 }
 
+onUnmounted(() => {
+  if(r.value == true)
+  {
+    store.state.state?.emit('Refused',store.state.gameInviteID)
+    store.dispatch("Inviteon")
+  }
+})
 </script>
 
 <style scoped>
@@ -39,5 +49,11 @@ function Refuse(){
 .Butt{
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  width: 100%;
+}
+.all{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

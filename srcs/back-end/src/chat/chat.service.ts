@@ -66,7 +66,7 @@ export class ChatService {
 			}
 			return this.exclude(channel, ['password']);
 		} catch (error) {
-			console.log('error');
+			console.log('Cannot create a chat')
 		}
 	}
 
@@ -84,10 +84,13 @@ export class ChatService {
 					},
 				},
 			});
-			if (user.user[0]) return user.user[0];
-		} catch (error) {
-			console.log(error);
+			if (user.user[0])
+				return user.user[0]
 		}
+		
+		catch (error){
+			console.log('Cannot find chan')
+		}	
 	}
 
 	async findUser(userid: number, chanid: number) {
@@ -114,7 +117,7 @@ export class ChatService {
 				return newuser;
 			}
 		} catch (error) {
-			console.log(error);
+			console.log('Cannot find chan')
 		}
 	}
 
@@ -143,7 +146,7 @@ export class ChatService {
 			});
 			return chan;
 		} catch (error) {
-			console.log(error);
+			console.log('Cannot find channels')
 		}
 	}
 
@@ -163,18 +166,21 @@ export class ChatService {
 			});
 			return chan;
 		} catch (error) {
-			console.log(error);
-			return null;
+			console.log('Cannot find channel')
+			return null
+			
 		}
 	}
 
-	async createMessage(createMessageDto: CreateMessageDto) {
+	async createMessage( client: Socket, createMessageDto: CreateMessageDto) {
 		try {
-			const muted = await this.findMuted(
-				createMessageDto.user,
-				createMessageDto.id,
-			);
-			if (muted) return null;
+			const muted = await this.findMuted(createMessageDto.user, createMessageDto.id)
+			if (muted)
+			{
+				client.emit('error', 'muted')
+				return null
+			}
+				
 			const message = await this.prismaService.message.create({
 				data: {
 					userId: createMessageDto.user,
@@ -196,7 +202,8 @@ export class ChatService {
 			});
 			return message;
 		} catch (error) {
-			console.log(error);
+
+			console.log('Cannot create message');
 		}
 	}
 
@@ -400,7 +407,7 @@ export class ChatService {
 			console.log(error);
 		}
 	}
-	async kickChan(userid: number, chanid: number) {
+	async kickChan(client: Socket, userid: number, chanid: number) {
 		try {
 			let user: any;
 

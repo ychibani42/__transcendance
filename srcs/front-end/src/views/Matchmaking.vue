@@ -1,21 +1,18 @@
 
 <script setup lang="ts">
 import { io , Socket} from 'socket.io-client';
-import {onMounted, Ref, ref} from "vue";
-import { useRouter } from 'vue-router';
+import { Ref, ref, onUnmounted} from "vue";
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import { useStore } from 'vuex';
 
-const socket: Ref<Socket | undefined> = ref()
-const socket2: Ref<Socket | undefined> = ref()
+const socket : Ref<Socket | undefined> = ref()
 const store = useStore()
 const router = useRouter()
 const User = store.getters.getuser
 const option = ref(false)
 const theme = ref(false)
 const speed = ref('')
-
-socket.value = store.state.gamesock
-
+const onQueue = ref(false)
 
 inviteorNormal()
 
@@ -31,28 +28,23 @@ function invitedgame(){
     console.log("invited")
     option.value = true
     socket.value = store.state.gamesock
-    if(!socket.value)
-        return
-    socket.value.connect();
-    socket.value.on('OnRoom', () =>
+    socket.value?.on('OnRoom', () =>
     {
         router.push("/game")
-        socket2.value = store.state.state
-        socket2.value?.emit('game')
+    })
+    socket.value?.on('Leave', () =>
+    {
+        onQueue.value = false
+        option.value = false
+        store.commit('setGamename',"")
     })
 }
 
 function debut(){
-    console.log("Debut")
-    if(store.state.gamesock == null)
-        store.commit('setGamesocket',io('http://localhost:3000/game'))
-    socket.value = store.state.gamesock
-    if(!socket.value)
-        return
-    socket.value.connect();
-    socket.value.on('onQueue', () =>
-    {
-        console.log("ON QUEUE")
+    socket.value = io('http://localhost:3000/game')
+    store.commit('setGamesocket',socket)
+    socket.value.on('onQueue', () => {
+        onQueue.value = true
     })
     socket.value.on("playerdef", (arg1 : number , arg2 : string) => {
         if(arg1 == 1)
@@ -64,64 +56,161 @@ function debut(){
     socket.value.on('OnRoom', () =>
     {
         router.push("/game")
-        socket2.value = store.state.state
-        socket2.value?.emit('game')
+        
     })
     socket.value.on('config', () =>
     {
         option.value = true
     })
+    socket.value.on('Leave', () =>
+    {
+        onQueue.value = false
+        option.value = false
+        store.commit('setGamename',"")
+    })
 }
 
+
 function joinQueue(){
+    console.log(socket.value , store.state.user.id)
     socket.value?.emit("JoinQueue",store.state.user.id)
 }
 
 function ConfigGame(){
-    console.log(theme.value)
-    console.log(speed.value)
     if(speed.value == 'true')
         socket.value?.emit("Config",true,store.state.gamename)
     else
         socket.value?.emit("Config",false,store.state.gamename)
     store.commit('setTheme',theme.value)
+    console.log("THEME BEFORE", store.state.gameTheme)
+}
+
+onUnmounted(()=> {
+    if(store.state.gamename == "")
+        store.state.gamesock.disconnect()
+}),
+
+onBeforeRouteLeave((to,from,next) => {
+    if(onQueue.value == true )
+    {
+        if(to.path !== "/game"){
+            const answer = window.confirm('You gonna Quit the Queue, Are you sure?')
+            if(answer == false)
+                return
+            else
+            {
+                store.state.state?.emit("Change")
+                store.state.gamesock.disconnect()
+                store.commit('setGamename',"")
+                next()
+            }
+        }
+        else
+        {
+            store.state.state?.emit("Change")
+            next()
+        }
+    }
+    else
+    {
+        store.state.state?.emit("Change")
+        next()
+    }
+})
+
+function LeaveQueue(){
+    socket.value?.emit("LeaveQueue",store.state.user.id)
+    onQueue.value = false
 }
 
 </script>
 
 <template>
+    <div class="all">
     <div class="Queue" v-if="option == false">
-        <div class="matchmaking">
-        <h4>Click to join Queue</h4>
+        <div class="matchmaking" v-if="onQueue == false">
+            <div>
+                <h2>Click to join Queue</h2>
+            </div>
+            <div class="button">
+                <button class="button" @click="joinQueue()">Join Queue</button>
+            </div>
         </div>
-        <div class="button">
-            <button class="button" @click="joinQueue()">Join Queue</button>
+        <div class="Onqueu" v-else>
+            <div>
+                <h2>Click to join Queue</h2>
+            </div>
+            <div class="button">
+                <button class="button" @click="LeaveQueue()">Leave Queue</button>
+            </div>
         </div>
     </div>
     <div class="Option" v-else>
         <h2>Choose Your option</h2>
         <div class="Option">
             <form @submit.prevent="ConfigGame()">
-                <div v-if="store.state.gameplay === true">
-                    <input type="checkbox"  v-model="speed" true-value="true" false-value="fasle">
-                    <label for="speed">Acceleration speedball</label>
+                <div v-if="store.state.gameplay === true" class="OptionBoX">
+                    <label for="speed">
+                        Acceleration speedball
+                        <input type="checkbox"  v-model="speed" true-value="true" false-value="fasle">
+                    </label>
                 </div>
-                <div>
-                    <input type="radio" id="theme" name="theme" value="true"  v-model="theme" required/>
-                    <label for="theme">Classic</label>
+                <div class="theme">
+                    
+                    <label for="theme">
+                        Color
+                        <input type="radio" id="theme" name="theme" value="true"  v-model="theme" placeholder="CLassic" required/>
+                    </label>
                 </div>
-                <div>
-                    <input type="radio" id="theme" name="theme" value="false" v-model="theme" required/>
-                    <label for="theme">Color</label>
+                <div class="theme">
+                   <label for="theme"> 
+                        CLassic
+                        <input type="radio" id="theme" name="theme" value="false" v-model="theme" required/>
+                    </label>
                 </div>
                 <input type="submit" value="Validate">
             </form>
         </div>
     </div>
     <p>Your ID is {{ User.id }}</p>
+    </div>
   </template>
   
   <style lang="scss" scoped>
+
+  .OptionBoX{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    label{
+        display: flex;
+        align-items: center;
+        height: 2rem;
+        width: 100%;
+        justify-content: center;
+        input{
+            height: 2rem;
+            width: 2rem;
+        }
+    }
+  }
+  .theme{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    label{
+        display: flex;
+        align-items: center;
+        height: 2rem;
+        width: 100%;
+        justify-content: center;
+        input{
+        height: 2rem;
+        width: 2rem;
+        }
+    }
+    
+  }
 
   </style>
   

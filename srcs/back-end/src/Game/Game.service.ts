@@ -74,6 +74,15 @@ export class GameService {
 		}
 	}
 
+	LeaveQueue(client: Socket, id: number) {
+		this.Matchmacking.forEach((element) => {
+			if (element.id == id) {
+				const id = this.Matchmacking.indexOf(element);
+				this.Matchmacking.splice(id, 1);
+			}
+		});
+	}
+
 	async createroom(play: player | undefined, play2: player | undefined) {
 		const id = play?.id;
 		if (play) {
@@ -113,9 +122,15 @@ export class GameService {
 	ReadyGame(client: Socket, name: string) {
 		this.Rooms.forEach((element) => {
 			if (element.name == name) {
-				if (element.play.socket == client) element.ready = true;
-				if (element.play2.socket == client) element.ready2 = true;
-				if (element.ready == true && element.ready2 == true) {
+				if (element.play.socket == client)
+				{
+					element.ready = true;
+				}
+				if (element.play2.socket == client) 
+				{
+					element.ready2 = true;
+				}
+				if (element.ready == true && element.ready2 == true){
 					element.state = state.play;
 				}
 			}
@@ -286,6 +301,32 @@ export class GameService {
 	}
 
 	remove(socket: Socket) {
+		
+		this.Matchmacking.forEach((elem) => {
+			if(elem.socket == socket)
+			{
+				let id = this.Matchmacking.indexOf(elem);
+				this.Matchmacking.splice(id, 1);
+			}
+		})
+		this.Rooms.forEach((element) => {
+			if (element.play2.socket == socket || element.play.socket == socket) 
+			{
+				if(element.state == state.config)
+				{
+					element.play2.socket.emit("Leave")
+					element.play.socket.emit("Leave")
+				}
+				if(element.state == state.play || element.state == state.onroom)
+				{
+					element.play2.socket.emit("Bug")
+					element.play.socket.emit("Bug")
+				}
+				let id = this.Rooms.indexOf(element);
+				this.Rooms.splice(id, 1);
+				return true;
+			}
+		});
 		this.stoploop();
 	}
 
@@ -294,6 +335,7 @@ export class GameService {
 	stoploop() {
 		if (this.Rooms.length != 0) return;
 		try {
+			console.log('end inter');
 			if (this.schedulerRegistry.doesExist('interval', 'game')) {
 				this.schedulerRegistry.deleteInterval('game');
 			}
@@ -304,7 +346,7 @@ export class GameService {
 
 	addInterval() {
 		try {
-			console.log('add');
+			console.log('add inter');
 			const interval = setInterval(this.rungame, 15, this);
 			this.schedulerRegistry.addInterval('game', interval);
 		} catch (error) {

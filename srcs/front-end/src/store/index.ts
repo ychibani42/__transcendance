@@ -34,10 +34,12 @@ const store = createStore(
             chatsock: <Socket | undefined>null,
 
             gamesock:<Socket | undefined>null,
-            gamename:'',
+            gamename:<string> '',
             gameplay:false,
             gameTheme : false,
             gameInviteID : 0,
+            DM: false,
+            friend: {},
             
             state: <Socket | undefined>null,
         },
@@ -49,6 +51,11 @@ const store = createStore(
             getGamename : state => state.gamename,
             getGameplay : state => state.gameplay,
             getState : state => state,
+
+            getStatesock : state => state.state,
+            getDM : state => state.DM,
+            getFriend : state => state.friend
+
         },
         mutations:{
             setUser(state , User){ state.user = User},
@@ -70,7 +77,6 @@ const store = createStore(
                 state.chandisp.banned = chandisp.banned
                 state.chandisp.muted = chandisp.muted
                 state.chandisp.admin = chandisp.admin
-
             },
             setChanid(state, id: number){state.chandisp.idch = id},
             setTwofa(state, bool){ state.user.Twofa = bool},
@@ -81,6 +87,8 @@ const store = createStore(
             setOnline(state, bool){state.user.online = bool},
             setTheme(state , bool){ state.gameTheme = bool},
             setGameID(state, int){ state.gameInviteID = int},
+            setFriendDM(state , friend){ state.friend = friend},
+            setDM(state, bool){state.DM = bool}
         },
         actions :{
             reset()
@@ -109,23 +117,30 @@ const store = createStore(
                 }
             },
             Inviteoff(){
-                this.state.state?.off('invited') },
+                this.state.state?.off('invited') 
+            },
             Inviteon(){
                  this.state.state?.on('invited',(arg1,arg2) => {
+                    console.log("Invited by arg2")
+                    this.state.gamename = arg1
+                    this.state.gameInviteID = arg2
                     toast(Btn, {
                         autoClose: false,
                         closeOnClick: false,
+                        closeButton : false,
+                        toastId: 1,
                     })
-                    this.state.gamename = arg1
-                    this.state.gameInviteID = arg2
                     this.dispatch("Inviteoff")
                 })
-            },
-            refused(){ 
-                this.state.state?.emit("refused" , this.state.gameInviteID)
                 this.state.gamename = ""
                 this.state.gameInviteID = 0
-                this.state.gamesock?.emit("Delete",{name : this.state.user.username})
+            },
+            refused(){
+                if(this.state.user.id == this.state.gameInviteID){
+                    this.state.gamesock?.emit("Delete",{name : this.state.user.username})
+                }
+                this.state.gamename = ""
+                this.state.gameInviteID = 0
                 this.state.gamesock?.disconnect()
             },
             SocketGame(){
@@ -144,10 +159,20 @@ const store = createStore(
                 this.dispatch("Inviteon")
                 this.state.state?.on('refused',() => {
                     this.dispatch("Inviteon")
+                    this.dispatch("refused")
                 })
                 this.state.state?.on('accepted',() => {
                     this.dispatch("gotogame")
                 })
+                this.state.state?.on("AlreadyInvite",() => {
+                    this.dispatch("Inviteon")
+                    console.log("Invited")
+                    toast("This friend is already Invited or in Game", {
+                        autoClose: true,
+                        closeOnClick: true,
+                        closeButton : false,
+                    })
+                }) 
             }
         }
     }

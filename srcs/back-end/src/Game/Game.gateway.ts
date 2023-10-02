@@ -1,8 +1,6 @@
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server , Socket} from "socket.io";
 import { GameService } from "./Game.service";
-import { UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "src/auth/Guard/jwt-guard";
 
 interface pos {
     y : number,
@@ -22,18 +20,20 @@ export class GameGateway {
 	@WebSocketServer()
 	server: Server;
 
-    @UseGuards(JwtAuthGuard)
-    handleConnection(client : Socket){
-        console.log(client.id)
-    }
-
     handleDisconnect(client :Socket){
+        console.log("DISCONNECT GAME",client.id)
         this.GameService.remove(client);
     }
 
     @SubscribeMessage("JoinQueue")
     JoinQueue(client : Socket, id : number){
+        console.log("wwwww",client.id)
         this.GameService.JoinQueue(client , id)
+    }
+
+    @SubscribeMessage('LeaveQueue')
+    LeaveQueue(client : Socket , id: number){
+        return this.GameService.LeaveQueue(client,id)
     }
 
     @SubscribeMessage('position')

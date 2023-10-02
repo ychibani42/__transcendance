@@ -17,38 +17,42 @@ export class StateGateway {
 	server: Server;
 
 
-    handleConnection(client :Socket){
-        this.stateservice.connection(client,client.handshake.headers.cookies)
+    @SubscribeMessage('Connect')
+    async Connect(client :Socket, id  : number){
+        console.log("connection",id)
+        await this.stateservice.connection(client,id)
     }
-    
-    handleDisconnect(client :Socket){
-        this.stateservice.disconnect(client,client.handshake.headers.cookies)
+
+    async handleDisconnect(client :Socket){
+        await this.stateservice.disconnect(client)
     }
 
     @SubscribeMessage('game')
     Gameconnection(client :Socket){
-        this.stateservice.Game(client,client.handshake.headers.cookies)
+        console.log("game")
+        this.stateservice.Game(client)
     }
 
     @SubscribeMessage('Change')
     Change(client :Socket){
-        this.stateservice.Change(client,client.handshake.headers.cookies)
+        console.log("Change")
+        this.stateservice.Change(client)
     }
 
     @SubscribeMessage('Invite')
     Invite(client :Socket,id : number){
-        this.stateservice.invite(client,client.handshake.headers.cookies,id)
+        this.stateservice.invite(client,id)
     }
 
     @SubscribeMessage('Accepted')
     Accepte(client :Socket,id : number){
         console.log("Yes",id)
-        this.stateservice.accept(client,client.handshake.headers.cookies,id)
+        this.stateservice.accept(client,id)
     }
 
     @SubscribeMessage('Refused')
     Refused(client :Socket,id : number){
         console.log("no",id)
-        this.stateservice.refused(client,client.handshake.headers.cookies,id)
+        this.stateservice.refused(client,id)
     }
 }

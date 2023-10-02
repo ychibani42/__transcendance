@@ -24,32 +24,43 @@ const DM = ref({
     blocked: false,
 
 })
+const clicking = ref(false)
+const amigo = store.getters.getFriend
+const rooms = ref([])
 async function getFriend(){
   await Axios.get('auth/Me').then(res => {
       if(res.status == 200)
         ID.value = res.data.id
       
   })
-  Axios.post('friend',{id : ID.value}).then((res) => {
-        friend.value = res.data
-  })
 }
 
 onBeforeMount(() => {
   getFriend()
-  console.log('ok')
-  socket.on('messageDM',(arg1 : string) => {
+  
+    if (store.getters.getDM == true)
+        createDM(amigo)
+    socket.on('messageDM',(arg1 : string) => {
         DM.value.messages.push(arg1);
     })
+    socket.on('createDM', (arg1: any) => {
+        if (arg1 && arg1.user1.name != User.username && arg1.user2.name != User.username)
+            return
+        else if (arg1 && arg1.user1.name != User.username)
+            friend.value.push(arg1.user1)
+        else if (arg1 && arg1.user2.name != User.username)
+            friend.value.push(arg1.user2)
+    })
+    displayDM()
 });
 
 function enterdm(friend: any) {
     let user1Id: number = User.id
-    let user2Id: number = friend.userId
+    let user2Id: number = friend.id
     let user: any = User
     let oldRoomId: number = DM.value.id
-    console.log(DM.value)
-    createDM(friend)
+    DM.value.user1 = friend
+    amigo.value = friend
     socket.emit('joinDM', { user1Id, user2Id, user, oldRoomId }, response => {
         DM.value.id = response.id
         DM.value.blocked = response.blocked
@@ -58,12 +69,21 @@ function enterdm(friend: any) {
         DM.value.name = response.name
         DM.value.messages = response.messages
     })
-    DM.value.user1 = friend
     onChan.value = true
+    
 }
 
 function displayChats () {
   emit('all')
+}
+
+function displayDM () {
+    let userid: number = User.id
+    let name: string = User.name
+    socket.emit('findAllDM', { userid, name }, (response) => {
+		    friend.value = response
+            console.log(response)
+	    });
 }
 
 function createMessage() {
@@ -78,13 +98,27 @@ function createMessage() {
 
 function createDM (friend: any) {
   let user1Id: number = User.id
-  let user2Id: number = friend.userId
-  let id: number = DM.value.id
-	socket.emit('createDM', { user1Id, user2Id, id }, response => {
-        DM.value.id = response.id
+  let user2Id: number = friend.id
+	socket.emit('createDM', { user1Id, user2Id }, response => {
+        // DM.value.id = response.id
     })
     
 }
+
+function cancel(){
+  clicking.value = false
+}
+
+function GAME(id : Number){
+  console.log("Invite",id)
+  store.state.state?.emit("Invite",id)
+  store.dispatch("Inviteoff")
+  store.dispatch("SocketGame")
+  store.commit('setGameplay',true)
+  store.commit("setGamename",store.state.user.username)
+  clicking.value = !clicking.value
+}
+
 </script>
 
 <template>
@@ -98,7 +132,7 @@ function createDM (friend: any) {
             <ol>
 				<li v-for="friends in friend">
                     <button @click="enterdm(friends)"> 
-                        {{ friends.user.name }}
+                        {{ friends.name }}
                     </button>
 				</li>
 			</ol>
@@ -106,7 +140,7 @@ function createDM (friend: any) {
         <div class="dm-display">
           <div class="dm-header">
               <div class="dm-name" v-if="onChan == true">
-                {{ DM.user1.user.name }}
+                {{ amigo.value.name }}
               </div>
              
           </div>
@@ -118,8 +152,16 @@ function createDM (friend: any) {
                       </p>  
                   </div>
                         <div class="Autre" v-else>
+                                <button @click="clicking = true" v-if="User.id != name.userId"> 
+                                        {{ amigo.value.name }}:         
+                                </button>
+                                <div class="modal" v-if="clicking == true">
+                                    <button class="modal-btn" >Profile</button>
+                                    <button class="modal-btn" @click="GAME(amigo.value.id)">Invite for Game</button>
+                                    <button class="modal-btn" @click="cancel">Cancel</button>
+                                </div>
                             <p>
-                                {{ name.text }} {{ name.userId }}
+                                {{ name.text }}
                             </p>
                         </div>
 			        </ol>
@@ -278,21 +320,50 @@ function createDM (friend: any) {
         border-radius: 10px;
     }
 }
-
 .Autre{
     display:flex;
     justify-content: start;
+    flex-wrap: wrap;
     padding: 0;
     margin: 0;
+    max-width: 50%;
+    button {
+        background-color: rgb(212, 248, 236);
+        overflow: hidden;
+    }    
     p{
         display: flex;
-        margin: 5px;
-        justify-content: flex-end;
+        justify-content: center;
+        margin-left: 5px;
         max-width: 50%;
         line-break: anywhere;
         background-color: rgb(229, 238, 231);
         padding: 10px;
         border-radius: 10px;
+       
     }
+}
+.modal {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 20px 1px;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+  .modal-btn {
+    width: 15rem;
+    height: 3rem;
+    margin: 0.2rem;
+  }
 }
 </style>
