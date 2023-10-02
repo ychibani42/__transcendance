@@ -36,7 +36,7 @@ export class StateService {
         }
     }
 
-    async disconnect(client : Socket, token : any){
+    async disconnect(client : Socket){
         
         try {
                 let user;
@@ -63,7 +63,7 @@ export class StateService {
         }
     }
 
-    async Game(client : Socket, token : any){
+    async Game(client : Socket){
         try {
             let user;
                 this.User.forEach((element) => {
@@ -83,7 +83,7 @@ export class StateService {
         }
     }
 
-    async Change(client : Socket, token : any){
+    async Change(client : Socket){
         
         try {
                 let user;
@@ -104,19 +104,34 @@ export class StateService {
         }
     }
 
-    async invite(client : Socket,token : any,id : number)
+    async invite(client : Socket,id : number)
     {
 
         try {
-            let decode : any
-            if(token)
-                decode = this.jwtService.decode(token)
+            
+            let user :any ;
+            this.User.forEach((element) => {
+                if(element.socket == client)
+                {
+                    user = element.id
+                }
+            })
             try {
-                const user = await this.prismaService.user.findFirstOrThrow({where : {id: decode.id}})
+                const users = await this.prismaService.user.findFirstOrThrow({where : {id: user}})
+                console.log("Inviting" , users.id , "User.state ",users.state , "name ", users.name)
+                const invited = await this.prismaService.user.findFirstOrThrow({where : {id: id}})
+                if(invited.state == 'OnGame')
+                {
+                    console.log("Inviting 2" , id)
+                    client.emit('AlreadyInvite')
+                    return
+                }
                 this.User.forEach((element) => {
                     if(element.id == id)
                     {
-                        element.socket.emit("invited",user.name,user.id)
+                        this.Game(client)
+                        this.Game(element.socket)
+                        element.socket.emit("invited",users.name,users.id)
                         return
                     }
                 })
@@ -129,7 +144,7 @@ export class StateService {
     }
 
 
-    async accept(client : Socket,token : any,id : number)
+    async accept(client : Socket,id : number)
     {
         this.User.forEach((element) => {
             if(element.id == id)
@@ -141,11 +156,15 @@ export class StateService {
         })
     }
 
-    async refused(client : Socket,token : any,id : number)
+    async refused(client : Socket,id : number)
     {
+        console.log("refused", id)
+        this.Change(client)
         this.User.forEach((element) => {
             if(element.id == id)
             {
+                console.log("ref", id)
+                this.Change(element.socket)
                 element.socket.emit("refused",id)
             }
         })

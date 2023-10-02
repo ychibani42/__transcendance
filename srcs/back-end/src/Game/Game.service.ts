@@ -74,6 +74,15 @@ export class GameService {
 		}
 	}
 
+	LeaveQueue(client: Socket, id: number) {
+		this.Matchmacking.forEach((element) => {
+			if (element.id == id) {
+				const id = this.Matchmacking.indexOf(element);
+				this.Matchmacking.splice(id, 1);
+			}
+		});
+	}
+
 	async createroom(play: player | undefined, play2: player | undefined) {
 		const id = play?.id;
 		if (play) {
@@ -111,21 +120,17 @@ export class GameService {
 	}
 
 	ReadyGame(client: Socket, name: string) {
-		console.log("Room name",client.id,"ID ",name)
 		this.Rooms.forEach((element) => {
 			if (element.name == name) {
 				if (element.play.socket == client)
 				{
-					console.log("READY1",client.id,"ID ",element.play.id)
 					element.ready = true;
 				}
 				if (element.play2.socket == client) 
 				{
-					console.log("READY2",client.id,"ID ",element.play.id)
 					element.ready2 = true;
 				}
 				if (element.ready == true && element.ready2 == true){
-					console.log("READY",client.id)
 					element.state = state.play;
 				}
 			}
@@ -138,11 +143,9 @@ export class GameService {
 				if (element.play.socket == client) {
 					element.play.config = true;
 					element.speed = speed;
-					console.log(element.play.id)
 				}
 				if (element.play2.socket == client) {
 					element.play2.config = true;
-					console.log(element.play2.id)
 				}
 				if (element.play.config == true && element.play2.config == true) {
 					element.state = state.onroom;
@@ -307,7 +310,6 @@ export class GameService {
 			}
 		})
 		this.Rooms.forEach((element) => {
-			console.log("sss",socket.id)
 			if (element.play2.socket == socket || element.play.socket == socket) 
 			{
 				if(element.state == state.config)
@@ -325,7 +327,6 @@ export class GameService {
 				return true;
 			}
 		});
-		console.log(this.Rooms.length,"ROOM LENGHT")
 		this.stoploop();
 	}
 

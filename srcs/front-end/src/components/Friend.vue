@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useStore } from 'vuex';
-import { ref , onMounted,onBeforeMount } from 'vue';
+import { ref , onMounted} from 'vue';
 import Axios from '../services';
 import store from '../store';
 

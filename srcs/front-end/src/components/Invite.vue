@@ -31,9 +31,10 @@ function Accept(){
 
 function Refuse(){
   store.state.state?.emit('Refused',store.state.gameInviteID)
-  store.dispatch("Inviteon")
   toast.clearAll()
+  store.dispatch("Inviteon")
 }
+
 onUnmounted(() => {
   if(r.value == true)
   {

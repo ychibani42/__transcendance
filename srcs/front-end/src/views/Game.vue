@@ -14,7 +14,7 @@ const myplay : Ref<Boolean> = ref(false)
 const finished :  Ref<Boolean> = ref(false)
 const playing :  Ref<Boolean> = ref(false)
 const roomname : Ref<string> = ref("")
-const Image = ref()
+const msg = ref("")
 
 const pongBorder = ref("solid white") 
 const pongBorderRadius = ref("1rem") 
@@ -91,11 +91,11 @@ onBeforeMount(() => {
         socket.value?.off("pos")
         socket.value?.off("score")
         finished.value = true
-        renderfinish(arg1)
+        msg.value = arg1
     })
     socket.value.on('Bug',() => {
-       renderfinish("Crash")
        finished.value = true
+       msg.value = "your opponent have crash"
     })
     roomname.value = state.state.gamename
     myplay.value = state.state.gameplay
@@ -118,21 +118,6 @@ function ReadyOrQuit(){
     {
         socket.value?.emit("ready",roomname.value)
     }
-    if(finished.value == true)
-    {
-        router.push('/')
-    }
-}
-
-function renderfinish(text : string){
-    if(!canvasElement.value)
-        return 
-    if (!context.value) {
-        return;
-    }
-    clearCanvas(0,0,canvasElement.value?.width,canvasElement.value?.height,'black');
-    context.value.fillStyle = "white"
-    context.value.fillText(text, 100, 75);
 }
 
 function render() {
@@ -248,12 +233,21 @@ onBeforeRouteLeave((to,from,next) => {
     }
 })
 
+function redir()
+{
+    router.push("/")
+}
+
 </script>
 
 <template>
     <div class="canvasDiv">
         <h1>THE GAME</h1>
         <canvas :style="{'border': pongBorder, 'border-radius': pongBorderRadius}" ref="canvasElement" id="pong"></canvas>
+    </div>
+    <div class="modal" v-if="finished == true">
+        <span>{{  }}</span>
+        <button class="modal-btn" v-on:click="redir()">Go to Home</button>
     </div>
    
 </template>
@@ -282,5 +276,29 @@ canvas {
     max-height: 80vw;
     justify-content: center;
     color:cyan;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 20px 1px;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+  .modal-btn {
+    width: 15rem;
+    height: 3rem;
+    margin: 0.2rem;
+  }
 }
 </style>
