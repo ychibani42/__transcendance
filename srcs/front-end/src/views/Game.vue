@@ -97,6 +97,7 @@ onBeforeMount(() => {
     })
     roomname.value = state.state.gamename
     myplay.value = state.state.gameplay
+    console.log("THEME", store.state.gameTheme)
     if(state.state.gameTheme == false)
     {
         net.value.color = "white"
@@ -183,7 +184,7 @@ function drowplay1(x: number,y: number,w: number,h: number,color: string)
         return;
     }
     context.value.beginPath();
-    if(state.state.gameTheme == true)
+    if(state.state.gameTheme == false)
     {
         context.value.fillStyle = color
         context.value.fillRect(x,y,w,h);
@@ -215,7 +216,7 @@ function drowball(x: number,y: number,r: number,color: string)
         return;
     } 
     context.value.beginPath();
-    if(state.state.gameTheme == true)
+    if(state.state.gameTheme == false)
     {
         context.value.arc(x,y,r,0,Math.PI*2,false);
         context.value.fillStyle = 'white';
@@ -223,7 +224,6 @@ function drowball(x: number,y: number,r: number,color: string)
     }    
     else
     {
-    
         context.value.arc(x,y,r-2,0,Math.PI*2,false);
         context.value.fillStyle = 'white';
         context.value.fill(); 

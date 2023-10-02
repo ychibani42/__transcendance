@@ -97,10 +97,8 @@ router.beforeEach((to, from) => {
     {
       router.push("/Twofa")
     }
-    console.log(to.path)
     if(to.path == "/matchmaking")
     {
-      console.log("1",store.state.state)
       store.state.state?.emit("game")
     }
 })
