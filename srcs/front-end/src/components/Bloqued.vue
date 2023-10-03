@@ -60,8 +60,6 @@ function unblockFriend() {
         <button class="Ubtn" @click="clicked(Bloqueds.user.id)"> {{ Bloqueds.user.name }}</button>  
         </li>
         <div class="modal" v-if="clicking == true && Bloqueds.user.id == click">
-          <button class="modal-btn" v-on:click="GotoProfile(Bloqueds.user.id)" >Profile</button>
-          <button class="modal-btn" v-on:click="GAME(Bloqueds.user.id)">Invite for Game</button>
           <button class="modal-btn" v-on:click="unblockFriend(Bloqueds.user.id)">unblock Friend</button>
           <button class="modal-btn" v-on:click="cancel">Cancel</button>
         </div>
@@ -69,15 +67,7 @@ function unblockFriend() {
     </div>
 </template>
 
-<style scoped>
-
-div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-y: auto;
-  height: 15rem;
-}
+<style lang="scss" scoped>
 
 ul {
   display: flex;
@@ -91,16 +81,23 @@ ul {
     width: 100%;
     display: flex;
     justify-content: center;
+    button {
+      background-color: #bfc7cb;
+      color: #141d22;
+      border: 1px solid #1a4258;
+      border-radius: 8px;
+      text-align: center;
+      padding: 7px 22px;
+      transition: 0.1s ease-in-out;
+
+      &:hover {
+        border: 2px solid #131719;
+        background-color: #4ade80;;
+      }
+}
   }
 }
 
-  .blocked {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
-    height: 15rem;
-  }
   .modal {
     position: fixed;
     top: 0;
@@ -108,7 +105,7 @@ ul {
     left: 0;
     right: 0;
     z-index: 3;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(74, 72, 72, 0.3);
     display: flex;
 
     justify-content: center;
@@ -119,10 +116,20 @@ ul {
     flex-direction: column;
     border-radius: 8px;
   .modal-btn {
-    width: 15rem;
-    height: 3rem;
-    margin: 0.2rem;
-  }
+      background-color: #bfc7cb;
+      color: #141d22;
+      border: 1px solid #1a4258;
+      border-radius: 8px;
+      text-align: center;
+      padding: 7px 22px;
+      transition: 0.1s ease-in-out;
+
+      &:hover {
+        border: 2px solid #131719;
+        background-color: #4ade80;;
+      }
+}
+
 }
 
 </style>

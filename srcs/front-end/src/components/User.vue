@@ -82,8 +82,8 @@ function blockFriend(id : Number){
         <div class="modal" v-if="clicking == true && Users.id == click">
             <button class="modal-btn" @click="GotoProfile(Users.id)" >Profile</button>
             <button class="modal-btn" v-on:click="addfriend(Users.id)">Add friend</button>
-            <button class="modal-btn" v-on:click="cancel">Cancel</button>
             <button class="modal-btn" v-on:click="blockFriend(Users.id)">Block Friend</button>
+            <button class="modal-btn" v-on:click="cancel">Cancel</button>
         </div>
       </ul>
     </div>
@@ -98,7 +98,8 @@ function blockFriend(id : Number){
     left: 0;
     right: 0;
     z-index: 3;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(74, 72, 72, 0.3);
+    display: flex;
     display: flex;
 
     justify-content: center;
@@ -111,13 +112,13 @@ function blockFriend(id : Number){
     display: flex;
     flex-direction: column;
     border-radius: 8px;
-    button .modal-btn {
+    .modal-btn {
         background-color: #bfc7cb;
       color: #141d22;
-      border: 1px solid #1a4258;
+      border: 1px solid #1b2023;
       border-radius: 8px;
       text-align: center;
-      padding: 15px 32px;
+      padding: 7px 22px;
       transition: 0.1s ease-in-out;
 
       &:hover {
