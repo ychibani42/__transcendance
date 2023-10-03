@@ -97,7 +97,6 @@ export class StateService {
     {
 
         try {
-            
             let user :any ;
             this.User.forEach((element) => {
                 if(element.socket == client)
