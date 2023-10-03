@@ -19,7 +19,7 @@
                 <div v-if="stat == 'unadmin'" > 
                   <div class="list-user" v-for="users in chandisp.admin" > 
                     <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId ">
-                      <div class="checking"><input type="checkbox" :value="users.id" v-model="checked">  </div> 
+                      <div class="checking"><input type="checkbox" :value="users.userId" v-model="checked">  </div> 
                       <div class="name">{{ users.user.name }}</div>
                       
                     </div>
@@ -30,7 +30,7 @@
                 <div v-if="stat == 'unbanned'" >
                   <div class="list-user" v-for="users in chandisp.banned" > 
                     <div class="checkbox" v-if="User.id != users.id">
-                      <div class="checking"><input type="checkbox" :value="users.id" v-model="checked"> </div>
+                      <div class="checking"><input type="checkbox" :value="users.userId" v-model="checked"> </div>
                       <div class="name">{{ users.user.name }}</div>
                     </div>
                   </div>
@@ -95,7 +95,7 @@ function status() {
       let duration: number = 0
       if (props.emit == 'muted')
         duration = document.querySelector('#time').value
-      socket.emit(props.emit, { userid, chanid, duration }, response => {
+      socket.emit(props.emit, { chatId: chanid, userId: userid, duration: duration }, response => {
         emit('close')
       })
 

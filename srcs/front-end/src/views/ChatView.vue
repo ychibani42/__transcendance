@@ -83,6 +83,7 @@ onBeforeMount(() => {
     socket.on('unbanned', (arg1:any) => {
         chandisp.value.banned.forEach(element => {
             if(element.id == arg1.id){
+                console.log(arg1)
                 chandisp.value.banned.splice(chandisp.value.banned.indexOf(element), 1)
             }
         })
@@ -146,6 +147,7 @@ onBeforeMount(() => {
     socket.on('leaveChannel', (arg1: any) => {
         chandisp.value.user.forEach(element => {
         if(element.id == arg1.id){
+            console.log('ici')
             chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
             }
         });
@@ -247,7 +249,7 @@ function enterchat(chan : any){
     let chanid: number = chan.id
     let oldChatId: number = chandisp.value.idch
     
-    socket.emit('joinRoom', { userid, chanid, oldChatId }, response => {
+    socket.emit('joinRoom', { chatId: chanid, userId: userid, oldChatId:  oldChatId }, response => {
         chandisp.value.oldChatId = oldChatId
         chandisp.value.messages = response.messages
         chandisp.value.idch=response.id
@@ -287,7 +289,7 @@ function displayChats () {
     let userid: number = User.id
     if (inAll.value == true)
     {
-        socket.emit('findAll', { userid }, (response) => {
+        socket.emit('findAll', { id: userid }, (response) => {
 		    chan.value = response
 	    });
     }
@@ -301,7 +303,7 @@ function displayJoined() {
     if (inJoined.value == true)
     {
         let userid: number = User.id
-	    socket.emit('findAllChats', { userid }, (response) => {
+	    socket.emit('findAllChats', { id : userid }, (response) => {
 		    chan.value = response
 	    });
     }
@@ -371,11 +373,11 @@ function isUserChan(newchan: any) {
 function updateChan() {
     let pass: string = newpass.value
     let chanid: number = chandisp.value.idch
-    socket.emit('updatePassword', { pass, chanid }, response => {
+    socket.emit('updatePassword', { pass: pass, chatId: chanid }, response => {
        
     })
         let status: boolean = newstatus.value
-        socket.emit('updateStatus', { status, chanid }, response => {
+        socket.emit('updateStatus', { status: status, chatId: chanid }, response => {
             chandisp.value.isprivate = newstatus.value
         }) 
         newpass.value = ""
@@ -384,14 +386,14 @@ function updateChan() {
 function leaveChan() {
     let chanid: number = chandisp.value.idch
     let userid: number = User.id
-    socket.emit('leaveChannel', { chanid, userid }, response => {
+    socket.emit('leaveChannel', { chatId: chanid, userId: userid }, response => {
         displayJoined()
     })
 }
 
 function deleteChan() {
     let chanid: number = chandisp.value.idch
-    socket.emit('deleteChannel', { chanid }, response => {
+    socket.emit('deleteChannel', { id: chanid }, response => {
         displayJoined()
     })
 }

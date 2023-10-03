@@ -26,7 +26,7 @@ function status() {
       let userid: number = store.state.user.id
       let chanid: number = store.state.chandisp.idch
       let oldChatId: number = store.state.chandisp.oldChatId
-      socket.emit('password', { pass, userid, chanid, oldChatId }, response => {
+      socket.emit('password', { pass: pass, userId: userid, chatId: chanid, oldChatId: oldChatId }, response => {
         emit('unlock')
         emit('enter')
         emit('close')
