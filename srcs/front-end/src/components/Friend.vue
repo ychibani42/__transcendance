@@ -94,11 +94,11 @@ function blockFriend(id : Number){
                 <button class="UbtnDis" @click="clicked(friends.user.id)"> {{ friends.user.name }}</button>  
             </div>
             <div class="modal" v-if="clicking == true && friends.user.id == click">
-            <button class="modal-btn" v-on:click="GotoProfile(friends.user.id)" >Profile</button>
-            <button class="modal-btn" v-on:click="GotoDM(friends.user)">Send DM </button>
-            <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
-            <button class="modal-btn" v-on:click="blockFriend(friends.user.id)">Block Friend</button>
-            <button class="modal-btn" v-on:click="cancel">Cancel</button>
+              <button class="modal-btn" v-on:click="GotoProfile(friends.user.id)" >Profile</button>
+              <button class="modal-btn" v-on:click="GotoDM(friends.user)">Send DM </button>
+              <button class="modal-btn" v-on:click="GAME(friends.user.id)">Invite for Game</button>
+              <button class="modal-btn" v-on:click="blockFriend(friends.user.id)">Block Friend</button>
+              <button class="modal-btn" v-on:click="cancel">Cancel</button>
             </div>
         </li>
       </ul>
@@ -133,6 +133,7 @@ ul {
     z-index: 3;
     background-color: rgba(74, 72, 72, 0.3);
     display: flex;
+    display: flex;
 
     justify-content: center;
     align-items: center;
@@ -142,7 +143,7 @@ ul {
     flex-direction: column;
     border-radius: 8px;
   button .modal-btn {
-  
+    
     background-color: #bfc7cb;
     color: #141d22;
     border: 1px solid #1a4258;
@@ -157,6 +158,20 @@ ul {
     }
 
     }
+    .modal-btn {
+      background-color: #bfc7cb;
+      color: #141d22;
+      border: 1px solid #1a4258;
+      border-radius: 8px;
+      text-align: center;
+      padding: 7px 22px;
+      transition: 0.1s ease-in-out;
+
+      &:hover {
+        border: 2px solid #131719;
+        background-color: #4ade80;;
+      }
+}
   
 }
 

@@ -64,6 +64,7 @@ const isPassword = ref(false)
 
 
 onBeforeMount(() => {
+    getBlocked()
     inDM.value = store.getters.getDM;
     if (inDM.value == true)
         displayDM()
@@ -124,7 +125,6 @@ onBeforeMount(() => {
                         displayJoined()
                 }
         })
-        console.log(chandisp.value.banned)
         chandisp.value.user.forEach(element => {
             if(element.id == arg1.user.id){
                 chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
@@ -397,12 +397,10 @@ function deleteChan() {
 }
 
 function GotoDM(friend: any) {
-    console.log('gotodm')
     store.commit('setFriendDM', friend)
-    console.log('friend',friend)
+    store.commit('setDM', true)
     inDM.value = true
     clicking.value = false
-  // console.log(store.getters.getFriend)
 }
 
 function cancel(){
@@ -418,6 +416,41 @@ function GAME(id : Number){
   store.commit("setGamename",store.state.user.username)
   clicking.value = !clicking.value
 }
+
+const blocked = ref({})
+async function getBlocked(){
+    Axios.post('friend/blocklist',{id : User.id}).then((res) => {
+        blocked.value = res.data;
+  })
+}
+
+function isBlocked(id: number) {
+    for (let i = 0; i < blocked.value.length; i++)
+    {
+        if (blocked.value[i].userId == id)
+            return true
+    }
+    return false
+    
+}
+
+function unblockFriend() {
+    for (let i = 0; i < blocked.value.length; i++)
+    {
+        Axios.post('friend/unblock',{id: User.id, blockid: blocked.value[i].userId}).then((res) => {
+            getBlocked()
+            clicking.value = false
+        })
+    }
+ 
+}
+
+function blockFriend(id : number){
+        Axios.post('friend/blocked',{ id : User.id , blockid : id }).then((res) => {
+            getBlocked()
+        })
+        clicking.value = false
+} 
 
 </script>
 
@@ -575,6 +608,7 @@ function GAME(id : Number){
             
                     <ol v-for="name in chandisp.messages" v-if="onChan === true">
                         <div class="message" v-if="name.userId === User.id" >
+                                    
                                     <p>
                                         
                                         {{ name.text }}
@@ -583,7 +617,9 @@ function GAME(id : Number){
                         </div>
                         <div class="Autre" v-else>
                             <li v-for="user in chandisp.user">
+                                <!-- <button @click="getBlocked(name.userId)">see blocked</button> -->
                                 <button v-if="user.id == name.userId" @click="clicking = true"> 
+                                    
                                         {{ user.name }}: 
                                         
                                 </button>
@@ -591,13 +627,18 @@ function GAME(id : Number){
                                     <button class="modal-btn" >Profile</button>
                                     <button class="modal-btn" @click="GotoDM(user)">Send DM</button>
                                     <button class="modal-btn" @click="GAME(user.id)">Invite for Game</button>
+                                    <div class="blocked">
+                                        <button class="modal-btn" v-if="isBlocked(user.id) == false" v-on:click="blockFriend(user.id)">Block Friend</button>
+                                        <button class="modal-btn" v-else v-on:click="unblockFriend(user.id)">Unblock Friend</button>
+                                    </div>
                                     <button class="modal-btn" @click="cancel">Cancel</button>
                                 </div>
                                
                             </li>
-                            <p>
+                            <p v-if="isBlocked(name.userId) == false">
                                     {{ name.text }}
                             </p>
+                            <p v-else> Blocked User </p>
                         </div>
 			        </ol>
                
