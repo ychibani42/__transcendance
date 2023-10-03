@@ -17,13 +17,11 @@ import { io } from 'socket.io-client';
 const r = ref(true)
 
 function Accept(){
-  store.state.state?.emit('Accepted',store.state.gameInviteID)
+ 
   store.commit('setGameplay',false)
-  if(store.state.gamesock == null)
-  {
-      store.commit('setGamesocket',io('http://localhost:3000/game'))
-  }
+  store.commit('setGamesocket',io('http://localhost:3000/game'))
   store.state.gamesock?.emit('Join',{id : store.state.user.id,name : store.state.gamename})
+  store.state.state?.emit('Accepted',store.state.gameInviteID)
   toast.clearAll()
   r.value = false
 }

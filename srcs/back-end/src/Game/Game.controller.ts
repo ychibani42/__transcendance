@@ -17,7 +17,6 @@ export class GameController {
 	@Post('Findbyname')
 	@UseGuards(JwtAuthGuard)
 	ResearchHistory(@Body() name: NameDto) {
-		console.log(name.name);
 		const games = this.GameService.research(name.name);
 		return games;
 	}

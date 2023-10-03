@@ -19,7 +19,6 @@ export class StateGateway {
 
     @SubscribeMessage('Connect')
     async Connect(client :Socket, id  : number){
-        console.log("connection",id)
         await this.stateservice.connection(client,id)
     }
 
@@ -29,18 +28,17 @@ export class StateGateway {
 
     @SubscribeMessage('game')
     Gameconnection(client :Socket){
-        console.log("game")
         this.stateservice.Game(client)
     }
 
     @SubscribeMessage('Change')
     Change(client :Socket){
-        console.log("Change")
         this.stateservice.Change(client)
     }
 
     @SubscribeMessage('Invite')
     Invite(client :Socket,id : number){
+        console.log("Invite",id)
         this.stateservice.invite(client,id)
     }
 
@@ -52,7 +50,7 @@ export class StateGateway {
 
     @SubscribeMessage('Refused')
     Refused(client :Socket,id : number){
-        console.log("no",id)
+        console.log("Refused",id)
         this.stateservice.refused(client,id)
     }
 }

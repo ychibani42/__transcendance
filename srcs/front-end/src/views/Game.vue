@@ -3,7 +3,6 @@ import { onMounted,onBeforeMount, Ref, ref , onUnmounted} from "vue";
 import { Socket} from 'socket.io-client'
 import { useRouter , onBeforeRouteLeave} from "vue-router";
 import { useStore } from "vuex";
-import store from "../store";
 
 const router = useRouter()
 const state = useStore()
@@ -62,9 +61,10 @@ onUnmounted(() => {
     {
         state.state.state.emit("Change")
     }
-    state.state.gamesock?.disconnect()
-    store.commit("setGamename","")
-    store.commit("setGameID",0)
+    if(state.state.gamesock)
+    {
+        state.state.gamesock.disconnect()
+    }
 }),
 
 onBeforeMount(() => {
@@ -85,7 +85,6 @@ onBeforeMount(() => {
         play2.value.score = arg2
     })
     socket.value.on('finish',(arg1 : string) => {
-        console.log("finish")
         socket.value?.off("pos")
         socket.value?.off("score")
         finished.value = true
@@ -97,7 +96,6 @@ onBeforeMount(() => {
     })
     roomname.value = state.state.gamename
     myplay.value = state.state.gameplay
-    console.log("THEME", store.state.gameTheme)
     if(state.state.gameTheme == false)
     {
         net.value.color = "white"
@@ -245,15 +243,18 @@ onBeforeRouteLeave((to,from,next) => {
             return
         else
         {
-            store.state.gamesock?.disconnect()
-            store.commit('setGamename',"")
+            console.log("LEAVE")
+            state.dispatch('Inviteon')
+            state.state.gamesock?.disconnect()
+            
             next() 
         }    
     }
     else
     {
-        store.state.gamesock?.disconnect()
-        store.commit('setGamename',"")
+        console.log("LEAVE2")
+        state.dispatch('Inviteon')
+        state.state.gamesock?.disconnect()
         next()
     }
 })

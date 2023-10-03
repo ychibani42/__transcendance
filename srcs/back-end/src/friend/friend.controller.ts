@@ -38,7 +38,6 @@ export class FriendController {
 	@Post('unblock')
 	@UseGuards(JwtAuthGuard)
 	Unblockedfriends(@Body() req: BlockFriendDto) {
-		console.log(req)
 		const block = this.FriendService.unblockfriend(req.id, req.blockid);
 		return block;
 	}

@@ -14,15 +14,13 @@ async function getBloqued(){
         ID.value = res.data.id
   })
   Axios.post('friend/blocklist',{id : ID.value}).then((res) => {
-    console.log(res.data)
         Bloqued.value = res.data;
   })
-  console.log(Bloqued.value)
+
 }
 
 onMounted(() => {
   getBloqued()
-  console.log(Bloqued.value)
 });
 
 function cancel(){
@@ -46,7 +44,6 @@ function clicked(nbr : number){
 
 function unblockFriend() {
   Axios.post('friend/unblock',{id: ID.value, blockid: click.value}).then((res) => {
-    console.log(res.data)
     getBloqued()
   })
 }

@@ -39,13 +39,12 @@ function cancel(){
 
 function GAME(id : Number){
   console.log("Invite",id)
-  if(store.state.gamename != "")
-    return
-  store.state.state?.emit("Invite",id)
   store.dispatch("Inviteoff")
   store.dispatch("SocketGame")
   store.commit('setGameplay',true)
   store.commit("setGamename",store.state.user.username)
+  store.commit("setGameID",id)
+ 
   clicking.value = !clicking.value
   click.value = 0
 }
@@ -62,12 +61,6 @@ function clicked(nbr : number){
       clicking.value = true
       click.value = nbr
     }
-}
-
-function connected(user : any){
-  if(user.user.state == 'Online' || user.user.state == 'OnGame')
-    return true
-  return false
 }
 
 function GotoDM(friend: any) {
