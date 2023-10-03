@@ -30,12 +30,8 @@ export class UserController {
 
 	@Post('Change')
 	@UseGuards(JwtAuthGuard)
-<<<<<<< HEAD
-	ChangeName(@Body() body: name): Promise<string | undefined> {
-=======
 	ChangeName(@Body() body: UserDto): Promise<string | undefined> {
 		
->>>>>>> 1e152ce3d4bc75db1caaa2da0c1db565557bfada
 		return this.userService.ChangeName(body.id, body.name);
 	}
 

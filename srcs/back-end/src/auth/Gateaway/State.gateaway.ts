@@ -19,38 +19,42 @@ export class StateGateway {
 
     @SubscribeMessage('Connect')
     async Connect(client :Socket, id  : number){
+        console.log("Connect",client.id)
         await this.stateservice.connection(client,id)
     }
 
     async handleDisconnect(client :Socket){
+        console.log("Disconnect State",client.id)
         await this.stateservice.disconnect(client)
     }
 
     @SubscribeMessage('game')
-    Gameconnection(client :Socket){
+    async Gameconnection(client :Socket){
+        console.log("GAME STATE",client.id)
         this.stateservice.Game(client)
     }
 
     @SubscribeMessage('Change')
-    Change(client :Socket){
-        this.stateservice.Change(client)
+    async Change(client :Socket){
+        console.log("CHANGE OO",client.id)
+        await this.stateservice.Change(client)
     }
 
     @SubscribeMessage('Invite')
-    Invite(client :Socket,id : number){
+    async Invite(client :Socket,id : number){
         console.log("Invite",id)
-        this.stateservice.invite(client,id)
+        await this.stateservice.invite(client,id)
     }
 
     @SubscribeMessage('Accepted')
-    Accepte(client :Socket,id : number){
+    async Accepte(client :Socket,id : number){
         console.log("Yes",id)
-        this.stateservice.accept(client,id)
+        await this.stateservice.accept(client,id)
     }
 
     @SubscribeMessage('Refused')
-    Refused(client :Socket,id : number){
+    async Refused(client :Socket,id : number){
         console.log("Refused",id)
-        this.stateservice.refused(client,id)
+        await this.stateservice.refused(client,id)
     }
 }

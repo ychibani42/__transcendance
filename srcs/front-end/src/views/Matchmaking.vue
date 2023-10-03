@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { io , Socket} from 'socket.io-client';
 import { Ref, ref, onUnmounted} from "vue";
-import { useRouter, onBeforeRouteLeave , on} from 'vue-router';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import { useStore } from 'vuex';
 
 const socket : Ref<Socket | undefined> = ref()
@@ -39,6 +39,17 @@ function invitedgame(){
         option.value = false
         store.commit('setGamename',"")
         store.commit('setGameID',0)
+        socket.value?.on("playerdef", (arg1 : number , arg2 : string) => {
+            if(arg1 == 1)
+                store.commit('setGameplay',false)
+            else
+                store.commit('setGameplay',true)
+            store.commit('setGamename',arg2)
+        })
+        socket.value?.on('config', () =>
+        {
+            option.value = true
+        })
     })
 }
 
@@ -106,7 +117,11 @@ onBeforeRouteLeave((to,from,next) => {
                 next()
             }
         }
-        else 
+        if(to.path == "/login")
+        {
+            next()
+        }
+        else
         {
             store.state.state?.emit("Change")
             next()
@@ -115,6 +130,7 @@ onBeforeRouteLeave((to,from,next) => {
     else
     {
         store.state.state?.emit("Change")
+        store.dispatch("Inviteon")
         next()
     }
 })

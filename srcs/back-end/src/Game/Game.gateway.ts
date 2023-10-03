@@ -69,4 +69,11 @@ export class GameGateway {
         console.log("Delete",client.id)
         return this.GameService.deleteroom(client,arg)
     }
+
+    @SubscribeMessage("LeaveGame")
+    Leavegame(client : Socket)
+    {
+        console.log("LEaveGame",client.id)
+        this.GameService.leavegame(client);
+    }
 }

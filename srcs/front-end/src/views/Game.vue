@@ -13,7 +13,7 @@ const myplay : Ref<Boolean> = ref(false)
 const finished :  Ref<Boolean> = ref(false)
 const playing :  Ref<Boolean> = ref(false)
 const roomname : Ref<string> = ref("")
-const msg = ref("You abandonned the game")
+const msg = ref("Not in an Game")
 
 const pongBorder = ref("solid white") 
 const pongBorderRadius = ref("1rem") 
@@ -102,6 +102,10 @@ onBeforeMount(() => {
         play1.value.color = "white"
         play2.value.color = "white"
     }
+    socket.value.on('abandon', () => {
+        finished.value = true
+        msg.value = "your opponante give up\n       Winner"
+    })
 }),
 
 
@@ -243,16 +247,15 @@ onBeforeRouteLeave((to,from,next) => {
             return
         else
         {
+            state.state.gamesock.emit("LeaveGame")
             console.log("LEAVE")
             state.dispatch('Inviteon')
             state.state.gamesock?.disconnect()
-            
             next() 
         }    
     }
     else
     {
-        console.log("LEAVE2")
         state.dispatch('Inviteon')
         state.state.gamesock?.disconnect()
         next()
