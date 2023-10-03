@@ -397,12 +397,10 @@ function deleteChan() {
 }
 
 function GotoDM(friend: any) {
-    console.log('gotodm')
     store.commit('setFriendDM', friend)
-    console.log('friend',friend)
+    store.commit('setDM', true)
     inDM.value = true
     clicking.value = false
-  // console.log(store.getters.getFriend)
 }
 
 function cancel(){

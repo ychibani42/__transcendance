@@ -39,7 +39,8 @@ onBeforeMount(() => {
   getFriend()
   
     if (store.getters.getDM == true)
-        createDM(amigo)
+         createDM(amigo)
+       
     socket.on('messageDM',(arg1 : string) => {
         DM.value.messages.push(arg1);
     })
@@ -97,6 +98,7 @@ function createMessage() {
 
 
 function createDM (friend: any) {
+    console.log(friend)
   let user1Id: number = User.id
   let user2Id: number = friend.id
 	socket.emit('createDM', { user1Id, user2Id }, response => {
