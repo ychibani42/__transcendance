@@ -1,18 +1,21 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { GameService } from './Game.service';
 import { NameDto } from './GameDto';
+import { JwtAuthGuard } from 'src/auth/Guard/jwt-guard';
 
 @Controller('game')
 export class GameController {
 	constructor(private GameService: GameService) {}
 
 	@Get('all')
+	@UseGuards(JwtAuthGuard)
 	getallgames() {
 		const games = this.GameService.getallgame();
 		return games;
 	}
 
 	@Post('Findbyname')
+	@UseGuards(JwtAuthGuard)
 	ResearchHistory(@Body() name: NameDto) {
 		console.log(name.name);
 		const games = this.GameService.research(name.name);

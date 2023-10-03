@@ -30,7 +30,6 @@ export class UserService {
 			});
 			return nameto;
 		} catch (error) {
-			console.log(error);
 			throw new BadRequestException('Failed to change name');
 		}
 	}

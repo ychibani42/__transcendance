@@ -7,7 +7,7 @@ import Axios from '../services'
 import { useStore } from 'vuex';
 import Picture from '../components/Picture.vue';
 import History from '../components/History.vue';
-
+import { toast } from 'vue3-toastify'
 					/* Variables */
 const store = useStore()
 const User = ref()
@@ -26,18 +26,18 @@ onMounted(() => {
 
 async function editName(event) {
 	User.value = store.getters.getuser
-	console.log(event.target.value)
 	await Axios.post("users/Change", {id : User.value.id, name: event.target.value}).then(response => {
-		if (response) {
-			console.log(response.data)
+		if (response.status == 201) {
 			name.value = response.data
+		}
+		else
+		{
+			 toast("Name too large", { autoClose: true}) 
 		}
 	})
 }
 
-
 async function Button2fa() {
-
 	User.value = store.getters.getuser
 	await Axios.post("auth/Button2FA", {id : User.value.id}).then(response => {
 		if (response){
@@ -60,7 +60,6 @@ async function Button2fa() {
 			<div class="edit">
 				<h5>Edit Name:</h5>
 					<input type="text" class="edit_name_class" @change="editName($event)">
-				
 				
 			</div>
 			<div class="btn"> 

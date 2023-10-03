@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 // import { CreateDMDto } from './create-DM.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from '../chat/dto/create-message.dto';
@@ -6,12 +6,11 @@ import { Message } from '../chat/entities/message.entity';
 import { Exclude } from 'class-transformer';
 import { Socket } from 'socket.io';
 
-
 @Injectable()
-export class DMservice{
-    constructor(private prismaService: PrismaService) {}
+export class DMservice {
+	constructor(private prismaService: PrismaService) {}
 
-    async createMessage( createMessageDto: CreateMessageDto) {
+	async createMessage(createMessageDto: CreateMessageDto) {
 		try {
 			const message = await this.prismaService.message.create({
 				data: {
@@ -26,7 +25,8 @@ export class DMservice{
 					name: true,
 					text: true,
 					dm: {
-						include: { user1: { select: { name: true } } } }
+						include: { user1: { select: { name: true } } },
+					},
 				},
 			});
 			return message;
@@ -37,77 +37,72 @@ export class DMservice{
 
 	async createChat(data: any) {
 		try {
-			let dm: any = await this.findDM(data.user1Id, data.user2Id)
-			if (!dm){
+			let dm: any = await this.findDM(data.user1Id, data.user2Id);
+			if (!dm) {
 				dm = await this.prismaService.dM.create({
-				data: {
-					blocked: false,
-					name: '',
-					user1: { connect: { id: data.user1Id }},
-					user2: { connect: { id: data.user2Id }}
-				},
-				include: {
-					messages: true
-				}
-			}); 
-			let id: string = String(dm.id)
-			dm = await this.prismaService.dM.update({
-				where: {
-					id: dm.id
-				},
-				data: {
-					name: id
-				},
-				include: {
-					user1: true,
-					user2: true,
-					messages: true
-				}
-			})
-			return dm
-		}
-		
-	}
-	catch (error) {
-		console.log(error)
-	}
-}
-
-async leaveRoom(client: Socket, oldRoomId: number) {
-	try {
-		const dm = await this.prismaService.dM.findUniqueOrThrow({
-			where: {
-				id: oldRoomId
+					data: {
+						blocked: false,
+						name: '',
+						user1: { connect: { id: data.user1Id } },
+						user2: { connect: { id: data.user2Id } },
+					},
+					include: {
+						messages: true,
+					},
+				});
+				let id: string = String(dm.id);
+				dm = await this.prismaService.dM.update({
+					where: {
+						id: dm.id,
+					},
+					data: {
+						name: id,
+					},
+					include: {
+						user1: true,
+						user2: true,
+						messages: true,
+					},
+				});
+				return dm;
 			}
-		})
-		if (dm)
-			client.leave(dm.name)
-
-	} catch (error) {
-		console.log(error)
+		} catch (error) {
+			console.log(error);
+		}
 	}
-}
+
+	async leaveRoom(client: Socket, oldRoomId: number) {
+		try {
+			const dm = await this.prismaService.dM.findUniqueOrThrow({
+				where: {
+					id: oldRoomId,
+				},
+			});
+			if (dm) client.leave(dm.name);
+		} catch (error) {
+			console.log(error);
+		}
+	}
 
 	async findDM(userId1: number, userId2: number) {
 		try {
 			const dm = await this.prismaService.dM.findFirst({
 				where: {
 					OR: [
-						{ dm1: userId1, dm2: userId2,},
-						{ dm1: userId2, dm2: userId1 }
-					]
+						{ dm1: userId1, dm2: userId2 },
+						{ dm1: userId2, dm2: userId1 },
+					],
 				},
-				include: { messages: true}
-			})
-			if (dm)
-				return dm
+				include: { messages: true },
+			});
+			if (dm) return dm;
 		} catch (error) {
-			console.log(error)
-			return null
+			console.log(error);
+			return null;
 		}
 	}
 
-    async findAllMessages(dmId: number) {
+	async findAllMessages(dmId: number) {
 		try {
 			const message = await this.prismaService.message.findMany({
 				where: {
@@ -116,7 +111,7 @@ async leaveRoom(client: Socket, oldRoomId: number) {
 			});
 			return message;
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 		}
 	}
 
@@ -126,17 +121,17 @@ async leaveRoom(client: Socket, oldRoomId: number) {
 				where: {
 					NOT: { id: userid },
 					OR: [
-						{ dm2: { some: { dm1: userid }}},
-						{ dm2: { some: { dm2: userid }}},
-						{ dm1 : { some: { dm1: userid }}},
-						{ dm1 : { some: { dm2 : userid}}}
-					]
+						{ dm2: { some: { dm1: userid } } },
+						{ dm2: { some: { dm2: userid } } },
+						{ dm1: { some: { dm1: userid } } },
+						{ dm1: { some: { dm2: userid } } },
+					],
 				},
-				include: {	dm1: true, dm2: true }
+				include: { dm1: true, dm2: true },
 			});
 			return dms;
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 		}
 	}
 
@@ -149,7 +144,7 @@ async leaveRoom(client: Socket, oldRoomId: number) {
 			});
 			return found;
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 		}
 	}
 }
