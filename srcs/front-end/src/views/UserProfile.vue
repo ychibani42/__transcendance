@@ -1,9 +1,11 @@
 
 <template>
     <div class="profile">
+        <div class="picture">
         <label for="fileField">
             <img :src="picture" class="img_class">
         </label>
+        </div>
         <div class="name"> <h2>{{ name }}</h2></div>
         <div class="gamehistory">
             <h3> GameHistory</h3>
@@ -134,13 +136,26 @@ const getPicture = async () => {
 }
 
 
-.img_class {
-    margin: 5rem;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-}
 
+.picture {
+    margin-top: 2rem;
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #111;
+    cursor: pointer; /* Add cursor pointer for better UX */
+  }
+  
+  
+  .img_class {
+    object-fit: cover;
+    opacity: 1;
+    transition: opacity 0.2s ease-in-out;
+    width: 100%;
+    height: 100%;
+  }
 
 .gamehistory {
     margin-top: 5rem;
