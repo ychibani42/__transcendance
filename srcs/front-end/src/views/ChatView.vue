@@ -625,7 +625,7 @@ function blockFriend(id : number){
                                 </button>
                                 <div class="modal" v-if="clicking == true && user.id == name.userId">
                                     <button class="modal-btn" >Profile</button>
-                                    <button class="modal-btn" @click="GotoDM(user)">Send DM</button>
+                                    <button class="modal-btn" v-if="isBlocked(user.id) == false" @click="GotoDM(user)">Send DM</button>
                                     <button class="modal-btn" @click="GAME(user.id)">Invite for Game</button>
                                     <div class="blocked">
                                         <button class="modal-btn" v-if="isBlocked(user.id) == false" v-on:click="blockFriend(user.id)">Block Friend</button>

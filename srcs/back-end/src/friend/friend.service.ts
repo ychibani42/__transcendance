@@ -94,9 +94,7 @@ export class FriendService {
 
 	async blockfriend(id: number, idadd: number) {
 		try {
-			if (await this.findfriend(id, idadd)) {
-				await this.deletefriend(id, idadd);
-			}
+			await this.deletefriend(id, idadd);
 			let blocked: any = await this.findblock(id, idadd)
 			
 			if (!blocked) 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useStore } from 'vuex';
 import { ref , onMounted,onBeforeMount } from 'vue';
+import { toast } from 'vue3-toastify';
 import Axios from '../services';
 
 const store = useStore()
@@ -37,6 +38,7 @@ async function getFriend(){
 
 onBeforeMount(() => {
   getFriend()
+  getBlocked()
   
     if (store.getters.getDM == true)
          createDM(amigo)
@@ -56,8 +58,14 @@ onBeforeMount(() => {
 });
 
 function enterdm(friend: any) {
+
     let user1Id: number = User.id
     let user2Id: number = friend.id
+    if (isBlocked(user2Id))
+    {
+        toast("You were banned from there", { autoClose: true })
+        return
+    }
     let user: any = User
     let oldRoomId: number = DM.value.id
     DM.value.user1 = friend
@@ -83,7 +91,6 @@ function displayDM () {
     let name: string = User.name
     socket.emit('findAllDM', { userid, name }, (response) => {
 		    friend.value = response
-            console.log(response)
 	    });
 }
 
@@ -98,13 +105,13 @@ function createMessage() {
 
 
 function createDM (friend: any) {
-    console.log(friend)
   let user1Id: number = User.id
   let user2Id: number = friend.id
-	socket.emit('createDM', { user1Id, user2Id }, response => {
+  if (isBlocked(user2Id))
+      return
+    socket.emit('createDM', { user1Id, user2Id }, response => {
         // DM.value.id = response.id
-    })
-    
+    })    
 }
 
 function cancel(){
@@ -121,6 +128,41 @@ function GAME(id : Number){
   clicking.value = !clicking.value
 }
 
+
+const blocked = ref({})
+async function getBlocked(){
+    Axios.post('friend/blocklist',{id : User.id}).then((res) => {
+        blocked.value = res.data;
+  })
+}
+
+function isBlocked(id: number) {
+    for (let i = 0; i < blocked.value.length; i++)
+    {
+        if (blocked.value[i].userId == id)
+            return true
+    }
+    return false
+    
+}
+
+function unblockFriend() {
+    for (let i = 0; i < blocked.value.length; i++)
+    {
+        Axios.post('friend/unblock',{id: User.id, blockid: blocked.value[i].userId}).then((res) => {
+            getBlocked()
+            clicking.value = false
+        })
+    }
+ 
+}
+
+function blockFriend(id : number){
+        Axios.post('friend/blocked',{ id : User.id , blockid : id }).then((res) => {
+            getBlocked()
+        })
+        clicking.value = false
+} 
 </script>
 
 <template>

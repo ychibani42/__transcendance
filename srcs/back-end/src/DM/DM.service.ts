@@ -119,7 +119,9 @@ export class DMservice {
 		try {
 			const dms = await this.prismaService.user.findMany({
 				where: {
-					NOT: { id: userid },
+					NOT: [{ id: userid },
+						{ blockedUsers: { some: { userBloqued: userid } } },
+					],
 					OR: [
 						{ dm2: { some: { dm1: userid } } },
 						{ dm2: { some: { dm2: userid } } },
