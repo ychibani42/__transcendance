@@ -44,7 +44,6 @@ export class StateService {
                         user = element.id
                     }
                 })
-                console.log(" dis userid ",user)
                 await this.prismaService.user.findFirstOrThrow({where : {id: user}})
                 await this.prismaService.user.update({where : {id : user},data : {state : 'Disconected', otpvalider : false}})
                 this.User.forEach((element) => {
@@ -65,13 +64,11 @@ export class StateService {
         try {
             let user;
                 this.User.forEach((element) => {
-                    console.log("userid ",element.id , "socket id ", element.socket.id ,"client ", client.id)
                     if(element.socket == client)
                     {
                         user = element.id
                     }
                 })
-                console.log("userid ",user)
                 await this.prismaService.user.findFirstOrThrow({where : {id: user}})
                 await this.prismaService.user.update({where : {id : user},data : {state : 'OnGame'}})
         } catch (error) {
@@ -110,11 +107,9 @@ export class StateService {
             })
             try {
                 const users = await this.prismaService.user.findFirstOrThrow({where : {id: user}})
-                console.log("Inviting" , users.id , "User.state ",users.state , "name ", users.name)
                 const invited = await this.prismaService.user.findFirstOrThrow({where : {id: id}})
                 if(invited.state == 'OnGame')
                 {
-                    console.log("Inviting 2" , id)
                     client.emit('AlreadyInvite')
                     return
                 }
@@ -141,7 +136,6 @@ export class StateService {
         this.User.forEach((element) => {
             if(element.id == id)
             {
-                console.log("Accepted",id)
                 element.socket.emit("accepted")
                 client.emit("accepted")
             }
@@ -150,15 +144,14 @@ export class StateService {
 
     async refused(client : Socket,id : number)
     {
-        console.log("refused", id)
         this.Change(client)
         this.User.forEach((element) => {
             if(element.id == id)
             {
-                console.log("ref", id)
                 this.Change(element.socket)
                 element.socket.emit("refused",id)
             }
         })
     }
+
 }

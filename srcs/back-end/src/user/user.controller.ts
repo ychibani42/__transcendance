@@ -29,7 +29,6 @@ export class UserController {
 	@Post('Change')
 	@UseGuards(JwtAuthGuard)
 	ChangeName(@Body() body: name): Promise<string | undefined> {
-		console.log(body);
 		return this.userService.ChangeName(body.id, body.name);
 	}
 

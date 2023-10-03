@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { io , Socket} from 'socket.io-client';
 import { Ref, ref, onUnmounted} from "vue";
-import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import { useRouter, onBeforeRouteLeave , on} from 'vue-router';
 import { useStore } from 'vuex';
 
 const socket : Ref<Socket | undefined> = ref()
@@ -25,9 +25,10 @@ function inviteorNormal()
 }
 
 function invitedgame(){
-    console.log("invited")
     option.value = true
     socket.value = store.state.gamesock
+    if(socket.value?.connected == false)
+        socket.value.connect()
     socket.value?.on('OnRoom', () =>
     {
         router.push("/game")
@@ -37,6 +38,7 @@ function invitedgame(){
         onQueue.value = false
         option.value = false
         store.commit('setGamename',"")
+        store.commit('setGameID',0)
     })
 }
 
@@ -67,12 +69,12 @@ function debut(){
         onQueue.value = false
         option.value = false
         store.commit('setGamename',"")
+        store.commit('setGameID',0)
     })
 }
 
 
 function joinQueue(){
-    console.log(socket.value , store.state.user.id)
     socket.value?.emit("JoinQueue",store.state.user.id)
 }
 
@@ -82,7 +84,6 @@ function ConfigGame(){
     else
         socket.value?.emit("Config",false,store.state.gamename)
     store.commit('setTheme',theme.value)
-    console.log("THEME BEFORE", store.state.gameTheme)
 }
 
 onUnmounted(()=> {
@@ -101,11 +102,11 @@ onBeforeRouteLeave((to,from,next) => {
             {
                 store.state.state?.emit("Change")
                 store.state.gamesock.disconnect()
-                store.commit('setGamename',"")
+                store.dispatch("Inviteon")
                 next()
             }
         }
-        else
+        else 
         {
             store.state.state?.emit("Change")
             next()

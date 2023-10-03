@@ -26,10 +26,8 @@ onMounted(() => {
 
 async function editName(event) {
 	User.value = store.getters.getuser
-	console.log(event.target.value)
 	await Axios.post("users/Change", {id : User.value.id, name: event.target.value}).then(response => {
 		if (response) {
-			console.log(response.data)
 			name.value = response.data
 		}
 	})

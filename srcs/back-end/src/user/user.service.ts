@@ -23,7 +23,6 @@ export class UserService {
 
 	async ChangeName(idto: number, nameto: string): Promise<string | undefined> {
 		try {
-			console.log(nameto);
 			await this.prismaService.user.update({
 				where: { id: idto },
 				data: { name: nameto, profilefinish: true },
@@ -37,7 +36,6 @@ export class UserService {
 
 	async findAll(ids: number) {
 		try {
-			console.log(typeof ids);
 			const users = await this.prismaService.user.findMany({
 				where: {
 					NOT: {
@@ -61,7 +59,6 @@ export class UserService {
 					},
 				},
 			});
-			console.log(users);
 			return users;
 		} catch (error) {
 			console.log(error);
