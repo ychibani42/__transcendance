@@ -22,7 +22,6 @@
                             <div class="second_player"> 
                                 <div class="right-name">{{ name.user2.name }}</div> 
                                 <div class="right-loser">Loser</div>  
-                            
                             </div>  
                         </div>
                     </span>
@@ -36,7 +35,6 @@
                             <div class="second_player"> 
                                 <div class="right-name">{{ name.user2.name }} </div> 
                                 <div class="right-winner">Winner</div> 
-                                
                             </div>  
                         </div>
                     </span>

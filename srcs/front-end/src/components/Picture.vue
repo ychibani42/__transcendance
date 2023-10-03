@@ -33,7 +33,7 @@ const getPictureBeforeMount = async () => {
 
 const getPicture = async () => {
   try {
-    const res = await Axios.get(`users/picture/${con.value}`, {
+    const res = await Axios.get(`users/picture/${User.id}`, {
       responseType: 'blob',
     });
     const blob = res.data;
@@ -52,11 +52,13 @@ const uploadImage = async (event) => {
   const formData = new FormData();
   formData.append('file', selectedFile.value);
   try {
-    await Axios.post(`users/upload/${User.id}`, formData, {
+    console.log(User.id);
+    await Axios.post(`users/upload/`+ User.id, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
+    console.log('File uploaded successfully');
     getPicture();
   } catch (error) {
     console.error(error);

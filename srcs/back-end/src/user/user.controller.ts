@@ -16,6 +16,8 @@ import { UserService } from './user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterConfig } from './middleware/multer.config';
 import { JwtAuthGuard } from 'src/auth/Guard/jwt-guard';
+import { UserDto } from './dtos';
+import { Express } from 'express';
 
 interface name {
 	id: number;
@@ -28,33 +30,35 @@ export class UserController {
 
 	@Post('Change')
 	@UseGuards(JwtAuthGuard)
-	ChangeName(@Body() body: name): Promise<string | undefined> {
-		console.log(body);
+	ChangeName(@Body() body: UserDto): Promise<string | undefined> {
+		
 		return this.userService.ChangeName(body.id, body.name);
 	}
 
 	@Post('')
 	@UseGuards(JwtAuthGuard)
-	AllUser(@Body() body: any) {
+	AllUser(@Body() body: UserDto) {
 		return this.userService.findAll(body.id);
 	}
 
 	@Post('upload/:id')
+	@UseGuards(JwtAuthGuard)
 	@UseInterceptors(FileInterceptor('file', MulterConfig))
 	async uploadNewPP(
-		@UploadedFile() file: any,
 		@Param('id', ParseIntPipe) id: number,
+		@UploadedFile() file: Express.Multer.File
 	) {
+		console.log(id, file.filename);
 		await this.userService.updatePP(id, file);
 	}
 
 	@Get('picture/:id')
+	@UseGuards(JwtAuthGuard)
 	async getProfilePicture(@Param('id', ParseIntPipe) id: number, @Res() res) {
 		const filename = await this.userService.findUser(id);
 		if (!filename) {
 			throw new NotFoundException();
 		}
-		console.log(process.cwd() + '/' + filename);
 		if (filename.startsWith('http') || filename.startsWith('https')) {
 			return res.redirect(filename);
 		} else {
@@ -63,6 +67,7 @@ export class UserController {
 	}
 
 	@Get('fetch/:id')
+	@UseGuards(JwtAuthGuard)
 	async fetchUser(@Param('id', ParseIntPipe) id: number) {
 		return this.userService.findUserById(id);
 	}
