@@ -424,9 +424,7 @@ function GotoDM(friend: any) {
 function cancel(){
   clicking.value = false
 }
-
 function GAME(id : Number){
-  console.log("Invite",id)
   if(store.state.gameInviteID == 0){
     store.dispatch("Inviteoff")
     store.dispatch("SocketGame")
