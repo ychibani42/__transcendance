@@ -202,7 +202,7 @@ function blockFriend(id : number){
                                         {{ amigo.value.name }}:         
                                 </button>
                                 <div class="modal" v-if="clicking == true">
-                                    <button class="modal-btn" >Profile</button>
+                                    <button class="modal-btn"  @click="GotoProfile(amigo.value.id)">Profile</button>
                                     <button class="modal-btn" @click="GAME(amigo.value.id)">Invite for Game</button>
                                     <button class="modal-btn" @click="cancel">Cancel</button>
                                 </div>
