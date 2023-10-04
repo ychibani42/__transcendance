@@ -37,7 +37,7 @@ model User {
   profilefinish Boolean   @default(false)
   
   otpenable     Boolean   @default(false)
-  otpvalider    Boolean   @default(true)
+  otpvalider    Boolean   @default(false)
   otpcode       String    @default("")
 
   friends       Friends[]
