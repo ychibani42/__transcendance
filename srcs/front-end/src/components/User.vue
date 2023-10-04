@@ -5,12 +5,17 @@ import Axios from '../services';
 import router from '../router';
 import { useRoute } from 'vue-router';
 
+const emit = defineEmits(['refrr'])
+
 const ID  = ref();
 const User = ref(GetUser())
 const clicking = ref(false)
 const click = ref(0)
-const emit = defineEmits(['refresh'])
-const props = defineProps({'counter': Number})
+
+const refresh = () => {
+    GetUser()
+}
+defineExpose({refresh})
 
 async function GetUser() {
   await Axios.get('auth/Me').then(res => {
@@ -22,9 +27,6 @@ async function GetUser() {
   })
 }
 
-watch(() => props.counter,() => {
-  console.log(props.counter)
-})
 
 function clicked(nbr : number){
     
@@ -44,12 +46,12 @@ function clicked(nbr : number){
 function cancel(){
   clicking.value = false
   click.value = 0
-  emit('refresh')
+  emit("refrr")
 }
 
 async function addfriend(id : Number){
   await Axios.post('Friend/add',{id : ID.value ,addid : id }).then((res) => {
-      console.log(res.status)   
+      emit("refrr")  
   })
   clicking.value = false
   click.value = 0
@@ -60,10 +62,8 @@ function GotoProfile(id : Number){
 }
 
 function blockFriend(id : Number){
-  Axios.post('friend/blocked',{
-    id : ID.value , blockid : id 
-  }).then((res) => {
-      console.log(res.status);
+  Axios.post('friend/blocked',{id : ID.value , blockid : id}).then((res) => {
+      emit("refrr")
   })
   clicking.value = false
   click.value = 0
@@ -98,9 +98,9 @@ function blockFriend(id : Number){
     left: 0;
     right: 0;
     z-index: 3;
-    background-color: rgba(74, 72, 72, 0.3);
+    background-color: rgba(74, 72, 72, 0.7);
     display: flex;
-    display: flex;
+    gap: 0.5rem;
 
     justify-content: center;
     align-items: center;

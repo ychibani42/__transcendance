@@ -57,7 +57,6 @@ export class DMGateway {
 	@SubscribeMessage('createDM')
 	async createDM(@Body() body :DMDto){
 		const chan = await this.dmService.createChat(body);
-		// console.log('chan', chan)
 		this.server.emit('createDM', chan)
 		return chan
 	}

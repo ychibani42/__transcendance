@@ -72,7 +72,6 @@ async function GetGames(usersname: string) {
         name: usersname
     })
         .then(res => {
-            console.log(res.data);
             games.value = res.data
         })
 }
@@ -80,7 +79,6 @@ async function GetGames(usersname: string) {
 async function fetchUser(id: number) {
     await Axios.get('users/fetch/' + id).then((res) => {
         name.value = res.data.name;
-        console.log(res.data)
         if (res.status === 200) {
             name.value = res.data.name;
         }

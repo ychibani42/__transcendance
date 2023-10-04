@@ -8,9 +8,7 @@
       </div> 
     </div>
 </template>
-  
-  
-  
+
   <script lang="ts">
   import SideBar from './SideBar.vue';
   export default {

@@ -21,7 +21,6 @@ async function setupname() {
             errname.value = res.data.message
             err.value = true
         }  
-        console.log(res)
     })
 }
 </script>

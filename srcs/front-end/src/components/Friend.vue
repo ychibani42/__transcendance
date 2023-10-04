@@ -3,8 +3,17 @@ import { ref , onMounted} from 'vue';
 import Axios from '../services';
 import store from '../store';
 // import router from '../router';
-import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import { useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
+
+const emit = defineEmits(['refrr'])
+
 const router = useRouter()
+
+const refresh = () => {
+    getFriend()
+}
+defineExpose({refresh})
 
 const ID = ref()
 const friend = ref([])
@@ -39,13 +48,19 @@ function cancel(){
 
 function GAME(id : Number){
   console.log("Invite",id)
-  if(store.state.gamename != "")
-    return
-  store.state.state?.emit("Invite",id)
-  store.dispatch("Inviteoff")
-  store.dispatch("SocketGame")
-  store.commit('setGameplay',true)
-  store.commit("setGamename",store.state.user.username)
+  if(store.state.gameInviteID == 0){
+    store.dispatch("Inviteoff")
+    store.dispatch("SocketGame")
+    store.commit('setGameplay',true)
+    store.commit("setGamename",store.state.user.username)
+    store.commit("setGameID",id)
+  }
+  else{
+      toast("You have already invite someone or invited",
+      {
+         type : "error"
+      })
+  }
   clicking.value = !clicking.value
   click.value = 0
 }
@@ -64,12 +79,6 @@ function clicked(nbr : number){
     }
 }
 
-function connected(user : any){
-  if(user.user.state == 'Online' || user.user.state == 'OnGame')
-    return true
-  return false
-}
-
 function GotoDM(friend: any) {
   store.commit('setFriendDM', friend)
   store.commit('setDM', true)
@@ -79,7 +88,7 @@ function GotoDM(friend: any) {
 
 function blockFriend(id : Number){
   Axios.post('friend/blocked', { id:  ID.value,  blockid:  id }).then((res) => {
-      console.log(res.status)   
+      emit("refrr")   
   })
   clicking.value = false
   click.value = 0
@@ -138,10 +147,9 @@ ul {
     left: 0;
     right: 0;
     z-index: 3;
-    background-color: rgba(74, 72, 72, 0.3);
+    background-color: rgba(74, 72, 72,0.7);
     display: flex;
-    display: flex;
-
+    gap: 0.5rem;
     justify-content: center;
     align-items: center;
     box-shadow: 2px 2px 20px 1px;

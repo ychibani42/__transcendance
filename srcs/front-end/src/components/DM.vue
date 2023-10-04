@@ -119,7 +119,6 @@ function cancel(){
 }
 
 function GAME(id : Number){
-  console.log("Invite",id)
   store.state.state?.emit("Invite",id)
   store.dispatch("Inviteoff")
   store.dispatch("SocketGame")

@@ -12,9 +12,7 @@ import Vue3Toastify from 'vue3-toastify'
 createApp(App)
 .use(router)
 .use(store)
-.use(Vue3Toastify,{
-    multiple : false
-})
+.use(Vue3Toastify)
 .use(VueAxios,Axios)
 .use(VueCookies)
 .mount("#app")

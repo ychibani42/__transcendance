@@ -35,13 +35,6 @@ export class AuthController {
 		return res;
 	}
 
-	@Get('Checkjwt')
-	@UseGuards(JwtAuthGuard)
-	CheckJWT(@Req() req: any) {
-		const decode = this.authService.decodedtok(req.cookies.access_token);
-		return decode;
-	}
-
 	@Get('Me')
 	@UseGuards(JwtAuthGuard)
 	async GetUser(@Req() req: any) {

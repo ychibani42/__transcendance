@@ -73,7 +73,6 @@ async function checkJwt() : Promise<boolean>
           const sock = connect()
           store.commit('setState',sock)
           store.dispatch('Gameinvite')
-          console.log("2")
         }
       }
     })
@@ -117,7 +116,6 @@ function connect(){
   let sock = null
   if($cookies.get('access_token'))
   {
-    console.log($cookies.get('access_token'))
     sock = io("http://localhost:3000/state",{
       transportOptions : {
       polling :{ extraHeaders:{cookies:$cookies.get('access_token')}}}

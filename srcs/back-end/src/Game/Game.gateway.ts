@@ -21,13 +21,11 @@ export class GameGateway {
 	server: Server;
 
     handleDisconnect(client :Socket){
-        console.log("DISCONNECT GAME",client.id)
         this.GameService.remove(client);
     }
 
     @SubscribeMessage("JoinQueue")
     JoinQueue(client : Socket, id : number){
-        console.log("wwwww",client.id)
         this.GameService.JoinQueue(client , id)
     }
 
@@ -54,6 +52,7 @@ export class GameGateway {
     @SubscribeMessage('Invite')
     Createroom(client : Socket , arg: any){
         this.GameService.invited(client,arg)
+        return true
     }
 
     @SubscribeMessage('Join')
@@ -64,5 +63,11 @@ export class GameGateway {
     @SubscribeMessage('Delete')
     Deleteroom(client : Socket , arg: any){
         return this.GameService.deleteroom(client,arg)
+    }
+
+    @SubscribeMessage("LeaveGame")
+    Leavegame(client : Socket)
+    {
+        this.GameService.leavegame(client);
     }
 }

@@ -3,7 +3,6 @@ import { onMounted,onBeforeMount, Ref, ref , onUnmounted} from "vue";
 import { Socket} from 'socket.io-client'
 import { useRouter , onBeforeRouteLeave} from "vue-router";
 import { useStore } from "vuex";
-import store from "../store";
 
 const router = useRouter()
 const state = useStore()
@@ -14,7 +13,7 @@ const myplay : Ref<Boolean> = ref(false)
 const finished :  Ref<Boolean> = ref(false)
 const playing :  Ref<Boolean> = ref(false)
 const roomname : Ref<string> = ref("")
-const msg = ref("You abandonned the game")
+const msg = ref("Not in an Game")
 
 const pongBorder = ref("solid white") 
 const pongBorderRadius = ref("1rem") 
@@ -62,9 +61,10 @@ onUnmounted(() => {
     {
         state.state.state.emit("Change")
     }
-    state.state.gamesock?.disconnect()
-    store.commit("setGamename","")
-    store.commit("setGameID",0)
+    if(state.state.gamesock)
+    {
+        state.state.gamesock.disconnect()
+    }
 }),
 
 onBeforeMount(() => {
@@ -85,7 +85,6 @@ onBeforeMount(() => {
         play2.value.score = arg2
     })
     socket.value.on('finish',(arg1 : string) => {
-        console.log("finish")
         socket.value?.off("pos")
         socket.value?.off("score")
         finished.value = true
@@ -97,13 +96,16 @@ onBeforeMount(() => {
     })
     roomname.value = state.state.gamename
     myplay.value = state.state.gameplay
-    console.log("THEME", store.state.gameTheme)
     if(state.state.gameTheme == false)
     {
         net.value.color = "white"
         play1.value.color = "white"
         play2.value.color = "white"
     }
+    socket.value.on('abandon', () => {
+        finished.value = true
+        msg.value = "your opponante give up\n       Winner"
+    })
 }),
 
 
@@ -245,15 +247,16 @@ onBeforeRouteLeave((to,from,next) => {
             return
         else
         {
-            store.state.gamesock?.disconnect()
-            store.commit('setGamename',"")
+            state.state.gamesock.emit("LeaveGame")
+            state.dispatch('Inviteon')
+            state.state.gamesock?.disconnect()
             next() 
         }    
     }
     else
     {
-        store.state.gamesock?.disconnect()
-        store.commit('setGamename',"")
+        state.dispatch('Inviteon')
+        state.state.gamesock?.disconnect()
         next()
     }
 })
