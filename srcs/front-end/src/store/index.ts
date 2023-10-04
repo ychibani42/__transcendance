@@ -115,7 +115,7 @@ const store = createStore(
                 this.state.state?.off('invited')
             },
             Inviteon(){
-                this.state.state?.on('invited',(arg1,arg2) => {
+                    this.state.state?.on('invited',(arg1,arg2) => {
                     this.state.gamename = arg1
                     this.state.gameInviteID = arg2
                     toast(Btn, {
@@ -125,7 +125,7 @@ const store = createStore(
                         toastId: 1,
                     })
                     this.dispatch("Inviteoff")
-                })
+                    })
                 this.state.gamename = ""
                 this.state.gameInviteID = 0
             },

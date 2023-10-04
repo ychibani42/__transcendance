@@ -54,6 +54,7 @@ function GAME(id : Number){
     store.commit('setGameplay',true)
     store.commit("setGamename",store.state.user.username)
     store.commit("setGameID",id)
+    console.log("CONNECTION2222222")
   }
   else{
       toast("You have already invite someone or invited",

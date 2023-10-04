@@ -35,7 +35,7 @@ export class StateService {
     }
 
     async disconnect(client : Socket){
-        try {
+        try { 
                 let user;
                 this.User.forEach((element) => {
                     if(element.socket == client)
@@ -51,11 +51,14 @@ export class StateService {
                         let id = this.User.indexOf(element)
                         this.User.splice(id,1)
                     }
-    
                 })
+                this.User.forEach((element) => {
+                    console.log(element.socket.id)
+                })
+               
             }
          catch (error) {
-            console.log("Prisma error dis")
+            console.log(error)
         }
     }
 
@@ -94,16 +97,14 @@ export class StateService {
 
     async invite(client : Socket,id : number)
     {
-
-        try {
-            let user :any ;
-            this.User.forEach((element) => {
+            try {
+                let user :any ;
+                this.User.forEach((element) => {
                 if(element.socket == client)
                 {
                     user = element.id
                 }
-            })
-            try {
+                })
                 const users = await this.prismaService.user.findFirstOrThrow({where : {id: user}})
                 const invited = await this.prismaService.user.findFirstOrThrow({where : {id: id}})
                 if(invited.state == 'OnGame')
@@ -120,9 +121,6 @@ export class StateService {
                         return
                     }
                 })
-            } catch (error) {
-                console.log(error)
-            }
         } catch (error) {
             console.log(error)
         }

@@ -51,6 +51,8 @@ function invitedgame(){
             option.value = true
         })
     })
+    onQueue.value = true
+    console.log("MatchMaking",store.state.gamename)
 }
 
 function debut(){

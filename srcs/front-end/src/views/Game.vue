@@ -67,11 +67,10 @@ onUnmounted(() => {
     }
 }),
 
-onBeforeMount(() => {
+
+onMounted(() => {
     socket.value = state.state.gamesock
-    if(!socket.value)
-        return
-    socket.value.on('pos', (arg1 : number, arg2 : number , arg3: number ) => {
+    socket.value?.on('pos', (arg1 : number, arg2 : number , arg3: number ) => {
         if(myplay.value == true)
             play2.value.y = arg1
         else
@@ -80,17 +79,17 @@ onBeforeMount(() => {
         ball.value.y = arg3
         render()
     })
-    socket.value.on('score',(arg1 : number , arg2 : number) => {
+    socket.value?.on('score',(arg1 : number , arg2 : number) => {
         play1.value.score = arg1
         play2.value.score = arg2
     })
-    socket.value.on('finish',(arg1 : string) => {
+    socket.value?.on('finish',(arg1 : string) => {
         socket.value?.off("pos")
         socket.value?.off("score")
         finished.value = true
         msg.value = arg1
     })
-    socket.value.on('Bug',() => {
+    socket.value?.on('Bug',() => {
        finished.value = true
        msg.value = "your opponent have crash"
     })
@@ -102,15 +101,10 @@ onBeforeMount(() => {
         play1.value.color = "white"
         play2.value.color = "white"
     }
-    socket.value.on('abandon', () => {
+    socket.value?.on('abandon', () => {
         finished.value = true
         msg.value = "your opponante give up\n       Winner"
     })
-}),
-
-
-
-onMounted(() => {
     context.value = canvasElement.value?.getContext('2d') || undefined;
     canvasElement.value?.addEventListener("mousemove",Updatexy);
     canvasElement.value?.addEventListener("click",ReadyOrQuit);
@@ -247,15 +241,17 @@ onBeforeRouteLeave((to,from,next) => {
             return
         else
         {
-            state.state.gamesock.emit("LeaveGame")
-            state.dispatch('Inviteon')
+            state.state.gamesock?.emit("LeaveGame")
+            if(state.state.gamename != "")
+                state.dispatch('Inviteon')
             state.state.gamesock?.disconnect()
             next() 
         }    
     }
     else
     {
-        state.dispatch('Inviteon')
+        if(state.state.gamename != "")
+            state.dispatch('Inviteon')
         state.state.gamesock?.disconnect()
         next()
     }
@@ -347,8 +343,7 @@ canvas {
     flex-direction: column;
     border-radius: 8px;
   .title{
-        color: chocolate;
-        border: solid ;
+        color: rgb(97, 247, 105);
     }
     .modal-btn {
     width: 15rem;

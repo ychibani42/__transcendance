@@ -16,7 +16,6 @@ export class StateGateway {
 	@WebSocketServer()
 	server: Server;
 
-
     @SubscribeMessage('Connect')
     async Connect(client :Socket, id  : number){
         await this.stateservice.connection(client,id)
