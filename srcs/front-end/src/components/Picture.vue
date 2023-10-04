@@ -75,14 +75,27 @@ onMounted(() => {
 <style lang="scss" scoped>
 
 .picture {
-    display: flex;
+  margin-top: 2rem;
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #111;
+  cursor: pointer; /* Add cursor pointer for better UX */
+}
+
+.picture:hover .img_class {
+  opacity: 0.5;
 }
 
 .img_class {
-    margin: 5rem;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
+  object-fit: cover;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+  width: 100%;
+  height: 100%;
 }
+
 </style>
   

@@ -31,7 +31,6 @@ export class UserController {
 	@Post('Change')
 	@UseGuards(JwtAuthGuard)
 	ChangeName(@Body() body: UserDto): Promise<string | undefined> {
-		
 		return this.userService.ChangeName(body.id, body.name);
 	}
 
@@ -46,7 +45,7 @@ export class UserController {
 	@UseInterceptors(FileInterceptor('file', MulterConfig))
 	async uploadNewPP(
 		@Param('id', ParseIntPipe) id: number,
-		@UploadedFile() file: Express.Multer.File
+		@UploadedFile() file: Express.Multer.File,
 	) {
 		await this.userService.updatePP(id, file);
 	}

@@ -95,11 +95,10 @@ export class FriendService {
 	async blockfriend(id: number, idadd: number) {
 		try {
 			await this.deletefriend(id, idadd);
-			let blocked: any = await this.findblock(id, idadd)
-			
-			if (!blocked) 
-			{
-				console.log(blocked)
+			let blocked: any = await this.findblock(id, idadd);
+
+			if (!blocked) {
+				console.log(blocked);
 				blocked = await this.prismaService.blockedU.create({
 					data: {
 						userId: idadd,
@@ -108,7 +107,6 @@ export class FriendService {
 				});
 				return blocked;
 			}
-			
 		} catch (error) {
 			console.log(error);
 		}
