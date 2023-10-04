@@ -552,7 +552,7 @@ export class ChatService {
 		);
 	}
 
-	async verifyPassword(password: string, userid: number, chanid: number) {
+	async verifyPassword(client: Socket, password: string, userid: number, chanid: number) {
 		try {
 			const chan = await this.findOneChan(chanid);
 			if (chan?.password) {
@@ -560,7 +560,7 @@ export class ChatService {
 					console.log('bon mdp');
 					return true;
 				} else {
-					console.log('mauvais mdp');
+					client.emit('error', 'bad pass')
 					return false;
 				}
 			}

@@ -79,6 +79,9 @@ onBeforeMount(() => {
         chandisp.value.admin.forEach(element => {
                 if(arg1 && element.id == arg1.id){
                     chandisp.value.admin.splice(chandisp.value.admin.indexOf(element), 1)
+                    setting.value = false
+                    isModalunAdmin.value = false
+                    
                 }
         })   
     })
@@ -116,6 +119,8 @@ onBeforeMount(() => {
         chandisp.value.user.forEach(element => {
             if(element.id == arg1.user.id){
                 chandisp.value.banned.push(arg1)
+                setting.value = false
+                isModalBan.value = false
             }
             if (User.id == arg1.user.id)
                 {
@@ -166,6 +171,8 @@ onBeforeMount(() => {
         chandisp.value.user.forEach(element => {
             if(element.id == arg1.id){
                 chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
+                setting.value = false
+                isModalKick.value = false
             }
             if (arg1.id == User.id)
             { 
@@ -204,6 +211,10 @@ onBeforeMount(() => {
         {
             toast("You were muted", { autoClose: true})  
             
+        }
+        if (arg1 == 'bad pass')
+        {
+            toast("Bad password", { autoClose: true})
         }
             
     })
@@ -266,9 +277,6 @@ function enterchat(chan : any){
         inJoined.value = true
         displayJoined()
         store.commit("setChandisp", chandisp.value)
-        console.log('banned people', chandisp.value.banned)
-     console.log('admin people', chandisp.value.admin)
-        
     });
     
     
@@ -373,17 +381,22 @@ function isUserChan(newchan: any) {
     return false
 }
 
-function updateChan() {
+function updatepPass() {
     let pass: string = newpass.value
     let chanid: number = chandisp.value.idch
     socket.emit('updatePassword', { pass: pass, chatId: chanid }, response => {
        
     })
-        let status: boolean = newstatus.value
+      
+        newpass.value = ""
+}
+
+function updateStatus(){
+    let status: boolean = newstatus.value
+    let chanid: number = chandisp.value.idch
         socket.emit('updateStatus', { status: status, chatId: chanid }, response => {
             chandisp.value.isprivate = newstatus.value
         }) 
-        newpass.value = ""
 }
 
 function leaveChan() {
@@ -414,11 +427,19 @@ function cancel(){
 
 function GAME(id : Number){
   console.log("Invite",id)
-  store.state.state?.emit("Invite",id)
-  store.dispatch("Inviteoff")
-  store.dispatch("SocketGame")
-  store.commit('setGameplay',true)
-  store.commit("setGamename",store.state.user.username)
+  if(store.state.gameInviteID == 0){
+    store.dispatch("Inviteoff")
+    store.dispatch("SocketGame")
+    store.commit('setGameplay',true)
+    store.commit("setGamename",store.state.user.username)
+    store.commit("setGameID",id)
+  }
+  else{
+      toast("You have already invite someone or invited",
+      {
+         type : "error"
+      })
+  }
   clicking.value = !clicking.value
 }
 
@@ -456,6 +477,10 @@ function blockFriend(id : number){
         })
         clicking.value = false
 } 
+
+function GotoProfile(id: number){
+  router.push("/User/" + id)
+}
 
 </script>
 
@@ -530,21 +555,28 @@ function blockFriend(id : number){
             <div class="formSetting" v-if="setting === true">
                 <h2>Propriete du chat</h2>
 
-                <form @submit.prevent="updateChan">
-                    <div class="status">
-                        <h4>Status:</h4>
-				        <input type="checkbox"  v-model="newstatus"> 
-                        <div class="change-status">{{ newstatus ? 'private' : 'public' }}  </div>    
-                    </div>
+                <form>
+                    <form @submit.prevent="updateStatus">
+                        <div class="status">
+                            <h5>Status:</h5>
+                            <input type="checkbox"  v-model="newstatus"> 
+                            <div class="change-status">{{ newstatus ? 'private' : 'public' }}  </div>   
+                            <div class="submit-modif"> <button type="submit">Submit</button></div> 
+                        </div>
                     
-				    <!-- <label for="password"> -->
+                    </form>
+                    <form @submit.prevent="updatepPass">
+                     <!-- <label for="password"> -->
                         <div class="password">
-                            <h4>Password:</h4>
+                            <h5>Password:</h5>
                             <input type="password" id="newpass" v-model="newpass" @focus="isFocused = true" @blur="isFocused = false">  
+                            <div class="submit-modif"> <button type="submit">Submit</button></div>
                         </div>
                         
                     <!-- </label> -->
-                    <div class="submit-modif"> <button type="submit">Submit modification</button></div>
+                    </form>
+				   
+                    
                    
                      <div class="buttons">
                         <button type="button" class="btn" @click="isModalKick = true">
@@ -629,7 +661,7 @@ function blockFriend(id : number){
                                         
                                 </button>
                                 <div class="modal" v-if="clicking == true && user.id == name.userId">
-                                    <button class="modal-btn" >Profile</button>
+                                    <button class="modal-btn" v-if="isBlocked(user.id) == false" @click="GotoProfile(user.id)">Profile</button>
                                     <button class="modal-btn" v-if="isBlocked(user.id) == false" @click="GotoDM(user)">Send DM</button>
                                     <button class="modal-btn" @click="GAME(user.id)">Invite for Game</button>
                                     <div class="blocked">
@@ -753,12 +785,14 @@ function blockFriend(id : number){
         }
         .submit-modif {
             button {
+                margin-top: 0;
+                font-size: 0.6rem;
                 background-color: #bfc7cb;
                 color: #141d22;
                 border: 1px solid #1a4258;
                 border-radius: 8px;
                 text-align: center;
-                padding: 10px 25px;
+                padding: 4px 15px;
                 transition: 0.1s ease-in-out;
 
                 &:hover {
@@ -781,7 +815,7 @@ function blockFriend(id : number){
             display: flex;
             flex-direction: row;
             margin: 4px;
-            h4 {
+            h5 {
                 margin: 2px;
             }
             input {
@@ -796,7 +830,7 @@ function blockFriend(id : number){
             display:flex;
             flex-direction: row;
             margin: 4px;
-            h4 {
+            h5 {
                 margin: 2px;
             }
             input {
