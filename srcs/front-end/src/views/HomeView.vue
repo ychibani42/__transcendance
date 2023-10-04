@@ -1,19 +1,17 @@
 <script lang="ts" setup>
-import { useStore } from 'vuex';
-import { io, Socket } from 'socket.io-client';
-import { Ref, ref, onMounted } from "vue";
+import { ref} from "vue";
 import Friend from '../components/Friend.vue';
 import Users from '../components/User.vue';
 import BloquedComp from '../components/Bloqued.vue';
-import Picture from '../components/Picture.vue';
-import Axios from '../services';
 
-const store = useStore();
-const User = store.getters.getuser;
-const refr = ref(0)
+const friend = ref()
+const user = ref()
+const blocked = ref()
 
-function test() {
-  refr.value++
+function refresh() {
+  friend.value.refresh()
+  user.value.refresh()
+  blocked.value.refresh()
 }
 
 </script>
@@ -31,11 +29,10 @@ function test() {
       <h3>Friend</h3>
       <h3>User</h3>
       <h3>Bloqued</h3>
-      <Friend />
-      <Users @refresh="test" :counter="refr" />
-      <BloquedComp />
+      <Friend ref="friend" @refrr="refresh"/>
+      <Users ref="user" @refrr="refresh"/>
+      <BloquedComp ref="blocked" @refrr="refresh"/>
     </div>
-    
   </div>
 </template>
 
@@ -51,7 +48,7 @@ function test() {
 // }
 
 .botton {
-  margin: 7rem;
+  margin: 3rem;
   button {
     background-color: #bfc7cb;
     color: #141d22;
@@ -83,7 +80,7 @@ p {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   height: 20rem;
-  margin-top: 8rem;
+  margin-top: 3rem;
 
   div {
     padding-left: 0rem;

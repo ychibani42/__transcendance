@@ -72,6 +72,7 @@ export class ChatService {
 
 	async findUser1(userid: number, chanid: number) {
 		try {
+			
 			const user = await this.prismaService.channel.findUniqueOrThrow({
 				where: {
 					id: chanid,
@@ -152,6 +153,7 @@ export class ChatService {
 
 	async findOneChan(chanid: number) {
 		try {
+
 			const chan = await this.prismaService.channel.findUniqueOrThrow({
 				where: {
 					id: chanid,
@@ -166,7 +168,7 @@ export class ChatService {
 			});
 			return chan;
 		} catch (error) {
-			console.log('Cannot find channel')
+			console.log('la Cannot find channel')
 			return null
 			
 		}
@@ -274,6 +276,7 @@ export class ChatService {
 
 	async findAdmin(userid: number, chanid: number) {
 		try {
+		
 			const user = await this.prismaService.admin.findFirst({
 				where: {
 					userId: userid,
@@ -357,6 +360,7 @@ export class ChatService {
 			let chan: any;
 
 			user = await this.findAdmin(userid, chanid);
+	
 			if (user) {
 				chan = await this.prismaService.admin.delete({
 					where: {
@@ -377,6 +381,7 @@ export class ChatService {
 			let chan: any;
 
 			user = await this.findBanned(userid, chanid);
+			console.log('unban', user)
 			if (user) {
 				chan = await this.prismaService.banned.delete({
 					where: { id: user.id },
@@ -435,6 +440,7 @@ export class ChatService {
 		try {
 			const chan = await this.findOneChan(chanid);
 			const banned = await this.findBanned(userid, chanid);
+			console.log('joinRoom', banned)
 			if (banned) {
 				client.emit('error', 'banned');
 				return null;

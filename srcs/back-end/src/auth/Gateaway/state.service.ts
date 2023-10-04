@@ -28,7 +28,6 @@ export class StateService {
             this.User.push(user2)
             await this.prismaService.user.findFirstOrThrow({where : {id: token}})
             await this.prismaService.user.update({where : {id : token},data : {state : 'Online'}})
-            console.log("con userid ",user2.socket.id)
         }
         catch (error) {
             console.log(error)
@@ -45,7 +44,7 @@ export class StateService {
                     }
                 })
                 await this.prismaService.user.findFirstOrThrow({where : {id: user}})
-                await this.prismaService.user.update({where : {id : user},data : {state : 'Disconected', otpvalider : false}})
+                await this.prismaService.user.update({where : {id : user},data : {state : 'Disconected'}})
                 this.User.forEach((element) => {
                     if(element.socket == client)
                     {
@@ -97,7 +96,6 @@ export class StateService {
     {
 
         try {
-            
             let user :any ;
             this.User.forEach((element) => {
                 if(element.socket == client)

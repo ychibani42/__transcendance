@@ -14,6 +14,7 @@ import { Server, Socket } from 'socket.io';
 import { Param } from '@nestjs/common';
 import { channel } from 'diagnostics_channel';
 import { UserService } from '../user/user.service';
+import { DMDto } from './dto/DM.dto';
 
 @WebSocketGateway({
 	cors: {
@@ -41,29 +42,28 @@ export class DMGateway {
 	}
 
 	@SubscribeMessage('joinDM')
-	async joinDM(client: Socket, data: any)
+	async joinDM(client: Socket, data: DMDto)
 	{
-		if (data.oldRoomId != 0)
-			await this.dmService.leaveRoom(client, data.oldRoomId)
-		let dm: any = await this.dmService.findDM(data.user1Id, data.user2Id)
+		if (data.oldRoom != 0)
+			await this.dmService.leaveRoom(client, data.oldRoom)
+		let dm: any = await this.dmService.findDM(data.user1, data.user2)
 		if (dm)
 		{
 			client.join(dm.name)
-			this.server.emit('joinDM', data.user)
 			return dm
 		}
 	}
 
 	@SubscribeMessage('createDM')
-	async createDM(@Body() body :any){
+	async createDM(@Body() body :DMDto){
 		const chan = await this.dmService.createChat(body);
 		this.server.emit('createDM', chan)
 		return chan
 	}
 
 	@SubscribeMessage('findAllDM')
-	async findAllDM(@Body() data :any){
-		const dms = await this.dmService.findAllDM(data.userid, data.name);
+	async findAllDM(@Body() data :DMDto){
+		const dms = await this.dmService.findAllDM(data.user1, data.name);
 		return dms
 	}
 }

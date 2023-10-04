@@ -66,11 +66,11 @@ function enterdm(friend: any) {
         toast("You were banned from there", { autoClose: true })
         return
     }
-    let user: any = User
+    console.log(User)
     let oldRoomId: number = DM.value.id
     DM.value.user1 = friend
     amigo.value = friend
-    socket.emit('joinDM', { user1Id, user2Id, user, oldRoomId }, response => {
+    socket.emit('joinDM', { user1: user1Id, user2: user2Id, oldRoom: oldRoomId }, response => {
         DM.value.id = response.id
         DM.value.blocked = response.blocked
         DM.value.dm1 = response.dm1
@@ -89,7 +89,7 @@ function displayChats () {
 function displayDM () {
     let userid: number = User.id
     let name: string = User.name
-    socket.emit('findAllDM', { userid, name }, (response) => {
+    socket.emit('findAllDM', { user1: userid, name: name }, (response) => {
 		    friend.value = response
 	    });
 }
@@ -109,7 +109,7 @@ function createDM (friend: any) {
   let user2Id: number = friend.id
   if (isBlocked(user2Id))
       return
-    socket.emit('createDM', { user1Id, user2Id }, response => {
+    socket.emit('createDM', { user1: user1Id, user2: user2Id }, response => {
         // DM.value.id = response.id
     })    
 }
@@ -119,7 +119,6 @@ function cancel(){
 }
 
 function GAME(id : Number){
-  console.log("Invite",id)
   store.state.state?.emit("Invite",id)
   store.dispatch("Inviteoff")
   store.dispatch("SocketGame")

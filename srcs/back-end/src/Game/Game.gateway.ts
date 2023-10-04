@@ -21,7 +21,6 @@ export class GameGateway {
 	server: Server;
 
     handleDisconnect(client :Socket){
-        console.log("DISCONNECT GAME",client.id)
         this.GameService.remove(client);
     }
 
@@ -47,26 +46,28 @@ export class GameGateway {
 
     @SubscribeMessage('Config')
     config(client : Socket , arg: any){
-        console.log("Config",client.id)
         this.GameService.ConfigGame(client,arg[0],arg[1])
     }
 
     @SubscribeMessage('Invite')
     Createroom(client : Socket , arg: any){
-        console.log("Invite GAME",client.id)
         this.GameService.invited(client,arg)
         return true
     }
 
     @SubscribeMessage('Join')
     Joinroom(client : Socket , arg: any){
-        console.log("Join",client.id)
         this.GameService.acceptINV(client,arg)
     }
 
     @SubscribeMessage('Delete')
     Deleteroom(client : Socket , arg: any){
-        console.log("Delete",client.id)
         return this.GameService.deleteroom(client,arg)
+    }
+
+    @SubscribeMessage("LeaveGame")
+    Leavegame(client : Socket)
+    {
+        this.GameService.leavegame(client);
     }
 }

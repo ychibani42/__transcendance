@@ -322,8 +322,11 @@ export class GameService {
 					element.play2.socket.emit("Bug")
 					element.play.socket.emit("Bug")
 				}
-				let id = this.Rooms.indexOf(element);
-				this.Rooms.splice(id, 1);
+				if(element.state !== state.finish )
+				{
+					let id = this.Rooms.indexOf(element);
+					this.Rooms.splice(id, 1);
+				}
 				return true;
 			}
 		});
@@ -335,7 +338,6 @@ export class GameService {
 	stoploop() {
 		if (this.Rooms.length != 0) return;
 		try {
-			console.log('end inter');
 			if (this.schedulerRegistry.doesExist('interval', 'game')) {
 				this.schedulerRegistry.deleteInterval('game');
 			}
@@ -346,7 +348,6 @@ export class GameService {
 
 	addInterval() {
 		try {
-			console.log('add inter');
 			const interval = setInterval(this.rungame, 15, this);
 			this.schedulerRegistry.addInterval('game', interval);
 		} catch (error) {
@@ -404,6 +405,26 @@ export class GameService {
 		} catch (error) {
 			console.log(error);
 		}
+	}
+
+	leavegame(client : Socket)
+	{
+		this.Rooms.forEach((element) => {
+			if (element.play2.socket == client || element.play.socket == client) 
+			{
+				element.state = state.finish
+				if(element.play2.socket == client)
+				{
+					element.play.socket.emit("abandon")
+					element.play.score = 5
+				}
+				if(element.play.socket == client)
+				{
+					element.play2.socket.emit("abandon")
+					element.play2.score = 5
+				}
+			}
+		});
 	}
 
 	invited(client: Socket, arg: any) {

@@ -106,24 +106,16 @@ const store = createStore(
                 this.state.user.friend =[],
                 this.state.user.Twofa = false,
                 this.state.user.online = false
-                if(this.state.state){ 
-                    this.state.state.disconnect()
-                }
-                if(this.state.gamesock){
-                    this.state.gamesock.disconnect()
-                }
-                if(this.state.chatsock) { 
-                    this.state.chatsock.disconnect() 
-                }
+                this.state.state?.disconnect()
+                this.state.gamesock?.disconnect()
+                this.state.chatsock?.disconnect() 
+    
             },
             Inviteoff(){
-                this.state.state?.off('invited') 
+                this.state.state?.off('invited')
             },
             Inviteon(){
-                console.log("INVITE ON")
-                console.log(this.state.state)
-                 this.state.state.on('invited',(arg1,arg2) => {
-                    console.log("wdwadwad")
+                this.state.state?.on('invited',(arg1,arg2) => {
                     this.state.gamename = arg1
                     this.state.gameInviteID = arg2
                     toast(Btn, {
@@ -138,16 +130,13 @@ const store = createStore(
                 this.state.gameInviteID = 0
             },
             refused(){
-                if(this.state.user.id == this.state.gameInviteID){
-                    this.state.gamesock?.emit("Delete",{name : this.state.user.username})
-                }
+                this.state.gamesock?.emit("Delete",{name : this.state.user.username})
                 this.state.gamename = ""
                 this.state.gameInviteID = 0
                 this.state.gamesock?.disconnect()
             },
             SocketGame(){
-                if(store.state.gamesock == null)
-                    store.commit('setGamesocket',io('http://localhost:3000/game'))
+                store.commit('setGamesocket',io('http://localhost:3000/game'))
                 this.state.gamesock?.emit("Invite",{id : this.state.user.id , name : this.state.user.username} , rep =>{
                     this.state.state?.emit("Invite",this.state.gameInviteID)
                 })
@@ -171,6 +160,7 @@ const store = createStore(
                 this.state.state?.on("AlreadyInvite",() => {
                     this.dispatch("Inviteon")
                     toast("This friend is already Invited or in Game", {
+                        type: "error",
                         autoClose: true,
                         closeOnClick: true,
                         closeButton : false,

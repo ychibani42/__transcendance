@@ -27,30 +27,27 @@ export class StateGateway {
     }
 
     @SubscribeMessage('game')
-    Gameconnection(client :Socket){
-        this.stateservice.Game(client)
+    async Gameconnection(client :Socket){
+        await this.stateservice.Game(client)
     }
 
     @SubscribeMessage('Change')
-    Change(client :Socket){
-        this.stateservice.Change(client)
+    async Change(client :Socket){
+        await this.stateservice.Change(client)
     }
 
     @SubscribeMessage('Invite')
-    Invite(client :Socket,id : number){
-        console.log("Invite",id)
-        this.stateservice.invite(client,id)
+    async Invite(client :Socket,id : number){
+        await this.stateservice.invite(client,id)
     }
 
     @SubscribeMessage('Accepted')
-    Accepte(client :Socket,id : number){
-        console.log("Yes",id)
-        this.stateservice.accept(client,id)
+    async Accepte(client :Socket,id : number){
+        await this.stateservice.accept(client,id)
     }
 
     @SubscribeMessage('Refused')
-    Refused(client :Socket,id : number){
-        console.log("Refused",id)
-        this.stateservice.refused(client,id)
+    async Refused(client :Socket,id : number){
+        await this.stateservice.refused(client,id)
     }
 }
