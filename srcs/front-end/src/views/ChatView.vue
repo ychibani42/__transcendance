@@ -65,6 +65,7 @@ const isPassword = ref(false)
 
 onBeforeMount(() => {
     getBlocked()
+   
     inDM.value = store.getters.getDM;
     if (inDM.value == true)
         displayDM()
@@ -74,8 +75,9 @@ onBeforeMount(() => {
         chandisp.value.messages.push(arg1);
     })
     socket.on('unadmin', (arg1:any) => {
+        
         chandisp.value.admin.forEach(element => {
-                if(element.id == arg1.id){
+                if(arg1 && element.id == arg1.id){
                     chandisp.value.admin.splice(chandisp.value.admin.indexOf(element), 1)
                 }
         })   
@@ -89,7 +91,7 @@ onBeforeMount(() => {
     })
     socket.on('unmuted', (arg1:any) => {
         chandisp.value.muted.forEach(element => {
-            if(element.id == arg1.id){
+            if(arg1 && element.id == arg1.id){
                 chandisp.value.muted.splice(chandisp.value.muted.indexOf(element), 1)
             }
         })
@@ -162,7 +164,6 @@ onBeforeMount(() => {
     })
     socket.on('kicked', (arg1: any) => {
         chandisp.value.user.forEach(element => {
-            console.log(element.id, arg1.id)
             if(element.id == arg1.id){
                 chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
             }
@@ -247,7 +248,7 @@ function enterchat(chan : any){
     let chanid: number = chan.id
     let oldChatId: number = chandisp.value.idch
     
-    socket.emit('joinRoom', { userid, chanid, oldChatId }, response => {
+    socket.emit('joinRoom', { chatId: chanid, userId: userid, oldChatId:  oldChatId }, response => {
         chandisp.value.oldChatId = oldChatId
         chandisp.value.messages = response.messages
         chandisp.value.idch=response.id
@@ -265,6 +266,9 @@ function enterchat(chan : any){
         inJoined.value = true
         displayJoined()
         store.commit("setChandisp", chandisp.value)
+        console.log('banned people', chandisp.value.banned)
+     console.log('admin people', chandisp.value.admin)
+        
     });
     
     
@@ -287,7 +291,7 @@ function displayChats () {
     let userid: number = User.id
     if (inAll.value == true)
     {
-        socket.emit('findAll', { userid }, (response) => {
+        socket.emit('findAll', { id: userid }, (response) => {
 		    chan.value = response
 	    });
     }
@@ -301,7 +305,7 @@ function displayJoined() {
     if (inJoined.value == true)
     {
         let userid: number = User.id
-	    socket.emit('findAllChats', { userid }, (response) => {
+	    socket.emit('findAllChats', { id : userid }, (response) => {
 		    chan.value = response
 	    });
     }
@@ -340,6 +344,7 @@ function settings () {
 function isAdmin() {
     for (let i = 0; i < chandisp.value.admin.length; i++)
     {
+        console.log(chandisp.value.admin[i].user.id, User.id)
         if (chandisp.value.admin[i].user.id == User.id)
             return true
     }
@@ -371,11 +376,11 @@ function isUserChan(newchan: any) {
 function updateChan() {
     let pass: string = newpass.value
     let chanid: number = chandisp.value.idch
-    socket.emit('updatePassword', { pass, chanid }, response => {
+    socket.emit('updatePassword', { pass: pass, chatId: chanid }, response => {
        
     })
         let status: boolean = newstatus.value
-        socket.emit('updateStatus', { status, chanid }, response => {
+        socket.emit('updateStatus', { status: status, chatId: chanid }, response => {
             chandisp.value.isprivate = newstatus.value
         }) 
         newpass.value = ""
@@ -384,14 +389,14 @@ function updateChan() {
 function leaveChan() {
     let chanid: number = chandisp.value.idch
     let userid: number = User.id
-    socket.emit('leaveChannel', { chanid, userid }, response => {
+    socket.emit('leaveChannel', { chatId: chanid, userId: userid }, response => {
         displayJoined()
     })
 }
 
 function deleteChan() {
     let chanid: number = chandisp.value.idch
-    socket.emit('deleteChannel', { chanid }, response => {
+    socket.emit('deleteChannel', { id: chanid }, response => {
         displayJoined()
     })
 }
