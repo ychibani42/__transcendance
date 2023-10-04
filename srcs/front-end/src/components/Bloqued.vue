@@ -54,7 +54,9 @@ function unblockFriend() {
     <div class="Bloqued">
       <ul v-for="Bloqueds in Bloqued">
         <li class="lis">
-        <button class="Ubtn" @click="clicked(Bloqueds.user.id)"> {{ Bloqueds.user.name }}</button>  
+          <div class="User">
+            <button class="Ubtn" @click="clicked(Bloqueds.user.id)"> {{ Bloqueds.user.name }}</button>  
+          </div>
         </li>
         <div class="modal" v-if="clicking == true && Bloqueds.user.id == click">
           <button class="modal-btn" v-on:click="unblockFriend(Bloqueds.user.id)">unblock Friend</button>
@@ -69,6 +71,7 @@ function unblockFriend() {
 ul {
   display: flex;
   justify-content: center;
+  flex-direction: column;
   list-style: none;
   padding: 0;
   margin-top: 0.5rem;
@@ -102,8 +105,9 @@ ul {
     left: 0;
     right: 0;
     z-index: 3;
-    background-color: rgba(74, 72, 72, 0.3);
+    background-color: rgba(74, 72, 72, 0.7);
     display: flex;
+    gap: 0.5rem;
 
     justify-content: center;
     align-items: center;
@@ -127,6 +131,29 @@ ul {
       }
 }
 
+.User{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow-y: auto;
+  width: 100%;
+  button{
+    background-color: #bfc7cb;
+      color: #141d22;
+      border: 1px solid #1a4258;
+      border-radius: 8px;
+      text-align: center;
+      padding: 7px;
+      width: 100%;
+      transition: 0.2s ease-in-out;
+
+      &:hover {
+        border: 2px solid #131719;
+        background-color: #4ade80;;
+      }
+  }
+
+}
 }
 
 </style>

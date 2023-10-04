@@ -62,6 +62,7 @@ async function checkJwt() : Promise<boolean>
     {
       if(res.status == 200)
       {
+        console.log("otp :", res.data.otpenable , "opt valid :",res.data.otpvalider)
         store.commit('setUserId',res.data.id)
         store.commit('setProfileC',res.data.profilefinish)
         store.commit('setTwofa',res.data.otpenable)

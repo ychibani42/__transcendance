@@ -98,9 +98,9 @@ function blockFriend(id : Number){
     left: 0;
     right: 0;
     z-index: 3;
-    background-color: rgba(74, 72, 72, 0.3);
+    background-color: rgba(74, 72, 72, 0.7);
     display: flex;
-    display: flex;
+    gap: 0.5rem;
 
     justify-content: center;
     align-items: center;
