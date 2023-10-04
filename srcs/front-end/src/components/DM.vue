@@ -39,14 +39,16 @@ async function getFriend(){
 onBeforeMount(() => {
   getFriend()
   getBlocked()
-  
+  console.log(amigo)
     if (store.getters.getDM == true)
          createDM(amigo)
        
     socket.on('messageDM',(arg1 : string) => {
         DM.value.messages.push(arg1);
+
     })
     socket.on('createDM', (arg1: any) => {
+        console.log('la', arg1)
         if (arg1 && arg1.user1.name != User.username && arg1.user2.name != User.username)
             return
         else if (arg1 && arg1.user1.name != User.username)
@@ -107,6 +109,7 @@ function createMessage() {
 function createDM (friend: any) {
   let user1Id: number = User.id
   let user2Id: number = friend.id
+  console.log('ici', User, friend)
   if (isBlocked(user2Id))
       return
     socket.emit('createDM', { user1: user1Id, user2: user2Id }, response => {

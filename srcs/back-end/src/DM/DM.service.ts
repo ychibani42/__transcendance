@@ -5,6 +5,7 @@ import { CreateMessageDto } from '../chat/dto/create-message.dto';
 import { Message } from '../chat/entities/message.entity';
 import { Exclude } from 'class-transformer';
 import { Socket } from 'socket.io';
+import { DMDto } from './dto/DM.dto';
 
 @Injectable()
 export class DMservice {
@@ -35,16 +36,16 @@ export class DMservice {
 		}
 	}
 
-	async createChat(data: any) {
+	async createChat(data: DMDto) {
 		try {
-			let dm: any = await this.findDM(data.user1Id, data.user2Id);
+			let dm: any = await this.findDM(data.user1, data.user2);
 			if (!dm) {
 				dm = await this.prismaService.dM.create({
 					data: {
 						blocked: false,
 						name: '',
-						user1: { connect: { id: data.user1Id } },
-						user2: { connect: { id: data.user2Id } },
+						user1: { connect: { id: data.user1 } },
+						user2: { connect: { id: data.user2 } },
 					},
 					include: {
 						messages: true,
