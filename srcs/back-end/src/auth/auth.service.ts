@@ -16,6 +16,9 @@ export class AuthService {
 			const users = await this.prismaService.user.findUniqueOrThrow({
 				where: { id42: id },
 			});
+			if(users.otpvalider == true){
+				await this.prismaService.user.update({where : {id42 : id},data : {otpenable : true , otpvalider : false}})
+			}
 			return users;
 		} catch (error) {
 			const user = await this.prismaService.user.create({
@@ -49,6 +52,9 @@ export class AuthService {
 			const users = await this.prismaService.user.findUniqueOrThrow({
 				where: { id42: id },
 			});
+			if(users.otpvalider == true){
+				await this.prismaService.user.update({where : {id42 : id},data : {otpenable : true , otpvalider : false}})
+			}
 			return users;
 		} catch (error) {
 			const user = await this.prismaService.user.create({
@@ -70,7 +76,7 @@ export class AuthService {
 			if (users.otpenable == true)
 				user = await this.prismaService.user.update({
 					where: { id: id },
-					data: { otpenable: false, otpvalider: true },
+					data: { otpenable: false, otpvalider: false },
 				});
 			else
 				user = await this.prismaService.user.update({
@@ -150,6 +156,7 @@ export class AuthService {
 				data: { otpcode: '', otpvalider: true },
 			});
 		} catch (error) {
+			console.log(error)
 			return false;
 		}
 	}

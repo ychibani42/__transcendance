@@ -106,15 +106,10 @@ const store = createStore(
                 this.state.user.friend =[],
                 this.state.user.Twofa = false,
                 this.state.user.online = false
-                if(this.state.state){ 
-                    this.state.state.disconnect()
-                }
-                if(this.state.gamesock){
-                    this.state.gamesock.disconnect()
-                }
-                if(this.state.chatsock) { 
-                    this.state.chatsock.disconnect() 
-                }
+                this.state.state?.disconnect()
+                this.state.gamesock?.disconnect()
+                this.state.chatsock?.disconnect() 
+    
             },
             Inviteoff(){
                 this.state.state?.off('invited')
@@ -133,7 +128,6 @@ const store = createStore(
                 })
                 this.state.gamename = ""
                 this.state.gameInviteID = 0
-                console.log(this.state.state)
             },
             refused(){
                 this.state.gamesock?.emit("Delete",{name : this.state.user.username})
@@ -166,6 +160,7 @@ const store = createStore(
                 this.state.state?.on("AlreadyInvite",() => {
                     this.dispatch("Inviteon")
                     toast("This friend is already Invited or in Game", {
+                        type: "error",
                         autoClose: true,
                         closeOnClick: true,
                         closeButton : false,

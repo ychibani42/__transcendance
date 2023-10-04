@@ -279,7 +279,6 @@ export class ChatGateway {
 				i++;
 
 				setTimeout(() => {
-					console.log('unmute')
 					this.unmuted(data)
 				}, data.duration * 60000)
 			}
