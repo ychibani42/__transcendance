@@ -112,6 +112,11 @@ export class StateService {
                     client.emit('AlreadyInvite')
                     return
                 }
+                if(invited.state == 'Disconected')
+                {
+                    client.emit('Disco')
+                    return
+                }
                 this.User.forEach((element) => {
                     if(element.id == id)
                     {

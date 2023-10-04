@@ -166,6 +166,15 @@ const store = createStore(
                         closeButton : false,
                     })
                 })
+                this.state.state?.on("Disco",() => {
+                    this.dispatch("Inviteon")
+                    toast("This user is disconected", {
+                        type: "error",
+                        autoClose: true,
+                        closeOnClick: true,
+                        closeButton : false,
+                    })
+                })
             }
         }
     }
