@@ -83,7 +83,6 @@ function displayDM () {
     let name: string = User.name
     socket.emit('findAllDM', { userid, name }, (response) => {
 		    friend.value = response
-            console.log(response)
 	    });
 }
 
@@ -98,7 +97,6 @@ function createMessage() {
 
 
 function createDM (friend: any) {
-    console.log(friend)
   let user1Id: number = User.id
   let user2Id: number = friend.id
 	socket.emit('createDM', { user1Id, user2Id }, response => {

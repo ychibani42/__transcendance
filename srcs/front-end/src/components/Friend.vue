@@ -3,10 +3,17 @@ import { ref , onMounted} from 'vue';
 import Axios from '../services';
 import store from '../store';
 // import router from '../router';
-import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
 
+const emit = defineEmits(['refrr'])
+
 const router = useRouter()
+
+const refresh = () => {
+    getFriend()
+}
+defineExpose({refresh})
 
 const ID = ref()
 const friend = ref([])
@@ -49,7 +56,7 @@ function GAME(id : Number){
     store.commit("setGameID",id)
   }
   else{
-      toast("You have already invite someone",
+      toast("You have already invite someone or invited",
       {
          type : "error"
       })
@@ -81,7 +88,7 @@ function GotoDM(friend: any) {
 
 function blockFriend(id : Number){
   Axios.post('friend/blocked', { id:  ID.value,  blockid:  id }).then((res) => {
-      console.log(res.status)   
+      emit("refrr")   
   })
   clicking.value = false
   click.value = 0

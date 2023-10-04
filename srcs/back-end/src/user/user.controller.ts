@@ -48,7 +48,6 @@ export class UserController {
 		@Param('id', ParseIntPipe) id: number,
 		@UploadedFile() file: Express.Multer.File
 	) {
-		console.log(id, file.filename);
 		await this.userService.updatePP(id, file);
 	}
 

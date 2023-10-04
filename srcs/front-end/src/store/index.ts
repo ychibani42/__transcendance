@@ -128,7 +128,6 @@ const store = createStore(
                 })
                 this.state.gamename = ""
                 this.state.gameInviteID = 0
-                console.log(this.state.state)
             },
             refused(){
                 this.state.gamesock?.emit("Delete",{name : this.state.user.username})

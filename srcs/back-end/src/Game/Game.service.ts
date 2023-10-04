@@ -338,7 +338,6 @@ export class GameService {
 	stoploop() {
 		if (this.Rooms.length != 0) return;
 		try {
-			console.log('end inter');
 			if (this.schedulerRegistry.doesExist('interval', 'game')) {
 				this.schedulerRegistry.deleteInterval('game');
 			}
@@ -349,7 +348,6 @@ export class GameService {
 
 	addInterval() {
 		try {
-			console.log('add inter');
 			const interval = setInterval(this.rungame, 15, this);
 			this.schedulerRegistry.addInterval('game', interval);
 		} catch (error) {

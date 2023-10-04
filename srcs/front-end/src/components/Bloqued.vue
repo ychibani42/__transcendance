@@ -3,10 +3,19 @@ import { useStore } from 'vuex';
 import { ref , onMounted, onBeforeMount } from 'vue';
 import Axios from '../services';
 
+const emit = defineEmits(['refrr'])
+
 const ID = ref()
 const Bloqued = ref([])
 const clicking = ref(false)
 const click = ref(0)
+
+
+const refresh = () => {
+    getBloqued()
+}
+defineExpose({refresh})
+
 
 async function getBloqued(){
   await Axios.get('auth/Me').then(res => {
@@ -16,7 +25,6 @@ async function getBloqued(){
   Axios.post('friend/blocklist',{id : ID.value}).then((res) => {
         Bloqued.value = res.data;
   })
-
 }
 
 onMounted(() => {
@@ -44,7 +52,7 @@ function clicked(nbr : number){
 
 function unblockFriend() {
   Axios.post('friend/unblock',{id: ID.value, blockid: click.value}).then((res) => {
-    getBloqued()
+    emit("refrr")
   })
 }
 
@@ -80,6 +88,8 @@ ul {
   .lis {
     width: 100%;
     display: flex;
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
     justify-content: center;
     button {
       background-color: #bfc7cb;
@@ -129,7 +139,7 @@ ul {
         border: 2px solid #131719;
         background-color: #4ade80;;
       }
-}
+}}
 
 .User{
   display: flex;
@@ -143,7 +153,7 @@ ul {
       border: 1px solid #1a4258;
       border-radius: 8px;
       text-align: center;
-      padding: 7px;
+      padding: 7px 0;
       width: 100%;
       transition: 0.2s ease-in-out;
 
@@ -151,9 +161,7 @@ ul {
         border: 2px solid #131719;
         background-color: #4ade80;;
       }
+    }
   }
-
-}
-}
 
 </style>

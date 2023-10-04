@@ -248,7 +248,6 @@ onBeforeRouteLeave((to,from,next) => {
         else
         {
             state.state.gamesock.emit("LeaveGame")
-            console.log("LEAVE")
             state.dispatch('Inviteon')
             state.state.gamesock?.disconnect()
             next() 
