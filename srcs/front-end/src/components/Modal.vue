@@ -17,9 +17,10 @@
                 </div>
 
                 <div v-if="stat == 'unadmin'" > 
-                  <div class="list-user" v-for="users in chandisp.admin" > 
-                    <div class="checkbox" v-if="User.id != users.id && users.id != chandisp.ownerId ">
-                      <div class="checking"><input type="checkbox" :value="users.userId" v-model="checked">  </div> 
+                  <div class="list-user" v-for="users in chandisp.admin" >
+                    <div class="checkbox" v-if="User.id != users.user.id && users.user.id != chandisp.ownerId ">
+                      <div class="checking"><input type="checkbox" :value="users.user.id" v-model="checked">  </div> 
+                     
                       <div class="name">{{ users.user.name }}</div>
                       
                     </div>
@@ -29,21 +30,13 @@
 
                 <div v-if="stat == 'unbanned'" >
                   <div class="list-user" v-for="users in chandisp.banned" > 
-                    <div class="checkbox" v-if="User.id != users.id">
-                      <div class="checking"><input type="checkbox" :value="users.userId" v-model="checked"> </div>
+                    <div class="checkbox" v-if="User.id != users.user.id">
+                      <div class="checking"><input type="checkbox" :value="users.user.id" v-model="checked"> </div>
                       <div class="name">{{ users.user.name }}</div>
                     </div>
                   </div>
                 </div>
 
-                <!-- <div v-if="stat == 'unmuted'" >
-                  <div class="list-user" v-for="users in chandisp.muted" > 
-                    <div class="checkbox" v-if="User.id != users.id">
-                      <input type="checkbox" :value="users.id" v-model="checked"> 
-                      <div class="name">{{ users.user.name }}</div>
-                    </div>
-                  </div>
-                </div>  -->
                  <div v-if="stat == 'muted'"> 
                     Time:
                       <select name="time" id="time">

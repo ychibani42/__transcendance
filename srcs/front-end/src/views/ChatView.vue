@@ -65,6 +65,7 @@ const isPassword = ref(false)
 
 onBeforeMount(() => {
     getBlocked()
+   
     inDM.value = store.getters.getDM;
     if (inDM.value == true)
         displayDM()
@@ -74,8 +75,9 @@ onBeforeMount(() => {
         chandisp.value.messages.push(arg1);
     })
     socket.on('unadmin', (arg1:any) => {
+        
         chandisp.value.admin.forEach(element => {
-                if(element.id == arg1.id){
+                if(arg1 && element.id == arg1.id){
                     chandisp.value.admin.splice(chandisp.value.admin.indexOf(element), 1)
                 }
         })   
@@ -83,14 +85,13 @@ onBeforeMount(() => {
     socket.on('unbanned', (arg1:any) => {
         chandisp.value.banned.forEach(element => {
             if(element.id == arg1.id){
-                console.log(arg1)
                 chandisp.value.banned.splice(chandisp.value.banned.indexOf(element), 1)
             }
         })
     })
     socket.on('unmuted', (arg1:any) => {
         chandisp.value.muted.forEach(element => {
-            if(element.id == arg1.id){
+            if(arg1 && element.id == arg1.id){
                 chandisp.value.muted.splice(chandisp.value.muted.indexOf(element), 1)
             }
         })
@@ -147,7 +148,6 @@ onBeforeMount(() => {
     socket.on('leaveChannel', (arg1: any) => {
         chandisp.value.user.forEach(element => {
         if(element.id == arg1.id){
-            console.log('ici')
             chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
             }
         });
@@ -164,7 +164,6 @@ onBeforeMount(() => {
     })
     socket.on('kicked', (arg1: any) => {
         chandisp.value.user.forEach(element => {
-            console.log(element.id, arg1.id)
             if(element.id == arg1.id){
                 chandisp.value.user.splice(chandisp.value.user.indexOf(element), 1)
             }
@@ -267,6 +266,9 @@ function enterchat(chan : any){
         inJoined.value = true
         displayJoined()
         store.commit("setChandisp", chandisp.value)
+        console.log('banned people', chandisp.value.banned)
+     console.log('admin people', chandisp.value.admin)
+        
     });
     
     
@@ -342,6 +344,7 @@ function settings () {
 function isAdmin() {
     for (let i = 0; i < chandisp.value.admin.length; i++)
     {
+        console.log(chandisp.value.admin[i].user.id, User.id)
         if (chandisp.value.admin[i].user.id == User.id)
             return true
     }

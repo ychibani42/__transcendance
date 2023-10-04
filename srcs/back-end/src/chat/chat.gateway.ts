@@ -47,7 +47,7 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('createRoom')
-	async createRoom(@Body() body :any){
+	async createRoom(@Body() body :CreateChatDto){
 		const chan = await this.chatService.createChat(body);
 		this.server.emit('createRoom', chan)
 		return chan
@@ -146,11 +146,11 @@ export class ChatGateway {
 			while (i < data.userId.length)
 			{
 				let user: any = await this.chatService.unadmin(data.userId[i], data.chatId)
-				console.log('unadmin', data.userId[i])
 				this.server.to(chan.channelName).emit('unadmin', user)
 				i++;
 			}
 		}
+		return chan
 	}
 
 	@SubscribeMessage('unbanned')
@@ -167,6 +167,7 @@ export class ChatGateway {
 				i++;
 			}
 		}
+		return chan
 	}
 
 	@SubscribeMessage('unmuted')
@@ -183,6 +184,7 @@ export class ChatGateway {
 				i++;
 			}
 		}
+		return chan
 	}
 
 	@SubscribeMessage('deleteChannel')
