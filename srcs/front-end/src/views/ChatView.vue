@@ -479,7 +479,12 @@ function blockFriend(id : number){
 function GotoProfile(id: number){
   router.push("/User/" + id)
 }
-
+const messageUser = ref({})
+function keepUser(user: any) {
+    clicking.value = true 
+    console.log(user)
+    messageUser.value = user
+}
 </script>
 
 <template>
@@ -653,23 +658,24 @@ function GotoProfile(id: number){
                         <div class="Autre" v-else>
                             <li v-for="user in chandisp.user">
                                 <!-- <button @click="getBlocked(name.userId)">see blocked</button> -->
-                                <button v-if="user.id == name.userId" @click="clicking = true"> 
+                                <button v-if="user.id == name.userId" @click="keepUser(user)"> 
                                     
-                                        {{ user.name }}: 
-                                        
+                                        {{ user.name }}:
+                                         
                                 </button>
-                                <div class="modal" v-if="clicking == true && user.id == name.userId">
-                                    <button class="modal-btn" v-if="isBlocked(user.id) == false" @click="GotoProfile(user.id)">Profile</button>
-                                    <button class="modal-btn" v-if="isBlocked(user.id) == false" @click="GotoDM(user)">Send DM</button>
-                                    <button class="modal-btn" @click="GAME(user.id)">Invite for Game</button>
+                               <div class="modal" v-if="clicking == true && messageUser.id == name.userId"> 
+                                    <button class="modal-btn" v-if="isBlocked(messageUser.id) == false" @click="GotoProfile(messageUser.id)">Profile</button>
+                                    <button class="modal-btn" v-if="isBlocked(messageUser.id) == false" @click="GotoDM(messageUser)">Send DM</button>
+                                    <button class="modal-btn" @click="GAME(messageUser.id)">Invite for Game</button>
                                     <div class="blocked">
-                                        <button class="modal-btn" v-if="isBlocked(user.id) == false" v-on:click="blockFriend(user.id)">Block Friend</button>
-                                        <button class="modal-btn" v-else v-on:click="unblockFriend(user.id)">Unblock Friend</button>
+                                        <button class="modal-btn" v-if="isBlocked(messageUser.id) == false" v-on:click="blockFriend(messageUser.id)">Block Friend</button>
+                                        <button class="modal-btn" v-else v-on:click="unblockFriend(messageUser.id)">Unblock Friend</button>
                                     </div>
                                     <button class="modal-btn" @click="cancel">Cancel</button>
                                 </div>
                                
                             </li>
+                            <!-- {{ name }} -->
                             <p v-if="isBlocked(name.userId) == false">
                                     {{ name.text }}
                             </p>
@@ -1015,6 +1021,31 @@ function GotoProfile(id: number){
         color:  rgb(9, 10, 9);
        
     }
+    .modal {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 20px 1px;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+  .modal-btn {
+    width: 15rem;
+    height: 3rem;
+    margin: 0.2rem;
+    background-color: rgb(245, 245, 245);
+    color:  rgb(4, 4, 4);
+  }
+}
 }
 .modal {
     position: fixed;
