@@ -202,7 +202,7 @@ export class ChatGateway {
 	@SubscribeMessage('password')
 	async password(client: Socket, data: joinDto) 
 	{
-		const joined = await this.chatService.verifyPassword(data.pass, data.userId, data.chatId)
+		const joined = await this.chatService.verifyPassword(client, data.pass, data.userId, data.chatId)
 		if (joined == true)
 			return this.join(client, data)
 		return null
