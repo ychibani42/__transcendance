@@ -24,7 +24,7 @@ export class AuthService {
 			const user = await this.prismaService.user.create({
 				data: {
 					id42: id,
-					avatar: './storage/uploads/hamoud.gif',
+					avatar: './storage/uploads/default.jpg',
 				},
 			});
 			return user;
